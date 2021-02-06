@@ -5,6 +5,16 @@ version: '3'
 ###
 
 services:
+  hasura:
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/try_hasura
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura-init/migrations
+      HASURA_GRAPHQL_METADATA_DIR: /srv/hasura-init/metadata
+    volumes:
+      - ./codegen-openapi/hasura/migrations:/srv/hasura-init/migrations:ro
+      - ./codegen-openapi/hasura/metadata:/srv/hasura-init/metadata:ro
+
   server-openapi:
     image: server-openapi-local
     environment: {}

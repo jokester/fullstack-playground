@@ -8,16 +8,16 @@ services:
       POSTGRES_PASSWORD: secret
 
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - ./data-pgsql:/var/lib/postgresql/data
     ports:
       - 61432:5432
     restart: on-failure
 
   hasura:
-    image: hasura/graphql-engine:v1.3.3
+    image: hasura/graphql-engine:v1.3.3.cli-migrations-v2
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/try_hasura
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # api + console
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false" # start console with ./scripts/hasura-cli.sh for migration functionality
     links:
       - pgsql
     ports:
