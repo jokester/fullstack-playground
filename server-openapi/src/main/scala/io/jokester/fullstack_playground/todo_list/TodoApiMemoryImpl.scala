@@ -1,18 +1,18 @@
-package io.jokester.tapir_todoapi
+package io.jokester.fullstack_playground.todo_list
+
+import com.typesafe.scalalogging.LazyLogging
+import io.jokester.fullstack_playground.todo_list.TodoApi._
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 
-import com.typesafe.scalalogging.LazyLogging
-
-object ServerLogic extends LazyLogging {
-  import TodoApi._
+class TodoApiMemoryImpl extends TodoApiImpl with LazyLogging {
 
   private val _nextId = new AtomicInteger(0)
   private val _todos  = new AtomicReference[Map[Int, Todo]](Map.empty)
 
-  def list(): Either[ErrorInfo, Seq[Todo]] = Right(_todos.get.values.toSeq)
+  override def list(): Either[ErrorInfo, Seq[Todo]] = Right(_todos.get.values.toSeq)
 
-  def create(req: TodoCreateRequest): Either[ErrorInfo, Todo] = {
+  override def create(req: TodoCreateRequest): Either[ErrorInfo, Todo] = {
     val newItem =
       Todo(id = _nextId.incrementAndGet(), finished = false, title = req.title, desc = req.desc)
     _todos.getAndUpdate(todos => {
@@ -21,10 +21,10 @@ object ServerLogic extends LazyLogging {
     Right(newItem)
   }
 
-  def show(todoId: Int): Either[ErrorInfo, Todo] =
+  override def show(todoId: Int): Either[ErrorInfo, Todo] =
     _todos.get().get(todoId).toRight(NotFound(s"Todo(id=$todoId) not found"))
 
-  def update(todoId: Int, updated: Todo): Either[ErrorInfo, Todo] = {
+  override def update(todoId: Int, updated: Todo): Either[ErrorInfo, Todo] = {
     var ret: Either[ErrorInfo, Todo] = Left(NotFound(s"Todo(id=$todoId) not found"))
 
     _todos.getAndUpdate(todos => {
