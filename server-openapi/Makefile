@@ -1,12 +1,17 @@
 server:
 	sbt "run runServer"
 
-txz: # shorter to type
-	sbt packageXzTarball
+openapi:
+	#                           v to skip sbt output
+	sbt "run openapi" | grep -v -e '^\[' > ../codegen-openapi/todo-api.yaml
 
-target/universal/tapir-todoapi-current.txz: txz
+txz: bin # shorter to type
+	sbt universal:packageXzTarball
 
-image: Dockerfile target/universal/tapir-todoapi-current.txz
+bin:
+	sbt universal:packageBin
+
+image:
 	docker build --file=./Dockerfile target/universal/
 
-.PHONY: target/universal/tapir-todoapi-current.txz
+.PHONY: target/universal/server-openapi-current.txz
