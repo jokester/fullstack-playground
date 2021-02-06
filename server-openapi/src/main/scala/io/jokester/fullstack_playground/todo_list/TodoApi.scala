@@ -8,13 +8,14 @@ import sttp.tapir.openapi.OpenAPI
 
 object TodoApi {
 
-  val endpointList = Seq(
-    endpoints.listTodo,
-    endpoints.showTodo,
-    endpoints.createTodo,
-    endpoints.updateTodo,
-    endpoints.deleteTodo
-  )
+  def endpointList =
+    Seq(
+      endpoints.listTodo,
+      endpoints.showTodo,
+      endpoints.createTodo,
+      endpoints.updateTodo,
+      endpoints.deleteTodo
+    )
 
   def asOpenAPIYaml: String = {
     import sttp.tapir.openapi.circe.yaml._
@@ -55,13 +56,14 @@ object TodoApi {
         .out(jsonBody[Todo])
     val deleteTodo: Endpoint[Int, ErrorInfo, Unit, Any] =
       basePath.delete.in(path[Int])
-    private val basePath = endpoint
-      .in("todos")
-      .errorOut(
-        oneOf[ErrorInfo](
-          statusMapping(StatusCode.NotFound, jsonBody[NotFound].description("not found"))
+    private def basePath =
+      endpoint
+        .in("todos")
+        .errorOut(
+          oneOf[ErrorInfo](
+            statusMapping(StatusCode.NotFound, jsonBody[NotFound].description("not found"))
+          )
         )
-      )
   }
 }
 
