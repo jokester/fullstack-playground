@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  pgsql:
+    image: postgres:12.5
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: secret
+
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - 61432:5432
+    restart: on-failure
+
+  hasura:
+    image: hasura/graphql-engine:v1.3.3
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/try_hasura
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # api + console
+    links:
+      - pgsql
+    ports:
+      - 61081:8080
+    restart: on-failure
+

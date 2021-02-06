@@ -1,0 +1,17 @@
+version: '3'
+
+### a prod-like environment to preview app images
+### example: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+###
+
+services:
+  server-openapi:
+    image: server-openapi-local
+    environment: {}
+    command: runServer
+    links:
+      - pgsql
+      - hasura
+    ports:
+      - 61080:8080
+    restart: on-failure

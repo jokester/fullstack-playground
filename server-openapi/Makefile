@@ -9,6 +9,6 @@ bin:
 	sbt universal:packageBin universal:packageXzTarball
 
 image: bin
-	docker build --file=./Dockerfile target/universal/
+	docker build --tag=server-openapi-local --file=./Dockerfile target/universal/
 
 .PHONY: target/universal/server-openapi-current.txz
