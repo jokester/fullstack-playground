@@ -1,6 +1,7 @@
 package io.jokester.tapir_todoapi
 
 object TodoApi {
+  import sttp.tapir.openapi.OpenAPI
   import sttp.tapir._
   import sttp.tapir.json.circe._
   import io.circe.generic.auto._
@@ -51,5 +52,15 @@ object TodoApi {
     endpoints.updateTodo,
     endpoints.deleteTodo
   )
+
+  def asOpenAPI: OpenAPI = {
+    import sttp.tapir.docs.openapi._
+    TodoApi.endpointList.toOpenAPI("Todos", "1.0")
+  }
+
+  def asOpenAPIYaml: String = {
+    import sttp.tapir.openapi.circe.yaml._
+    asOpenAPI.toYaml
+  }
 
 }

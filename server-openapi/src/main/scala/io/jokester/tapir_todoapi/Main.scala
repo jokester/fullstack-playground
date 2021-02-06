@@ -7,23 +7,15 @@ import com.typesafe.scalalogging.LazyLogging
 
 object Main extends App with LazyLogging {
 
-  logger.debug("ARGV", args)
-
   args.headOption.getOrElse("NONE") match {
-    case "runServer" => AkkaHttpServer.main()
+    case "runServer" =>
+      AkkaHttpServer.main()
 
-    case "openapi" => {
-
-      import sttp.tapir.openapi.OpenAPI
-      import sttp.tapir.docs.openapi._
-      import sttp.tapir.openapi.circe.yaml._
-
-      val docs: OpenAPI = TodoApi.endpointList.toOpenAPI("Todos", "1.0")
-
-      Files.writeString(Path.of("Todos.yaml"), docs.toYaml)
-    }
+    case "openapi" =>
+      println(TodoApi.asOpenAPIYaml)
 
     case _ => {
+      logger.debug("ARGV: {}", args.toList)
       throw new IllegalArgumentException(s"cannot recognize args: ${args.toList}")
     }
 
