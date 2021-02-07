@@ -5,63 +5,59 @@ import io.getquill._
 import java.time.OffsetDateTime
 
 object QuillContext {
-  lazy val ctx = new PostgresJdbcContext(SnakeCase, "quill-ctx.pg")
+  def connect() = new PostgresJdbcContext(SnakeCase, "quill-ctx.pg")
 }
 
-object QuillTables extends QuillDateTimeEncoders {
+class QuillTables(val ctx: PostgresJdbcContext[SnakeCase.type]) extends QuillDateTimeEncoders {
 
-  import QuillContext.ctx
   import ctx._
 
-  case class TodoV1(
+  case class Todo(
       todoId: Int,
       title: String,
       desc: String,
       finishedAt: Option[OffsetDateTime],
       createdAt: OffsetDateTime,
-      updatedAt: OffsetDateTime
+      updatedAt: OffsetDateTime,
   )
 
-  val todoV1: ctx.Quoted[EntityQuery[TodoV1]] = quote {
-    querySchema[TodoV1](
+  val todo: ctx.Quoted[EntityQuery[Todo]] = quote {
+    querySchema[Todo](
       // for some reason this is not used
-      "todo_v1",
+      "todo",
       _.todoId     -> "todo_id",
       _.title      -> "title",
       _.desc       -> """"desc"""",
       _.finishedAt -> "finished_at",
       _.createdAt  -> "created_at",
-      _.updatedAt  -> "updated_at"
+      _.updatedAt  -> "updated_at",
     )
   }
 
-  def listTodo: Seq[TodoV1] = ctx.run(todoV1)
+  def listTodo: Seq[Todo] = ctx.run(todo)
 
-  def showTodo(todoId: Int): Option[TodoV1] =
-    (ctx.run {
-      query[TodoV1].filter(_.todoId == lift(todoId)).take(1)
-    }).headOption
+  def showTodo(todoId: Int): Option[Todo] =
+    ctx.run {
+      query[Todo].filter(_.todoId == lift(todoId)).take(1)
+    }.headOption
 
-  def createTodo(title: String, desc: String): TodoV1 =
+  def createTodo(title: String, desc: String): Todo =
     (ctx.run {
-      todoV1.insert(_.title -> lift(title), _.desc -> lift(desc)).returning(inserted => inserted)
+      todo.insert(_.title -> lift(title), _.desc -> lift(desc)).returning(inserted => inserted)
     })
 
-  def removeTodo(todoId: Int) =
+  def removeTodo(todoId: Int): Int =
     (ctx.run {
-      todoV1.filter(_.todoId == lift(todoId)).delete
+      todo.filter(_.todoId == lift(todoId)).delete
     }).toInt
 
   def updateTodoState(todoId: Int, finishedAt: Option[OffsetDateTime]) =
-    (
-      ctx.run {
-        todoV1
-          .filter(_.todoId == lift(todoId))
-          .update(
-            _.finishedAt
-              -> lift(finishedAt)
-          )
-
-      }
-    )
+    ctx.run {
+      todo
+        .filter(_.todoId == lift(todoId))
+        .update(
+          _.finishedAt
+            -> lift(finishedAt),
+        )
+    }
 }

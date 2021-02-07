@@ -6,13 +6,13 @@ object Dependencies {
       // logging
       "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.2",
       "ch.qos.logback"              % "logback-classic" % "1.2.3", // this provides SLJ4J backend
-      "com.typesafe.akka"          %% "akka-slf4j"      % Versions.akkaStreams
+      "com.typesafe.akka"          %% "akka-slf4j"      % Versions.akkaStreams,
     ),
     Seq(
       // circe
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
-      "io.circe" %% "circe-parser"
+      "io.circe" %% "circe-parser",
     ).map(_ % Versions.circe),
     Seq(
       // sttp / tapir
@@ -20,7 +20,7 @@ object Dependencies {
       "com.softwaremill.sttp.tapir" %% "tapir-json-circe",
       "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs",
       "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml",
-      "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server"
+      "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server",
       //      "com.softwaremill.sttp.client3" %% "core"            % Versions.sttp
     ).map(_ % "0.17.0-M4"),
     Seq(
@@ -28,22 +28,38 @@ object Dependencies {
       "com.typesafe.akka" %% "akka-stream"      % Versions.akkaStreams,
       "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
       "com.typesafe.akka" %% "akka-actor-typed" % Versions.akkaStreams,
-      "ch.megard"         %% "akka-http-cors"   % "1.1.0"
+      "ch.megard"         %% "akka-http-cors"   % "1.1.0",
     ),
     Seq(
-      // pgsql / quill / hikariCP
-      "org.postgresql" % "postgresql" % "42.2.8",
-      "io.getquill"   %% "quill-jdbc" % "3.6.0"
-//      "com.zaxxer"     % "HikariCP"   % "4.0.1"
-    ),
+      Seq(
+        // pgsql / hikariCP
+        "org.postgresql" % "postgresql" % "42.2.8",
+        //      "com.zaxxer"     % "HikariCP"   % "4.0.1", // this resolves to bad version
+      ),
+      Seq(
+        // quill
+        "io.getquill" %% "quill-jdbc" % "3.6.0",
+      ),
+      Seq(
+        // slick
+        "com.typesafe.slick" %% "slick",
+        "com.typesafe.slick" %% "slick-hikaricp",
+        "com.typesafe.slick" %% "slick-codegen",
+      ).map(_ % Versions.slick),
+      Seq(
+        // slick-pg
+        "com.github.tminglei" %% "slick-pg",
+        "com.github.tminglei" %% "slick-pg_circe-json",
+      ).map(_ % Versions.slickPg),
+    ).flatten,
     Seq(
-      "com.typesafe" % "config" % "1.4.1"
+      "com.typesafe" % "config" % "1.4.1",
       // rest
-    )
+    ),
   ).flatten
 
   lazy val testDeps: Seq[ModuleID] = Seq(
-    "org.scalatest" %% "scalatest" % "3.1.1"
+    "org.scalatest" %% "scalatest" % "3.1.1",
   ).map(_ % Test)
 
   lazy val buildDeps: Seq[ModuleID] = Seq.empty
@@ -69,6 +85,8 @@ private object Versions {
   val scalaCheck              = "1.14.3"
   val scalaTest               = "3.2.2"
   val scalaTestPlusScalaCheck = "3.2.2.0"
+  val slick                   = "3.3.3"
+  val slickPg                 = "0.19.3"
   val refined                 = "0.9.17"
   val enumeratum              = "1.6.1"
   val zio                     = "1.0.3"

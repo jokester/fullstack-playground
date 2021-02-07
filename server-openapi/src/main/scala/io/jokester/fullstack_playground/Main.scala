@@ -5,10 +5,13 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import io.jokester.fullstack_playground.akka_openapi.AkkaHttpServer
 import io.jokester.fullstack_playground.quill_db.{QuillContext, QuillTables}
+import io.jokester.fullstack_playground.slick_db.{Connection, Todos}
 import io.jokester.fullstack_playground.todo_list.{TodoApi, TodoApiImpl, TodoApiMemoryImpl}
+import org.slf4j.LoggerFactory
 
 import java.time.OffsetDateTime
 import scala.concurrent.Future
+import scala.util.Using
 
 object Main extends App with LazyLogging {
 
@@ -23,9 +26,9 @@ object Main extends App with LazyLogging {
         TodoApi.endpoints.listTodo.toRoute(_ => Future.successful(impl.list())),
         TodoApi.endpoints.createTodo.toRoute(req => Future.successful(impl.create(req))),
         TodoApi.endpoints.deleteTodo.toRoute(req =>
-          Future.successful(impl.remove(req).map(_ => ()))
+          Future.successful(impl.remove(req).map(_ => ())),
         ),
-        TodoApi.endpoints.updateTodo.toRoute(req => Future.successful(impl.update(req._1, req._2)))
+        TodoApi.endpoints.updateTodo.toRoute(req => Future.successful(impl.update(req._1, req._2))),
       ).reduce(_ ~ _)
 
     }
@@ -34,30 +37,46 @@ object Main extends App with LazyLogging {
   }
 
   def runQuillSelect(): Unit = {
-    try {
-      logger.debug("listTodo(): {}", QuillTables.listTodo)
-      logger.debug("showTodo(1): {}", QuillTables.showTodo(1))
-      logger.debug("showTodo(-1): {}", QuillTables.showTodo(-1))
+    Using(QuillContext.connect()) { ctx =>
+      val table = new QuillTables(ctx)
+      logger.debug("listTodo(): {}", table.listTodo)
+      logger.debug("showTodo(1): {}", table.showTodo(1))
+      logger.debug("showTodo(-1): {}", table.showTodo(-1))
 
-      val created = QuillTables.createTodo("title", "desc")
+      val created = table.createTodo("title", "desc")
       logger.debug("createTodo(): {}", created)
 
-      logger.debug("removeTodo(-1): {}", QuillTables.removeTodo(-1))
+      logger.debug("removeTodo(-1): {}", table.removeTodo(-1))
+      // FIXME: cant get update working
       logger.debug(
         "updateTodo({}): {}",
         created.todoId,
-        QuillTables.updateTodoState(created.todoId, None: Option[OffsetDateTime])
+        table.updateTodoState(created.todoId, None),
       )
       logger.debug(
         "updateTodo({}): {}",
         created.todoId,
-        QuillTables.updateTodoState(created.todoId, Some(OffsetDateTime.now()))
+        table.updateTodoState(created.todoId, Some(OffsetDateTime.now())),
       )
 
-      logger.debug("removeTodo({}): {}", created.todoId, QuillTables.removeTodo(created.todoId))
-    } finally {
-      QuillContext.ctx.close()
+      logger.debug("removeTodo({}): {}", created.todoId, table.removeTodo(created.todoId))
     }
+    Thread.sleep(5000)
+  }
+
+  def runSlick(): Unit = {
+    Using(Connection.connectPg()) { db =>
+      val logger2 = LoggerFactory.getLogger("io.jokester.some")
+      logger2.debug(s"slick db: ${db}")
+      logger2.debug(s"lazylogging logger: ${logger}")
+      logger.debug(s"lazylogging logger: ${logger}")
+      Todos.runQueries(db)
+
+      logger.debug(s"lazylogging logger: ${logger}")
+
+    }
+    Thread.sleep(1000)
+
   }
 
   args.headOption.getOrElse("NONE") match {
@@ -68,6 +87,8 @@ object Main extends App with LazyLogging {
       println(ConfigFactory.load().withOnlyPath("quill-ctx.pg"))
     case "runQuillSelect" =>
       runQuillSelect()
+    case "runSlick" =>
+      runSlick()
     case "openapi" =>
       println(TodoApi.asOpenAPIYaml)
 
