@@ -1,26 +1,25 @@
-import type { DefaultApi } from '../generated/ts-fetch';
+import type { DefaultApi } from '../generated/openapi-fetch';
 import { inServer } from '../config/build-env';
 import { Never } from '@jokester/ts-commonutil/lib/concurrency/timing';
 import { useEffect, useState } from 'react';
 import { PromiseResult, usePromised } from '@jokester/ts-commonutil/lib/react/hook/use-promised';
-import { Configuration } from '../generated/ts-fetch';
 
 const apiP: Promise<DefaultApi> = inServer
   ? Never
-  : import('../generated/ts-fetch').then(
+  : import('../generated/openapi-fetch').then(
       (_) =>
         new _.DefaultApi(
-          new Configuration({
+          new _.Configuration({
             basePath: `http://127.0.0.1:8080`,
           }),
         ),
     );
 
-export function getApiClient() {
-  return apiP;
+export function callFetchApiClient<T>(task: (api: DefaultApi) => Promise<T>): Promise<T> {
+  return apiP.then(task);
 }
 
-export function useApiResult<T>(
+export function useFetchApiResult<T>(
   task: (api: DefaultApi) => Promise<T>,
   deps?: unknown[],
 ): readonly [PromiseResult<T>, () => void] {
@@ -30,15 +29,12 @@ export function useApiResult<T>(
   useEffect(
     () => {
       let effective = true;
-
-      apiP.then((api) => {
-        if (effective) setResultP(task(api));
-      });
-
+      apiP.then((api) => effective && setResultP(task(api)));
       return () => {
         effective = false;
       };
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     deps ? [count, ...deps] : [count],
   );
 
