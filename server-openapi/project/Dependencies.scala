@@ -2,27 +2,38 @@ import sbt._
 
 object Dependencies {
   lazy val runtimeDeps: Seq[ModuleID] = Seq(
-    // logging
-    "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.2",
-    "ch.qos.logback"              % "logback-classic" % "1.2.3", // this provides SLJ4J backend
-    "com.typesafe.akka" %% "akka-slf4j" % Versions.akkaStreams
-    //      "com.softwaremill.sttp.client3" %% "core"            % Versions.sttp
-  ) ++ Seq(
-    "io.circe" %% "circe-core",
-    "io.circe" %% "circe-generic",
-    "io.circe" %% "circe-parser"
-  ).map(_ % Versions.circe) ++ Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-core",
-    "com.softwaremill.sttp.tapir" %% "tapir-json-circe",
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs",
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml",
-    "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server"
-  ).map(_ % "0.17.0-M4") ++ Seq(
-    "com.typesafe.akka" %% "akka-stream"      % Versions.akkaStreams,
-    "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
-    "com.typesafe.akka" %% "akka-actor-typed" % Versions.akkaStreams,
-    "ch.megard"         %% "akka-http-cors"   % "1.1.0"
-  )
+    Seq(
+      // logging
+      "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.2",
+      "ch.qos.logback"              % "logback-classic" % "1.2.3", // this provides SLJ4J backend
+      "com.typesafe.akka"          %% "akka-slf4j"      % Versions.akkaStreams
+    ),
+    Seq(
+      // circe
+      "io.circe" %% "circe-core",
+      "io.circe" %% "circe-generic",
+      "io.circe" %% "circe-parser"
+    ).map(_ % Versions.circe),
+    Seq(
+      // sttp / tapir
+      "com.softwaremill.sttp.tapir" %% "tapir-core",
+      "com.softwaremill.sttp.tapir" %% "tapir-json-circe",
+      "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs",
+      "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml",
+      "com.softwaremill.sttp.tapir" %% "tapir-akka-http-server"
+      //      "com.softwaremill.sttp.client3" %% "core"            % Versions.sttp
+    ).map(_ % "0.17.0-M4"),
+    Seq(
+      // akka
+      "com.typesafe.akka" %% "akka-stream"      % Versions.akkaStreams,
+      "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
+      "com.typesafe.akka" %% "akka-actor-typed" % Versions.akkaStreams,
+      "ch.megard"         %% "akka-http-cors"   % "1.1.0"
+    ),
+    Seq(
+      // rest
+    )
+  ).flatten
 
   lazy val testDeps: Seq[ModuleID] = Seq(
     "org.scalatest" %% "scalatest" % "3.1.1"
@@ -57,5 +68,4 @@ private object Versions {
   val zioInteropCats          = "2.2.0.1"
   val playServer              = "2.8.2"
   val tethys                  = "0.11.0"
-  val vertx                   = "3.9.1"
 }

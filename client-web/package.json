@@ -18,17 +18,24 @@
     "lint:fix": "eslint '**/*.@(ts|js|tsx|jsx)' --fix"
   },
   "dependencies": {
+    "@apollo/react-hooks": "^4.0.0",
     "@chakra-ui/react": "^1.1.4",
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
     "@jokester/ts-commonutil": "^0.2.3",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link-http": "^1.5.17",
     "framer-motion": "^3.2.1",
+    "graphql": "^15.5.0",
+    "graphql-tag": "^2.11.0",
     "next": "^10.0.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-use": "^15.3.8",
+    "react-use": "^17.1.0",
     "rxjs": "^6.6.3",
-    "tslib": "^2.1.0"
+    "tslib": "^2.1.0",
+    "use-constant": "^1.1.0"
   },
   "devDependencies": {
     "@types/jest": "^26",
@@ -56,6 +63,7 @@
     "typescript": "^4.1"
   },
   "resolutions": {
-    "postcss": "^8"
+    "postcss": "^8",
+    "tslib": "^2"
   }
 }
