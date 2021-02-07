@@ -3,6 +3,7 @@ import { callRxApiClient as callFetchApiClient, useApiResult as useFetchApiResul
 import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/use-concurrency-control';
 import { Todo } from '../generated/openapi-fetch';
 import { Button, List, ListItem } from '@chakra-ui/react';
+import { useMounted } from '@jokester/ts-commonutil/lib/react/hook/use-mounted';
 
 export const RxTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (props) => {
   const [todoList, reloadList] = useFetchApiResult(
@@ -15,6 +16,8 @@ export const RxTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (
   );
 
   const [lock, lockDepth] = useConcurrencyControl();
+  const mounted = useMounted();
+  const onReload = () => mounted.current && (props.onMutated ? props.onMutated() : reloadList());
 
   const onCreate = () =>
     lock(async (mounted) => {
@@ -27,22 +30,19 @@ export const RxTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (
         }),
       );
 
-      props.onMutated?.();
-      await reloadList();
+      onReload();
     });
 
   const onDelete = (item: Todo) =>
     lock(async () => {
       const x = await callFetchApiClient((api) => api.deleteTodosP1({ p1: item.id }));
-      props.onMutated?.();
-      reloadList();
+      onReload();
     });
 
   const onUpdate = (modified: Todo) =>
     lock(async () => {
       const x = await callFetchApiClient((api) => api.patchTodosTodoP1({ p1: modified.id, todo: modified }));
-      props.onMutated?.();
-      reloadList();
+      onReload();
     });
 
   return (
