@@ -4,13 +4,13 @@ import gql from 'graphql-tag';
  * dummy queries for graphql-codegen
  */
 if (1) {
-  // throw new Error('do not import this file');
+  throw new Error('do not import this file');
 }
 
 namespace todosApiV1 {
   const getAllTodosV1 = gql`
     query getAllTodosV1 {
-      todos_v1 {
+      todo_v1 {
         todo_id
         title
         desc
@@ -23,7 +23,7 @@ namespace todosApiV1 {
 
   const createTodoV1 = gql`
     mutation insert_todos($title: String!, $desc: String!) {
-      insert_todos_v1(objects: { title: $title, desc: $desc }) {
+      insert_todo_v1(objects: { title: $title, desc: $desc }) {
         affected_rows
         returning {
           todo_id

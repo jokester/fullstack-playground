@@ -31,6 +31,13 @@ object Dependencies {
       "ch.megard"         %% "akka-http-cors"   % "1.1.0"
     ),
     Seq(
+      // pgsql / quill / hikariCP
+      "org.postgresql" % "postgresql" % "42.2.8",
+      "io.getquill"   %% "quill-jdbc" % "3.6.0"
+//      "com.zaxxer"     % "HikariCP"   % "4.0.1"
+    ),
+    Seq(
+      "com.typesafe" % "config" % "1.4.1"
       // rest
     )
   ).flatten
