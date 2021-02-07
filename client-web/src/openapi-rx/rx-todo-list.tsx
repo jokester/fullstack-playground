@@ -1,31 +1,27 @@
-import React, { useState } from 'react';
-import { getApiClient, useApiResult } from '../hooks/use-api';
+import React from 'react';
+import { callRxApiClient as callFetchApiClient, useApiResult as useFetchApiResult } from './use-rx-api';
 import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/use-concurrency-control';
-import { Todo } from '../generated/ts-fetch/models';
-import {
-  Button,
-  Heading,
-  List,
-  ListItem,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
+import { Todo } from '../generated/openapi-fetch';
+import { Button, List, ListItem } from '@chakra-ui/react';
+import { useMounted } from '@jokester/ts-commonutil/lib/react/hook/use-mounted';
 
-export const TodoList: React.FC = () => {
-  const [todoList, reloadList] = useApiResult((api) =>
-    api.getTodos().then((todos) => todos.sort((a, b) => b.id - a.id)),
+export const RxTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (props) => {
+  const [todoList, reloadList] = useFetchApiResult(
+    (api) =>
+      api
+        .getTodos()
+        .toPromise()
+        .then((todos) => todos.sort((a, b) => b.id - a.id)),
+    [props.revision],
   );
 
   const [lock, lockDepth] = useConcurrencyControl();
+  const mounted = useMounted();
+  const onReload = () => mounted.current && (props.onMutated ? props.onMutated() : reloadList());
 
   const onCreate = () =>
-    lock(async () => {
-      const created = await getApiClient().then((api) =>
+    lock(async (mounted) => {
+      const created = await callFetchApiClient((api) =>
         api.postTodos({
           todoCreateRequest: {
             title: `title-${Date.now()}`,
@@ -34,19 +30,19 @@ export const TodoList: React.FC = () => {
         }),
       );
 
-      await reloadList();
+      onReload();
     });
 
   const onDelete = (item: Todo) =>
     lock(async () => {
-      const x = await getApiClient().then((api) => api.deleteTodosP1({ p1: item.id }));
-      reloadList();
+      const x = await callFetchApiClient((api) => api.deleteTodosP1({ p1: item.id }));
+      onReload();
     });
 
   const onUpdate = (modified: Todo) =>
     lock(async () => {
-      const x = await getApiClient().then((api) => api.patchTodosTodoP1({ p1: modified.id, todo: modified }));
-      reloadList();
+      const x = await callFetchApiClient((api) => api.patchTodosTodoP1({ p1: modified.id, todo: modified }));
+      onReload();
     });
 
   return (
