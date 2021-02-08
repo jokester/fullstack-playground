@@ -5,6 +5,10 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import io.jokester.fullstack_playground.akka_openapi.AkkaHttpServer
 import io.jokester.fullstack_playground.quill_db.{QuillContext, QuillTables}
+import io.jokester.fullstack_playground.scalikejdbc_db.{
+  ScalikeJDBCConnection,
+  ScalikeTodoRepository,
+}
 import io.jokester.fullstack_playground.slick_db.{Connection, Todos}
 import io.jokester.fullstack_playground.todo_list.{TodoApi, TodoApiImpl, TodoApiMemoryImpl}
 import org.slf4j.LoggerFactory
@@ -79,6 +83,38 @@ object Main extends App with LazyLogging {
 
   }
 
+  def runScalikeJDBC() = {
+    ScalikeJDBCConnection.showPools()
+    ScalikeJDBCConnection.initNamed()
+    ScalikeJDBCConnection.showPools()
+
+    ScalikeJDBCConnection
+      .db2()
+      .localTx(implicit session => {
+        import io.jokester.fullstack_playground.genereated_scalikejdbc.Todo
+        val a = Todo.findAll()
+
+        logger.debug(s"findAll(): ${a}")
+
+//        val created =
+//          models.Todo.create("ti##tle", "des$$$c", None, OffsetDateTime.MIN, OffsetDateTime.MAX)
+//        logger.debug(s"create(): ${created}")
+
+      })
+
+    ScalikeJDBCConnection
+      .db2()
+      .localTx(implicit session => {
+        logger.debug(s"findDesc(1) = ${ScalikeTodoRepository.findDesc(1)}")
+
+      })
+  }
+
+  if (1 > 0) {
+    runScalikeJDBC()
+
+  }
+
   args.headOption.getOrElse("NONE") match {
     case "runServer" =>
       AkkaHttpServer.listen(buildTodoApiRoute(new TodoApiMemoryImpl()))
@@ -89,6 +125,9 @@ object Main extends App with LazyLogging {
       runQuillSelect()
     case "runSlick" =>
       runSlick()
+    case "scalikeJDBC" =>
+      runScalikeJDBC()
+
     case "openapi" =>
       println(TodoApi.asOpenAPIYaml)
 
