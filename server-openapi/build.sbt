@@ -1,5 +1,5 @@
-import sbt._
 import Dependencies._
+import sbt._
 
 // "bare" definition, applies to all projects
 ThisBuild / scalaVersion := "2.13.3"
@@ -11,8 +11,11 @@ lazy val root = (project in file("."))
   .settings(
     name := "server-openapi",
     libraryDependencies ++= runtimeDeps ++ testDeps ++ buildDeps,
-    scalacOptions ++= Seq("-Xlint")
+    scalacOptions ++= Seq("-Xlint"),
   )
   .enablePlugins(
     JavaAppPackaging,
+    // see http://scalikejdbc.org/documentation/reverse-engineering.html
+    // (not generating prefect code)
+    ScalikejdbcPlugin,
   )

@@ -4,6 +4,7 @@ import io.circe.generic.auto._
 import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.json.circe._
+import sttp.tapir.generic.auto._
 import sttp.tapir.openapi.OpenAPI
 
 object TodoApi {
@@ -14,7 +15,7 @@ object TodoApi {
       endpoints.showTodo,
       endpoints.createTodo,
       endpoints.updateTodo,
-      endpoints.deleteTodo
+      endpoints.deleteTodo,
     )
 
   def asOpenAPIYaml: String = {
@@ -61,8 +62,8 @@ object TodoApi {
         .in("todos")
         .errorOut(
           oneOf[ErrorInfo](
-            statusMapping(StatusCode.NotFound, jsonBody[NotFound].description("not found"))
-          )
+            statusMapping(StatusCode.NotFound, jsonBody[NotFound].description("not found")),
+          ),
         )
   }
 }

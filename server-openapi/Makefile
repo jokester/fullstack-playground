@@ -5,6 +5,9 @@ openapi:
 	@#                           v to skip sbt output
 	@sbt "run openapi" | grep -v -e '^\['
 
+models:
+	sbt scalikejdbcGenAllForce scalafmtAll
+
 bin:
 	sbt universal:packageBin universal:packageXzTarball
 

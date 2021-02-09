@@ -63,10 +63,10 @@ object AkkaHttpServer extends LazyLogging {
               HttpMethods.POST,
               HttpMethods.DELETE,
               HttpMethods.PUT,
-              HttpMethods.PATCH
-            )
-          )
-      )
+              HttpMethods.PATCH,
+            ),
+          ),
+      ),
     )
   }
 
@@ -77,7 +77,7 @@ object AkkaHttpServer extends LazyLogging {
           logger.debug(s"Press ENTER to stop")
           // let it run until user presses return
           console.readLine()
-        }
+        },
       )
       .getOrElse({
         logger.debug(s"No TTY found. Ignoring console.")

@@ -13,7 +13,7 @@ import { Todo } from '../generated/openapi-rx';
 import { useMutation } from '@apollo/react-hooks';
 
 type ElementOf<MaybeArray> = NonNullable<MaybeArray> extends ReadonlyArray<infer Elem> ? Elem : unknown;
-type GqlTodo = ElementOf<GetAllTodosV1Query['todos_v1']>;
+type GqlTodo = ElementOf<GetAllTodosV1Query['todo_v1']>;
 
 export const FullGraphqlTodoList: React.FC = () => {
   const { loading, error, data, refetch } = useGetAllTodosV1Query();
@@ -39,7 +39,7 @@ export const FullGraphqlTodoList: React.FC = () => {
           desc: 'desc',
         },
       });
-      created.data?.insert_todos_v1?.returning;
+      created.data?.insert_todo_v1?.returning;
 
       onReload();
     });
@@ -64,7 +64,7 @@ export const FullGraphqlTodoList: React.FC = () => {
         </Button>
       </div>
       <List styleType="disc " padding={8}>
-        {data.todos_v1.map((item) => (
+        {data.todo_v1.map((item) => (
           <ListItem key={item.todo_id}>
             <p>
               id={item.todo_id} / title={item.title} / {item.finished_at ? 'finished' : 'todo'}
