@@ -92,7 +92,8 @@ object Main extends App with LazyLogging {
       .db2()
       .localTx(implicit session => {
         import io.jokester.fullstack_playground.genereated_scalikejdbc.Todo
-        val a = Todo.findAll()
+
+        val a = Seq()
 
         logger.debug(s"findAll(): ${a}")
 

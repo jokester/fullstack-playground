@@ -14,9 +14,11 @@ object ScalikeJDBCConnection extends LazyLogging {
     )
   }
 
+  lazy val poolName = Symbol("pg")
+
   def initNamed(): Unit = {
     ConnectionPool.add(
-      Symbol("pg"),
+      poolName,
       "jdbc:postgresql://127.0.0.1:61432/try_hasura",
       "pguser",
       "secret",
@@ -25,15 +27,15 @@ object ScalikeJDBCConnection extends LazyLogging {
 
   def showPools(): Unit = {
     logger.debug(s"initialized(default): ${ConnectionPool.isInitialized(Symbol("default"))}")
-    logger.debug(s"initialized(pg): ${ConnectionPool.isInitialized(Symbol("pg"))}")
+    logger.debug(s"initialized(pg): ${ConnectionPool.isInitialized(poolName)}")
   }
 
   def db: DB.type = DB
 
   // FIXME: for unknown reason this fails in 2nd call
-  def db2(): NamedDB = NamedDB(Symbol("pg"))
+  def db2(): NamedDB = NamedDB(poolName)
 
-  def db3(): DB = DB(ConnectionPool.borrow(Symbol("pg")))
+  def db3(): DB = DB(ConnectionPool.borrow(poolName))
 
   def db4() = DB
 
