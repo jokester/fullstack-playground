@@ -5,6 +5,8 @@ import io.jokester.fullstack_playground.genereated_scalikejdbc.{User, UserProfil
 import org.postgresql.util.PGobject
 import scalikejdbc._
 
+import java.sql.PreparedStatement
+
 trait UserRepoApi[Result[_]] {
 
   import io.jokester.fullstack_playground.genereated_scalikejdbc.User
@@ -29,18 +31,29 @@ trait TodoRepoApi[Result[_]] {
 
 class UserRepo(implicit session: DBSession) extends UserRepoApi[Id] {
   import User._
-  implicit val scalikeJDBCFactory: ParameterBinderFactory[UserProfile] =
-    // FIXME: not used??
-    ParameterBinderFactory[UserProfile] { value => (stmt, idx) =>
-      val jsonObject = new PGobject()
-      jsonObject.setType("json")
-      jsonObject.setValue("{}")
-      stmt.setObject(idx, jsonObject)
-    }
   override def createUser(email: String, pass: String): Id[User] = {
+    val profileBinder = ParameterBinder(
+      // FIXME: how to use binder factory?
+      value = "{}",
+      binder = (stmt: PreparedStatement, idx: Int) => {
+        val jsonObject = new PGobject()
+        jsonObject.setType("json")
+        jsonObject.setValue("{}")
+        stmt.setObject(idx, jsonObject)
+      },
+    )
+
+    implicit val scalikeJDBCFactory: ParameterBinderFactory[UserProfile] =
+      // FIXME: not used??
+      ParameterBinderFactory[UserProfile] { value => (stmt, idx) =>
+        val jsonObject = new PGobject()
+        jsonObject.setType("json")
+        jsonObject.setValue("{}")
+        stmt.setObject(idx, jsonObject)
+      }
     val userId = sql"""
-          INSERT INTO ${User.table} (${column.userEmail}, ${column.userPassword}, ${column.userProfile})
-           VALUES (${email}, ${pass}, ${UserProfile()})
+          INSERT INTO "public"."user" (${User.column.userEmail}, ${User.column.userPassword}, ${User.column.userProfile})
+           VALUES (${email}, ${pass}, ${profileBinder})
          """.updateAndReturnGeneratedKey().apply().toInt
 
     findUser(userId).get
