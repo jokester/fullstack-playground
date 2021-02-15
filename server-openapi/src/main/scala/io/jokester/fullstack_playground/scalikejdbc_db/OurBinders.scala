@@ -30,5 +30,5 @@ trait GenericBinders {
 trait OurBinders extends GenericBinders {
   import io.circe.generic.auto._
 
-  implicit val userProfile: Binders[UserProfile] = customObject
+  implicit val userProfileBinder: Binders[UserProfile] = customObject
 }

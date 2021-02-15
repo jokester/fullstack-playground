@@ -1,31 +1,35 @@
 package io.jokester.fullstack_playground.genereated_scalikejdbc
 
-import io.jokester.fullstack_playground.scalikejdbc_db.{ScalikeJDBCConnection, UserRepo}
+import io.jokester.fullstack_playground.scalikejdbc_db.UserRepo
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 
-class UserRepoSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
+class UserRepoSpec
+    extends FixtureAnyFlatSpec
+    with Matchers
+    with AutoRollback
+    with TestDbAndRepository
+    with TestData {
 
-  lazy val dbInited = ScalikeJDBCConnection.initNamed()
+  it should "create, update and remove user" in { () =>
+    db().localTx(implicit session => {
 
-  def testDB = {
-    dbInited
-    ScalikeJDBCConnection.db2
-  }
-
-  it should "create user and remove it" in { () =>
-    testDB.localTx(implicit session => {
-
-      val testee = new UserRepo()
+      val testee = UserRepo()
 
       val created = testee
         .createUser(
-          "email3",
+          faker.internet.emailAddress(),
           "string",
-          UserProfile(nickname = Some("valid user"), avatarUrl = None),
+          UserProfile(
+            nickname = Some(faker.name().nameWithMiddle()),
+            avatarUrl = Some(faker.internet().avatar()),
+          ),
         )
       created shouldBe a[User]
+
+      val updated = testee.updateUser(created.copy(userPassword = "456"))
+      updated.userPassword should equal("456")
 
       testee.removeUser(created) shouldBe a[User]
     })

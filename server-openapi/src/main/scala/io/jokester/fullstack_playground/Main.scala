@@ -85,13 +85,14 @@ object Main extends App with LazyLogging {
 
   def runScalikeJDBC() = {
     ScalikeJDBCConnection.showPools()
-    ScalikeJDBCConnection.initNamed()
+    ScalikeJDBCConnection.defaultDB()
+    ScalikeJDBCConnection.showPools()
+    ScalikeJDBCConnection.namedDB()
     ScalikeJDBCConnection.showPools()
 
     ScalikeJDBCConnection
-      .db2()
+      .namedDB()
       .localTx(implicit session => {
-        import io.jokester.fullstack_playground.genereated_scalikejdbc.Todo
 
         val a = Seq()
 
@@ -104,7 +105,7 @@ object Main extends App with LazyLogging {
       })
 
     ScalikeJDBCConnection
-      .db2()
+      .namedDB()
       .localTx(implicit session => {
         logger.debug(s"findDesc(1) = ${ScalikeTodoRepository.findDesc(1)}")
 

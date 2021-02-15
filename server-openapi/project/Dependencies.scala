@@ -62,8 +62,9 @@ object Dependencies {
   ).flatten
 
   lazy val testDeps: Seq[ModuleID] = Seq(
-    "org.scalatest"   %% "scalatest"        % Versions.scalaTest,
-    "org.scalikejdbc" %% "scalikejdbc-test" % Versions.scalikeJDBC,
+    "org.scalatest"       %% "scalatest"        % Versions.scalaTest,
+    "org.scalikejdbc"     %% "scalikejdbc-test" % Versions.scalikeJDBC,
+    "com.github.javafaker" % "javafaker"        % "1.0.2",
   ).map(_ % Test)
 
   lazy val buildDeps: Seq[ModuleID] = Seq.empty

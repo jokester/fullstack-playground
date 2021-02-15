@@ -6,7 +6,7 @@ import java.time.OffsetDateTime
 import scala.collection.mutable.ListBuffer
 
 object ScalikeJDBCConnection extends LazyLogging {
-  def initSingleton(): Unit = {
+  private def initSingleton(): Unit = {
     ConnectionPool.singleton(
       "jdbc:postgresql://127.0.0.1:61432/try_hasura",
       "pguser",
@@ -14,9 +14,11 @@ object ScalikeJDBCConnection extends LazyLogging {
     )
   }
 
-  lazy val poolName = Symbol("pg")
+  private lazy val singletonInited = initSingleton()
 
-  def initNamed(): Unit = {
+  val poolName = Symbol("pg")
+
+  private def initNamed(): Unit = {
     ConnectionPool.add(
       poolName,
       "jdbc:postgresql://127.0.0.1:61432/try_hasura",
@@ -25,20 +27,22 @@ object ScalikeJDBCConnection extends LazyLogging {
     )
   }
 
+  private lazy val namedInited = initNamed()
+
   def showPools(): Unit = {
     logger.debug(s"initialized(default): ${ConnectionPool.isInitialized(Symbol("default"))}")
     logger.debug(s"initialized(pg): ${ConnectionPool.isInitialized(poolName)}")
   }
 
-  def db: DB.type = DB
+  def defaultDB() = {
+    singletonInited
+    DB
+  }
 
-  // FIXME: for unknown reason this fails in 2nd call
-  def db2(): NamedDB = NamedDB(poolName)
-
-  def db3(): DB = DB(ConnectionPool.borrow(poolName))
-
-  def db4() = DB
-
+  def namedDB() = {
+    namedInited
+    DB(ConnectionPool.borrow(poolName))
+  }
 }
 
 object ScalikeTodoRepository extends LazyLogging {

@@ -1,27 +1,22 @@
 package io.jokester.fullstack_playground.genereated_scalikejdbc
 
-import io.circe.{Encoder, Json}
-import io.jokester.fullstack_playground.scalikejdbc_db.ScalikeJDBCConnection
+import io.jokester.fullstack_playground.scalikejdbc_db.{OurBinders, ScalikeJDBCConnection}
 import scalikejdbc._
 
 import java.time.OffsetDateTime
 
 case class UserProfile(nickname: Option[String] = None, avatarUrl: Option[String] = None) {}
 
-object UserProfile {
-  implicit val circeEncoder: Encoder[UserProfile] = Encoder(whatever => Json.Null)
-}
-
 case class User(
     userId: Int,
     userEmail: String,
     userPassword: String,
-    userProfile: /* FIXME */ Any,
+    userProfile: UserProfile,
     createdAt: Option[OffsetDateTime] = None,
     updatedAt: Option[OffsetDateTime] = None,
 )
 
-object User extends SQLSyntaxSupport[User] {
+object User extends SQLSyntaxSupport[User] with OurBinders {
 
   override val schemaName = Some("public")
 
@@ -40,7 +35,7 @@ object User extends SQLSyntaxSupport[User] {
       userId = rs.get(u.userId),
       userEmail = rs.get(u.userEmail),
       userPassword = rs.get(u.userPassword),
-      userProfile = rs.any(u.userProfile),
+      userProfile = userProfileBinder(rs.underlying, u.userProfile),
       createdAt = rs.get(u.createdAt),
       updatedAt = rs.get(u.updatedAt),
     )

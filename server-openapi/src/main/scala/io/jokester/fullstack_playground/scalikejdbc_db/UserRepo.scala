@@ -15,18 +15,7 @@ trait UserRepoApi[Result[_]] {
   def removeUser(u: User): Result[User]
 }
 
-trait TodoRepoApi[Result[_]] {
-
-  import io.jokester.fullstack_playground.genereated_scalikejdbc.{Todo, User}
-
-  def createTodo(user: User, todoTitle: String, todoDesc: String): Result[Todo]
-  def listTodo(user: User): Result[Seq[Todo]]
-  def listTodo(user: User, where: SQLSyntax): Result[Seq[Todo]]
-  def findTodo(userId: Int): Result[Seq[Todo]]
-  def updateTodo(updated: Todo): Result[Todo]
-}
-
-class UserRepo(implicit session: DBSession) extends UserRepoApi[Id] with OurBinders {
+final case class UserRepo()(implicit session: DBSession) extends UserRepoApi[Id] with OurBinders {
   import User._
   override def createUser(email: String, pass: String, p: UserProfile): Id[User] = {
     if (3 > 2) {
@@ -73,7 +62,19 @@ class UserRepo(implicit session: DBSession) extends UserRepoApi[Id] with OurBind
        """.map(User(user.resultName)).list().apply()
   }
 
-  override def updateUser(updated: User): Id[User] = ???
+  override def updateUser(updated: User): Id[User] = {
+    val updatedCount = withSQL {
+      update(User)
+        .set(
+          User.column.userProfile  -> updated.userProfile,
+          User.column.userPassword -> updated.userPassword,
+        )
+        .where(sqls"${User.column.userId} = ${updated.userId}")
+    }.update.apply()
+
+    findUser(updated.userId).get
+
+  }
 
   override def removeUser(u: User): Id[User] = {
     val removed = withSQL {
