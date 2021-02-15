@@ -3,8 +3,8 @@ package io.jokester.fullstack_playground.todo_list
 import io.circe.generic.auto._
 import sttp.model.StatusCode
 import sttp.tapir._
-import sttp.tapir.json.circe._
 import sttp.tapir.generic.auto._
+import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
 
 object TodoApi {

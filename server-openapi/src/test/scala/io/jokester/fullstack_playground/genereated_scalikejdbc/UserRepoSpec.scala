@@ -14,11 +14,20 @@ class UserRepoSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
     ScalikeJDBCConnection.db2
   }
 
-  it should "create user" in { () =>
+  it should "create user and remove it" in { () =>
     testDB.localTx(implicit session => {
 
       val testee = new UserRepo()
-      testee.createUser("email", "string") should equal(new Object())
+
+      val created = testee
+        .createUser(
+          "email3",
+          "string",
+          UserProfile(nickname = Some("valid user"), avatarUrl = None),
+        )
+      created shouldBe a[User]
+
+      testee.removeUser(created) shouldBe a[User]
     })
 
   }

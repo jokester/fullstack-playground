@@ -2,16 +2,13 @@ package io.jokester.fullstack_playground.scalikejdbc_db
 
 import cats.Id
 import io.jokester.fullstack_playground.genereated_scalikejdbc.{User, UserProfile}
-import org.postgresql.util.PGobject
 import scalikejdbc._
-
-import java.sql.PreparedStatement
 
 trait UserRepoApi[Result[_]] {
 
   import io.jokester.fullstack_playground.genereated_scalikejdbc.User
 
-  def createUser(email: String, pass: String): Result[User]
+  def createUser(email: String, pass: String, p: UserProfile): Result[User]
   def listUser(): Result[Seq[User]]
   def findUser(userId: Int): Result[Option[User]]
   def updateUser(updated: User): Result[User]
@@ -29,33 +26,43 @@ trait TodoRepoApi[Result[_]] {
   def updateTodo(updated: Todo): Result[Todo]
 }
 
-class UserRepo(implicit session: DBSession) extends UserRepoApi[Id] {
+class UserRepo(implicit session: DBSession) extends UserRepoApi[Id] with OurBinders {
   import User._
-  override def createUser(email: String, pass: String): Id[User] = {
-    val profileBinder = ParameterBinder(
-      // FIXME: how to use binder factory?
-      value = "{}",
-      binder = (stmt: PreparedStatement, idx: Int) => {
-        val jsonObject = new PGobject()
-        jsonObject.setType("json")
-        jsonObject.setValue("{}")
-        stmt.setObject(idx, jsonObject)
-      },
-    )
+  override def createUser(email: String, pass: String, p: UserProfile): Id[User] = {
+    if (3 > 2) {
+      createUser2(email, pass, p)
+    } else {
+      createUser3(email, pass, p)
+    }
+  }
 
-    implicit val scalikeJDBCFactory: ParameterBinderFactory[UserProfile] =
-      // FIXME: not used??
-      ParameterBinderFactory[UserProfile] { value => (stmt, idx) =>
-        val jsonObject = new PGobject()
-        jsonObject.setType("json")
-        jsonObject.setValue("{}")
-        stmt.setObject(idx, jsonObject)
-      }
+  private def createUser2(email: String, pass: String, p: UserProfile): User = {
+    val userId = withSQL {
+      insert
+        .into(User)
+        .namedValues(
+          User.column.userEmail    -> email,
+          User.column.userPassword -> pass,
+          User.column.userProfile  -> p,
+        )
+    }.updateAndReturnGeneratedKey().apply().toInt
+
+    findUser(userId).get
+  }
+
+  override def findUser(userId: Int): Id[Option[User]] = {
+    sql"""
+          SELECT ${user.result.*} FROM ${User as user}
+          WHERE ${user.userId} = ${userId}
+       """.map(User(user.resultName)).single().apply()
+  }
+
+  private def createUser3(email: String, pass: String, p: UserProfile): User = {
+    // FIXME: for some reason binder is not used
     val userId = sql"""
-          INSERT INTO "public"."user" (${User.column.userEmail}, ${User.column.userPassword}, ${User.column.userProfile})
-           VALUES (${email}, ${pass}, ${profileBinder})
+          INSERT INTO ${User} (${User.column.userEmail}, ${User.column.userPassword}, ${User.column.userProfile})
+           VALUES (${email}, ${pass}, ${p})
          """.updateAndReturnGeneratedKey().apply().toInt
-
     findUser(userId).get
   }
 
@@ -66,14 +73,12 @@ class UserRepo(implicit session: DBSession) extends UserRepoApi[Id] {
        """.map(User(user.resultName)).list().apply()
   }
 
-  override def findUser(userId: Int): Id[Option[User]] = {
-    sql"""
-          SELECT ${user.resultName.*} FROM ${user}
-          WHERE ${user.userId} = ${userId}
-       """.map(User(user.resultName)).single().apply()
-  }
-
   override def updateUser(updated: User): Id[User] = ???
 
-  override def removeUser(u: User): Id[User] = ???
+  override def removeUser(u: User): Id[User] = {
+    val removed = withSQL {
+      delete.from(User).where.eq(User.column.userId, u.userId)
+    }.update().apply()
+    u
+  }
 }
