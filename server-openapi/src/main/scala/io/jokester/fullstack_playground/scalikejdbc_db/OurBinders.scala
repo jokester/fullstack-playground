@@ -7,12 +7,23 @@ import org.postgresql.util.PGobject
 import scalikejdbc.Binders
 
 trait GenericBinders {
-  val jsonBinder: Binders[Json] = Binders.of[circe.Json] { fromDB => circe.Json.obj() } {
+  val jsonBinder: Binders[Json] = Binders.of[circe.Json] { pgObj => decodePgObj(pgObj) } {
+    //
     fromJvm => (stmt, idx) =>
-      val jsonObject = new PGobject()
-      jsonObject.setType("json")
-      jsonObject.setValue(fromJvm.noSpaces)
-      stmt.setObject(idx, jsonObject)
+      stmt.setObject(idx, encodePgObj(fromJvm))
+  }
+
+  private def decodePgObj(pgObj: Any): Json =
+    pgObj match {
+      case pgObj: PGobject => circe.parser.parse(pgObj.toString).toOption.get
+      case _               => throw new IllegalArgumentException("expected pgObj to contain json value")
+    }
+
+  private def encodePgObj(json: Json): PGobject = {
+    val jsonObject = new PGobject()
+    jsonObject.setType("json")
+    jsonObject.setValue(json.noSpaces)
+    jsonObject
   }
 
   val jsonObjBinder: Binders[JsonObject] =
