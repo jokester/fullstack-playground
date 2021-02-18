@@ -12,10 +12,11 @@ module.exports = {
   documents: [
     `${clientWebSrc}/**/*.tsx`,
     `${clientWebSrc}/**/*.ts`,
+    `!${clientWebSrc}/generated/**/*`,
   ],
   overwrite: true,
   generates: {
-    [`${clientWebSrc}/generated/graphql/index.tsx`]: {
+    [`${clientWebSrc}/generated/graphql-codegen/index.tsx`]: {
       plugins: [
         'typescript',
         'typescript-operations',
@@ -28,8 +29,6 @@ module.exports = {
         withComponent: false,
       },
     },
-    [`${clientWebSrc}/generated/graphql.schema.json`]: {
-      plugins: ['introspection'],
-    },
+    // [`${clientWebSrc}/generated/graphql.schema.json`]: { plugins: ['introspection'], },
   },
 };

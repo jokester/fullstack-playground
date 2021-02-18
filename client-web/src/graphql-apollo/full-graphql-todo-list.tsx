@@ -1,46 +1,40 @@
 import React from 'react';
-import {
-  GetAllTodosV1Query,
-  GetAllTodosV1QueryResult,
-  Insert_TodosDocument,
-  useGetAllTodosV1Query,
-  useInsert_TodosMutation,
-} from '../generated/graphql';
+import { useGetAllTodosQuery, useGetAllUsersQuery } from '../generated/graphql-codegen';
 import { Button, List, ListItem } from '@chakra-ui/react';
 import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/use-concurrency-control';
 import { callRxApiClient } from '../openapi-rx/use-rx-api';
 import { Todo } from '../generated/openapi-rx';
-import { useMutation } from '@apollo/react-hooks';
 
 type ElementOf<MaybeArray> = NonNullable<MaybeArray> extends ReadonlyArray<infer Elem> ? Elem : unknown;
-type GqlTodo = ElementOf<GetAllTodosV1Query['todo_v1']>;
 
 export const FullGraphqlTodoList: React.FC = () => {
-  const { loading, error, data, refetch } = useGetAllTodosV1Query();
+  const todos = useGetAllTodosQuery();
+  const users = useGetAllUsersQuery();
   const [lock, lockDepth] = useConcurrencyControl();
 
-  const [addTodo] = useInsert_TodosMutation();
-
-  if (loading) {
+  if (todos.loading || users.loading) {
     return <div>Loading...</div>;
   }
 
-  if (error || !data) {
+  if (todos.error || !users.data) {
     return <div>Error...</div>;
   }
 
-  const onReload = () => refetch();
+  const onReload = () => {
+    todos.refetch();
+    users.refetch();
+  };
 
   const onCreate = () =>
     lock(async (mounted) => {
-      const created = await addTodo({
-        variables: {
-          title: `title-${Date.now()}`,
-          desc: 'desc',
-        },
-      });
-      created.data?.insert_todo_v1?.returning;
-
+      const created = await callRxApiClient((api) =>
+        api.postTodos({
+          todoCreateRequest: {
+            title: `title-${Date.now()}`,
+            desc: 'desc',
+          },
+        }),
+      );
       onReload();
     });
 
@@ -64,8 +58,8 @@ export const FullGraphqlTodoList: React.FC = () => {
         </Button>
       </div>
       <List styleType="disc " padding={8}>
-        {data.todo_v1.map((item) => (
-          <ListItem key={item.todo_id}>
+        {todos.data?.todo.map((item) => (
+          <ListItem key={item.title}>
             <p>
               id={item.todo_id} / title={item.title} / {item.finished_at ? 'finished' : 'todo'}
             </p>
@@ -79,6 +73,7 @@ export const FullGraphqlTodoList: React.FC = () => {
                   ...item,
                   id: item.todo_id,
                   finished: !item.finished_at,
+                  desc: item.description,
                 })
               }
               isLoading={lockDepth > 0}

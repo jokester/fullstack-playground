@@ -3,12 +3,12 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import { FetchTodoList } from '../src/openapi-fetch/fetch-todo-list';
 import { Heading } from '@chakra-ui/react';
 import { RxTodoList } from '../src/openapi-rx/rx-todo-list';
-import { FullGraphqlTodoList } from '../src/graphql/full-graphql-todo-list';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloProvider } from '@apollo/react-hooks';
 import useConstant from 'use-constant';
+import { FullGraphqlTodoList } from '../src/graphql-apollo/full-graphql-todo-list';
 
 const ApolloContext: React.FC = (props) => {
   const apollo: any = useConstant(
@@ -40,6 +40,7 @@ const TodoListPage: React.FC = () => {
           <Tab>OpenAPI (fetch)</Tab>
           <Tab>OpenAPI (RxJS)</Tab>
           <Tab>GraphQL (Apollo)</Tab>
+          <Tab>GraphQL (Relay)</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
