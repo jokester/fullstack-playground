@@ -9,4 +9,4 @@ if ! [[ -d ../console-assets ]]; then
 fi
 
 set -x
-exec ../node_modules/.bin/hasura console --static-dir=../hasura-console-assets
+exec ../node_modules/.bin/hasura console --static-dir=../hasura-console-assets "$@"
