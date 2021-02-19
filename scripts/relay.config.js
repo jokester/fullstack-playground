@@ -11,4 +11,5 @@ module.exports = {
   extensions: ['ts', 'tsx'],
   artifactDirectory: `${clientWebSrc}/generated/graphql-relay`,
   language: 'typescript',
+  // persistOutput: `${clientWebSrc}/generated/some.json`,
 };
