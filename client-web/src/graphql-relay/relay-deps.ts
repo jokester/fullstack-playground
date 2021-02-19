@@ -10,6 +10,7 @@ const network = Network.create((operation, variables) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      documentId: operation.id,
       query: operation.text,
       variables,
     }),
