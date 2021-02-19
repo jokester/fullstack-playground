@@ -1,5 +1,6 @@
 package io.jokester.fullstack_playground
 
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
@@ -11,6 +12,7 @@ import io.jokester.fullstack_playground.scalikejdbc_db.{
 }
 import io.jokester.fullstack_playground.slick_db.{Connection, Todos}
 import io.jokester.fullstack_playground.todo_list.{TodoApi, TodoApiImpl, TodoApiMemoryImpl}
+import io.jokester.fullstack_playground.user_todo_list.UserTodoApi
 import org.slf4j.LoggerFactory
 
 import java.time.OffsetDateTime
@@ -38,6 +40,11 @@ object Main extends App with LazyLogging {
     }
 
     serverImplRoute
+  }
+
+  def buildRoute(impl: UserTodoApi[Future]): Route = {
+    complete
+
   }
 
   def runQuillSelect(): Unit = {
