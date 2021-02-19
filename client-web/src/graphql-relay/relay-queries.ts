@@ -1,8 +1,4 @@
-import { QueryRenderer, graphql } from 'react-relay';
-
-if (1) {
-  throw new Error('do not import');
-}
+import { graphql } from 'react-relay';
 
 export const relayQueries = {
   getAllTodos: graphql`
