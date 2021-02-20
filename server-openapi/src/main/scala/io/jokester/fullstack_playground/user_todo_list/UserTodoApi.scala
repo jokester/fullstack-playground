@@ -1,14 +1,12 @@
 package io.jokester.fullstack_playground.user_todo_list
 
-import akka.http.scaladsl.server.Route
 import io.circe.generic.auto._
 import io.jokester.fullstack_playground.genereated_scalikejdbc.{UserProfile, Todo => TodoRow}
-import io.jokester.fullstack_playground.user_todo_list.UserTodoApi.{
-  CreateUserRequest,
-  CreateUserResponse,
-}
+import io.jokester.fullstack_playground.scalikejdbc_db.UserTodoDb
+import io.jokester.fullstack_playground.user_todo_list.UserTodoApi._
 import sttp.model.StatusCode
 import sttp.tapir._
+import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
@@ -29,12 +27,16 @@ object UserTodoApi {
   case class LoginRequest(email: String, password: String)
   case class LoginResponse(userId: Int, userProfile: UserProfile, jwtToken: String)
 
+  case class AuthedUser(jwtToken: String, userId: Int)
+
   case class CreateTodoRequest(title: String, description: String)
   type CreateTodoResponse = TodoRow
+  type UpdateTodoRequest  = TodoRow
+  type UpdateTodoResponse = TodoRow
 
   object endpoints {
 
-    private def basePath =
+    private def basePath: Endpoint[Unit, ErrorInfo, Unit, Any] =
       endpoint
         .in("user_todo_api")
         .errorOut(
@@ -73,21 +75,78 @@ object UserTodoApi {
   )
 
   def asOpenAPI: OpenAPI = {
-    import sttp.tapir.docs.openapi._
-    OpenAPIDocsInterpreter.serverEndpointsToOpenAPI(endpointList, "User Todos", "1.0")
-  }
-
-  def buildRoute(impl: UserTodoApi[Future]): Route = {}
-
-  def wtf[M[_]](input: M[LoginRequest]) = {
-    input match {
-      case _ => ???
-    }
-
+    OpenAPIDocsInterpreter.toOpenAPI(endpointList, "User Todos", "1.0")
   }
 }
 
-trait UserTodoApi[Result[_]] {
+trait UserTodoService {
+  import UserTodoApi._
 
-  def createUser(req: CreateUserRequest): Result[CreateUserResponse]
+  type ApiResult[T] = Future[Either[ErrorInfo, T]]
+
+  def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse]
+  def loginUser(req: LoginRequest): ApiResult[LoginResponse]
+  def validateAuth(jwtToken: String): ApiResult[AuthedUser]
+  def updateProfile(authed: AuthedUser, newProfile: UserProfile): ApiResult[UserProfile]
+
+  def createTodo(authed: AuthedUser, req: CreateTodoRequest): ApiResult[CreateTodoResponse]
+  def updateTodo(authed: AuthedUser, req: UpdateTodoRequest): ApiResult[UpdateTodoResponse]
+
+}
+
+class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
+
+  private def success[T](value: => T): Future[Either[ErrorInfo, T]] =
+    Future.successful(Right(value))
+  private def success[T](value: => Either[ErrorInfo, T]): Future[Either[ErrorInfo, T]] =
+    Future.successful(value)
+  private def fail(value: ErrorInfo): Future[Either[ErrorInfo, Nothing]] =
+    Future.successful(Left(value))
+
+  override def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse] = {
+    db().localTx(implicit session => {
+      val created = userRepo.createUser(req.email, req.initialPass, req.profile)
+      success(CreateUserResponse(created.userId, created.userProfile, "dummy"))
+    })
+  }
+
+  override def loginUser(req: LoginRequest): ApiResult[LoginResponse] = {
+    val result = db().readOnly(implicit session => {
+      val found = userRepo.findUserByEmail(req.email)
+      found
+        .filter(_.userPassword == req.password)
+        .map(user => LoginResponse(user.userId, user.userProfile, "dummyJwt"))
+        .toRight(NotFound("authed user"))
+    })
+    success(result)
+  }
+
+  override def validateAuth(jwtToken: String): ApiResult[AuthedUser] =
+    success(AuthedUser(userId = -1, jwtToken = jwtToken))
+
+  override def updateProfile(
+      authed: AuthedUser,
+      newProfile: UserProfile,
+  ): ApiResult[UserProfile] = {
+    db().localTx(implicit session => {
+      val updated =
+        for (
+          orig <- userRepo.findUser(authed.userId).toRight(NotFound("user"));
+          updated <-
+            userRepo.updateUser(orig.copy(userProfile = newProfile)).toRight(NotFound("user"))
+        ) yield updated
+
+      success(updated.map(_.userProfile))
+    })
+  }
+
+  override def createTodo(
+      authed: AuthedUser,
+      req: CreateTodoRequest,
+  ): ApiResult[CreateTodoResponse] = ???
+
+  override def updateTodo(
+      authed: AuthedUser,
+      req: UpdateTodoRequest,
+  ): ApiResult[UpdateTodoResponse] = ???
 }

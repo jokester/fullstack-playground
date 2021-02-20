@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.slick_db
+package discarded.slick_db
 import com.typesafe.scalalogging.LazyLogging
 import slick.jdbc.JdbcBackend.Database
 

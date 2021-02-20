@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.slick_db
+package discarded.slick_db
 
 import slick.dbio.DBIO
 import slick.jdbc.JdbcBackend.Database

@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.todo_list
+package discarded.todo_list
 
 import io.circe.generic.auto._
 import sttp.model.StatusCode
@@ -66,6 +66,7 @@ object TodoApi {
           ),
         )
   }
+
 }
 
 trait TodoApiImpl {

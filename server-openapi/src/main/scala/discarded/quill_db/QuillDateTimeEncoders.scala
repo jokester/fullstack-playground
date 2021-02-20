@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.quill_db
+package discarded.quill_db
 
 import io.getquill.MappedEncoding
 

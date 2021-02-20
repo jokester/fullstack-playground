@@ -1,7 +1,7 @@
-package io.jokester.fullstack_playground.todo_list
+package discarded.todo_list
 
 import com.typesafe.scalalogging.LazyLogging
-import io.jokester.fullstack_playground.todo_list.TodoApi._
+import discarded.todo_list.TodoApi._
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 

@@ -4,6 +4,9 @@ import cats.Id
 import io.jokester.fullstack_playground.genereated_scalikejdbc.{User, UserProfile}
 import scalikejdbc._
 
+/**
+  * FIXME meaningless to support generic here?
+  */
 trait UserRepoApi[Result[_]] {
 
   import io.jokester.fullstack_playground.genereated_scalikejdbc.User
@@ -11,7 +14,7 @@ trait UserRepoApi[Result[_]] {
   def createUser(email: String, pass: String, p: UserProfile): Result[User]
   def listUser(): Result[Seq[User]]
   def findUser(userId: Int): Result[Option[User]]
-  def updateUser(updated: User): Result[User]
+  def updateUser(updated: User): Result[Option[User]]
   def removeUser(u: User): Result[User]
 }
 
@@ -46,6 +49,13 @@ final case class UserRepo()(implicit session: DBSession) extends UserRepoApi[Id]
        """.map(User(user.resultName)).single().apply()
   }
 
+  def findUserByEmail(email: String): Id[Option[User]] = {
+    sql"""
+          SELECT ${user.result.*} FROM ${User as user}
+          WHERE ${user.userEmail} = LOWER(${email})
+       """.map(User(user.resultName)).single().apply()
+  }
+
   private def createUser3(email: String, pass: String, p: UserProfile): User = {
     // FIXME: for some reason binder is not used
     val userId = sql"""
@@ -62,7 +72,7 @@ final case class UserRepo()(implicit session: DBSession) extends UserRepoApi[Id]
        """.map(User(user.resultName)).list().apply()
   }
 
-  override def updateUser(updated: User): Id[User] = {
+  override def updateUser(updated: User): Option[User] = {
     val updatedCount = withSQL {
       update(User)
         .set(
@@ -72,8 +82,7 @@ final case class UserRepo()(implicit session: DBSession) extends UserRepoApi[Id]
         .where(sqls"${User.column.userId} = ${updated.userId}")
     }.update.apply()
 
-    findUser(updated.userId).get
-
+    findUser(updated.userId)
   }
 
   override def removeUser(u: User): Id[User] = {

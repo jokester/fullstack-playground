@@ -1,51 +1,26 @@
 package io.jokester.fullstack_playground
 
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
+import discarded.quill_db.{QuillContext, QuillTables}
+import discarded.slick_db.{Connection, Todos}
 import io.jokester.fullstack_playground.akka_openapi.AkkaHttpServer
-import io.jokester.fullstack_playground.quill_db.{QuillContext, QuillTables}
 import io.jokester.fullstack_playground.scalikejdbc_db.{
   ScalikeJDBCConnection,
   ScalikeTodoRepository,
 }
-import io.jokester.fullstack_playground.slick_db.{Connection, Todos}
-import io.jokester.fullstack_playground.todo_list.{TodoApi, TodoApiImpl, TodoApiMemoryImpl}
-import io.jokester.fullstack_playground.user_todo_list.UserTodoApi
+import io.jokester.fullstack_playground.user_todo_list.{
+  UserTodoApi,
+  UserTodoApiAkkaBinding,
+  UserTodoServiceImpl,
+}
 import org.slf4j.LoggerFactory
+import sttp.tapir.openapi.circe.yaml._
 
 import java.time.OffsetDateTime
-import scala.concurrent.Future
 import scala.util.Using
 
 object Main extends App with LazyLogging {
-
-  def buildTodoApiRoute(impl: TodoApiImpl): Route = {
-
-    import akka.http.scaladsl.server.Directives._
-    import sttp.tapir.server.akkahttp._
-
-    val serverImplRoute = {
-
-      Seq[Route](
-        TodoApi.endpoints.listTodo.toRoute(_ => Future.successful(impl.list())),
-        TodoApi.endpoints.createTodo.toRoute(req => Future.successful(impl.create(req))),
-        TodoApi.endpoints.deleteTodo.toRoute(req =>
-          Future.successful(impl.remove(req).map(_ => ())),
-        ),
-        TodoApi.endpoints.updateTodo.toRoute(req => Future.successful(impl.update(req._1, req._2))),
-      ).reduce(_ ~ _)
-
-    }
-
-    serverImplRoute
-  }
-
-  def buildRoute(impl: UserTodoApi[Future]): Route = {
-    complete
-
-  }
 
   def runQuillSelect(): Unit = {
     Using(QuillContext.connect()) { ctx =>
@@ -119,14 +94,9 @@ object Main extends App with LazyLogging {
       })
   }
 
-  if (1 > 0) {
-    runScalikeJDBC()
-
-  }
-
   args.headOption.getOrElse("NONE") match {
     case "runServer" =>
-      AkkaHttpServer.listen(buildTodoApiRoute(new TodoApiMemoryImpl()))
+      AkkaHttpServer.listen(UserTodoApiAkkaBinding.buildRoute(new UserTodoServiceImpl()))
 
     case "dumpQuillConfig" =>
       println(ConfigFactory.load().withOnlyPath("quill-ctx.pg"))
@@ -138,7 +108,7 @@ object Main extends App with LazyLogging {
       runScalikeJDBC()
 
     case "openapi" =>
-      println(TodoApi.asOpenAPIYaml)
+      println(UserTodoApi.asOpenAPI.toYaml)
 
     case _ => {
       logger.debug("ARGV: {}", args.toList)
