@@ -58,6 +58,9 @@ object Dependencies {
     Seq(
       "com.typesafe" % "config" % "1.4.1",
       // rest
+      // auth0's jwt impl
+      //      "com.auth0" % "java-jwt" % "3.13.0",
+      "com.pauldijou" %% "jwt-circe" % "5.0.0",
     ),
   ).flatten
 

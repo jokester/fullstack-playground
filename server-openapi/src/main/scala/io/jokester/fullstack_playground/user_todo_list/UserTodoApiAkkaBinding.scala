@@ -28,7 +28,7 @@ object UserTodoApiAkkaBinding {
       endpoints.updateUserProfile.toRoute(params => {
         val (accessToken, userId, newProfile) = params
         for (
-          user    <- impl.validateAccessToken(accessToken);
+          user    <- impl.validateSession(accessToken);
           updated <- impl.updateProfile(user, newProfile)
         ) yield updated
       }),

@@ -9,6 +9,7 @@ import io.jokester.fullstack_playground.genereated_scalikejdbc.{
   User => UserRow,
 }
 import io.jokester.fullstack_playground.scalikejdbc_db.UserTodoDb
+import io.jokester.fullstack_playground.utils.JwtHelpers
 import sttp.model.StatusCode
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto._
@@ -18,7 +19,8 @@ import sttp.tapir.{auth, _}
 
 object UserTodoApi {
 
-  sealed trait ErrorInfo
+  // error body
+  sealed trait ErrorInfo                     extends Throwable
   case class BadRequest(error: String)       extends ErrorInfo
   case class NotFound(error: String)         extends ErrorInfo
   case class Unauthorized(error: String)     extends ErrorInfo
@@ -26,6 +28,14 @@ object UserTodoApi {
   case class InternalError()                 extends ErrorInfo
   case class Unknown(code: Int, msg: String) extends ErrorInfo
   case object NoContent                      extends ErrorInfo
+
+  // auth header
+  case class AccessToken(value: String)
+  case class RefreshToken(value: String)
+
+  // jwt payload
+  case class AccessTokenPayload(userId: Int)
+  case class RefreshTokenPayload(userId: Int)
 
   case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
   case class CreateUserResponse(userId: Int, userProfile: UserProfile)
@@ -39,9 +49,6 @@ object UserTodoApi {
   )
 
   case class AuthedUser(jwtToken: String, userId: Int)
-
-  case class AccessToken(value: String)
-  case class RefreshToken(value: String)
 
   case class CreateTodoRequest(title: String, description: String)
   type CreateTodoResponse = TodoRow
@@ -122,7 +129,7 @@ trait UserTodoService {
 
   // auth
   def loginUser(req: LoginRequest): ApiResult[LoginResponse]
-  def validateAccessToken(accessToken: AccessToken): ApiResult[AuthedUser]
+  def validateSession(accessToken: AccessToken): ApiResult[AuthedUser]
   def refreshAccessToken(refreshToken: RefreshToken): ApiResult[LoginResponse]
 
   // user
@@ -134,16 +141,16 @@ trait UserTodoService {
 
 }
 
-class UserTodoServiceImpl extends UserTodoService with UserTodoDb with LazyLogging {
+class UserTodoServiceImpl extends UserTodoService with UserTodoDb with JwtHelpers with LazyLogging {
   import UserTodoApi._
-
-  private val dummyRefreshToken = RefreshToken("dummyRefresh")
-  private val dummyAccessToken  = AccessToken("dummyAccess")
 
   private def successRight[T](value: => T): ApiResult[T] = Right(value)
   private def fail(value: ErrorInfo): ApiResult[Nothing] = Left(value)
 
-  private def issueRefreshToken(user: UserRow): RefreshToken = dummyRefreshToken
+  private def issueAccessToken(user: UserRow): AccessToken =
+    AccessToken(signAccessToken(user.userId))
+  private def issueRefreshToken(user: UserRow): RefreshToken =
+    RefreshToken(signRefreshToken(user.userId))
 
   override def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse] = {
     db().localTx(implicit session => {
@@ -161,27 +168,34 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb with LazyLoggi
         .filter(_.userPassword == req.password)
         .toRight(NotFound("authed user"))
     })
-    user.map(u => LoginResponse(u.userId, u.userProfile, issueRefreshToken(u), dummyAccessToken))
+    user.map(u => LoginResponse(u.userId, u.userProfile, issueRefreshToken(u), issueAccessToken(u)))
   }
 
-  override def refreshAccessToken(refreshToken: RefreshToken): ApiResult[LoginResponse] =
-    if (refreshToken == dummyRefreshToken) {
-      Right(
-        LoginResponse(
-          userId = -1,
-          userProfile = UserProfile(),
-          accessToken = dummyAccessToken,
-          refreshToken = dummyRefreshToken,
-        ),
+  override def refreshAccessToken(refreshToken: RefreshToken): ApiResult[LoginResponse] = {
+    for (
+      tokenPayload <-
+        validateRefreshToken(refreshToken.value).toRight(Unauthorized("invalid refresh token"));
+      user <- db().readOnly(implicit session =>
+        userRepo.findUser(tokenPayload.userId).toRight(Unauthenticated("user not found")),
       )
-    } else {
-      Left(Unauthorized("invalid refresh token"))
-    }
+    )
+      yield LoginResponse(
+        userId = user.userId,
+        userProfile = user.userProfile,
+        accessToken = issueAccessToken(user),
+        refreshToken = issueRefreshToken(user),
+      )
+  }
 
-  override def validateAccessToken(jwtToken: AccessToken): ApiResult[AuthedUser] = {
-    if (jwtToken == dummyAccessToken)
-      successRight(AuthedUser(userId = -1, jwtToken = jwtToken.value))
-    else fail(Unauthorized("realm"))
+  override def validateSession(jwtToken: AccessToken): ApiResult[AuthedUser] = {
+    for (
+      tokenPayload <-
+        validateAccessToken(jwtToken.value).toRight(Unauthorized("invalid access token"));
+
+      user <- db().readOnly(implicit session =>
+        userRepo.findUser(tokenPayload.userId).toRight(Unauthenticated("user not found")),
+      )
+    ) yield AuthedUser(jwtToken = jwtToken.value, userId = user.userId)
   }
 
   override def updateProfile(
