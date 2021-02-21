@@ -1,71 +1,58 @@
-import React from 'react';
-import { callFetchApiClient, useFetchApiResult } from './use-fetch-api';
+import React, { useState } from 'react';
 import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/use-concurrency-control';
-import { Todo } from '../generated/openapi-fetch';
 import { Button, List, ListItem } from '@chakra-ui/react';
 import { useMounted } from '@jokester/ts-commonutil/lib/react/hook/use-mounted';
+import { LoginResponse } from '../generated/openapi-rx';
+import { callRxApiClient } from '../openapi-rx/use-rx-api';
+import { PreJson } from '../dummy/pre-json';
+import useConstant from 'use-constant';
 
-export const FetchTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (props, ref) => {
-  const [todoList, reloadList] = useFetchApiResult(
-    (api) => api.getTodos().then((todos) => todos.sort((a, b) => b.id - a.id)),
-    [props.revision],
-  );
+function useUserTodoApi() {
+  const [withLock, lockDepth] = useConcurrencyControl();
+  const [authed, setAuthed] = useState<null | LoginResponse>(null);
 
-  const [lock, lockDepth] = useConcurrencyControl();
+  const userEmail = useConstant(() => `user-${Date.now()}`);
 
-  const mounted = useMounted();
-  const onReload = () => mounted.current && (props.onMutated ? props.onMutated() : reloadList());
-
-  const onCreate = () =>
-    lock(async (mounted) => {
-      const created = await callFetchApiClient((api) =>
-        api.postTodos({
-          todoCreateRequest: {
-            title: `title-${Date.now()}`,
-            desc: 'desc',
+  const onCreateUser = () =>
+    withLock(async () => {
+      const x = await callRxApiClient((api) =>
+        api.postUserTodoApiUsers({
+          createUserRequest: {
+            email: userEmail,
+            initialPass: 'pass',
+            profile: {},
           },
         }),
       );
 
-      onReload();
+      console.debug('created user', x);
     });
 
-  const onDelete = (item: Todo) =>
-    lock(async (mounted) => {
-      const x = await callFetchApiClient((api) => api.deleteTodosP1({ p1: item.id }));
-      onReload();
+  const onLogin = (email: string, password: string) =>
+    withLock(async () => {
+      const x = await callRxApiClient((api) => api.postUserTodoApiAuthLogin({ loginRequest: { email, password } }));
+      setAuthed(x);
     });
 
-  const onUpdate = (modified: Todo) =>
-    lock(async (mounted) => {
-      const x = await callFetchApiClient((api) => api.patchTodosTodoP1({ p1: modified.id, todo: modified }));
-      onReload();
-    });
+  const onDummyLogin = () => onLogin(userEmail, 'pass');
+
+  return { authed, onCreateUser, onDummyLogin };
+}
+
+export const FetchTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (props, ref) => {
+  const { authed, onCreateUser, onDummyLogin } = useUserTodoApi();
 
   return (
     <div>
       <div>
-        <Button onClick={onCreate} isLoading={lockDepth > 0}>
-          create
-        </Button>
+        <Button onClick={onCreateUser}>create user</Button>
+        <Button onClick={onDummyLogin}>login()</Button>
       </div>
-      <List styleType="disc " padding={8}>
-        {todoList.fulfilled &&
-          todoList.value.map((item) => (
-            <ListItem key={item.id}>
-              <p>
-                id={item.id} / title={item.title} / {item.finished ? 'finished' : 'todo'}
-              </p>
-              <br />
-              <Button onClick={() => onDelete(item)} isLoading={lockDepth > 0}>
-                Delete
-              </Button>
-              <Button onClick={() => onUpdate({ ...item, finished: !item.finished })} isLoading={lockDepth > 0}>
-                {item.finished ? 'change to todo' : 'change to finish'}
-              </Button>
-            </ListItem>
-          ))}
-      </List>
+      <div>
+        <div>
+          authed: <PreJson value={authed} />
+        </div>
+      </div>
     </div>
   );
 };

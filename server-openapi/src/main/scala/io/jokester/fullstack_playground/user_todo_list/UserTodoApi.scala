@@ -1,17 +1,19 @@
 package io.jokester.fullstack_playground.user_todo_list
 
+import cats.Id
 import io.circe.generic.auto._
-import io.jokester.fullstack_playground.genereated_scalikejdbc.{UserProfile, Todo => TodoRow}
+import io.jokester.fullstack_playground.genereated_scalikejdbc.{
+  UserProfile,
+  Todo => TodoRow,
+  User => UserRow,
+}
 import io.jokester.fullstack_playground.scalikejdbc_db.UserTodoDb
-import io.jokester.fullstack_playground.user_todo_list.UserTodoApi._
 import sttp.model.StatusCode
-import sttp.tapir._
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
-
-import scala.concurrent.Future
+import sttp.tapir.{auth, _}
 
 object UserTodoApi {
 
@@ -22,12 +24,15 @@ object UserTodoApi {
   case object NoContent                      extends ErrorInfo
 
   case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
-  case class CreateUserResponse(userId: Int, userProfile: UserProfile, jwtToken: String)
+  case class CreateUserResponse(userId: Int, userProfile: UserProfile)
 
   case class LoginRequest(email: String, password: String)
-  case class LoginResponse(userId: Int, userProfile: UserProfile, jwtToken: String)
+  case class LoginResponse(userId: Int, userProfile: UserProfile)
 
   case class AuthedUser(jwtToken: String, userId: Int)
+
+  case class AccessToken(value: String)
+  case class RefreshToken(value: String)
 
   case class CreateTodoRequest(title: String, description: String)
   type CreateTodoResponse = TodoRow
@@ -45,14 +50,29 @@ object UserTodoApi {
           ),
         )
 
+    private def authedBasePath =
+      basePath.in(
+        auth.bearer[String]().map[AccessToken](f = AccessToken)(_.value),
+      )
+
     val createUser =
       basePath.in("users").post.in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
 
     val login =
-      basePath.post.in("auth" / "login").in(jsonBody[LoginRequest]).out(jsonBody[LoginResponse])
+      basePath.post
+        .in("auth" / "login")
+        .in(jsonBody[LoginRequest])
+        .out(jsonBody[LoginResponse])
+        .out(
+          setCookie("refreshToken"),
+        )
+
+    val refreshToken = basePath.post
+      .in("auth" / "refresh_token")
+      .in(cookie[String]("refreshToken").map[RefreshToken](f = RefreshToken)(_.value))
 
     val updateUserProfile =
-      basePath.put
+      authedBasePath.put
         .in("users" / path[Int] / "profile")
         .in(jsonBody[UserProfile])
         .out(jsonBody[UserProfile])
@@ -82,11 +102,13 @@ object UserTodoApi {
 trait UserTodoService {
   import UserTodoApi._
 
-  type ApiResult[+T] = Future[Either[ErrorInfo, T]]
+  type ApiResult[T] = Id[Either[ErrorInfo, T]]
 
   def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse]
-  def loginUser(req: LoginRequest): ApiResult[LoginResponse]
-  def validateAuth(jwtToken: String): ApiResult[AuthedUser]
+  def loginUser(req: LoginRequest): ApiResult[(LoginResponse, RefreshToken)]
+
+  def issueAccessToken(refreshToken: RefreshToken): ApiResult[AccessToken]
+  def validateAccessToken(jwtToken: AccessToken): ApiResult[AuthedUser]
   def updateProfile(authed: AuthedUser, newProfile: UserProfile): ApiResult[UserProfile]
 
   def createTodo(authed: AuthedUser, req: CreateTodoRequest): ApiResult[CreateTodoResponse]
@@ -95,32 +117,44 @@ trait UserTodoService {
 }
 
 class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
+  import UserTodoApi._
 
-  private def successRight[T](value: => T): ApiResult[T] = Future.successful(Right(value))
-  private def successEither[T](value: => Either[ErrorInfo, T]): ApiResult[T] =
-    Future.successful(value)
-  private def fail(value: ErrorInfo): ApiResult[Nothing] = Future.successful(Left(value))
+  private val dummyRefreshToken = RefreshToken("dummyRefresh")
+  private val dummyAccessToken  = AccessToken("dummyAccess")
+
+  private def successRight[T](value: => T): ApiResult[T]                     = Right(value)
+  private def successEither[T](value: => Either[ErrorInfo, T]): ApiResult[T] = value
+  private def fail(value: ErrorInfo): ApiResult[Nothing]                     = Left(value)
+
+  private def issueRefreshToken(user: UserRow): RefreshToken = RefreshToken("123")
 
   override def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse] = {
     db().localTx(implicit session => {
       val created = userRepo.createUser(req.email, req.initialPass, req.profile)
-      successRight(CreateUserResponse(created.userId, created.userProfile, "dummy"))
+      successRight(CreateUserResponse(created.userId, created.userProfile))
     })
   }
 
-  override def loginUser(req: LoginRequest): ApiResult[LoginResponse] = {
-    val result = db().readOnly(implicit session => {
+  override def loginUser(
+      req: LoginRequest,
+  ): ApiResult[(LoginResponse, RefreshToken)] = {
+    val user = db().readOnly(implicit session => {
       val found = userRepo.findUserByEmail(req.email)
       found
         .filter(_.userPassword == req.password)
-        .map(user => LoginResponse(user.userId, user.userProfile, "dummyJwt"))
         .toRight(NotFound("authed user"))
     })
-    Future.successful(result)
+    user.map(u => (LoginResponse(u.userId, u.userProfile), issueRefreshToken(u)))
   }
 
-  override def validateAuth(jwtToken: String): ApiResult[AuthedUser] =
-    successRight(AuthedUser(userId = -1, jwtToken = jwtToken))
+  override def issueAccessToken(refreshToken: RefreshToken): ApiResult[AccessToken] =
+    Right(dummyAccessToken)
+
+  override def validateAccessToken(jwtToken: AccessToken): ApiResult[AuthedUser] = {
+    if (jwtToken == dummyAccessToken)
+      successRight(AuthedUser(userId = -1, jwtToken = jwtToken.value))
+    else fail(Unauthorized("realm"))
+  }
 
   override def updateProfile(
       authed: AuthedUser,
@@ -136,7 +170,7 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
 
       updated.map(_.userProfile)
     })
-    Future.successful(result)
+    result
   }
 
   override def createTodo(

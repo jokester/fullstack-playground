@@ -33,7 +33,7 @@ final case class UserRepo()(implicit session: DBSession) extends UserRepoApi[Id]
       insert
         .into(User)
         .namedValues(
-          User.column.userEmail    -> email,
+          User.column.userEmail    -> email.toLowerCase(),
           User.column.userPassword -> pass,
           User.column.userProfile  -> p,
         )
