@@ -1,6 +1,7 @@
 package io.jokester.fullstack_playground.user_todo_list
 
 import cats.Id
+import com.typesafe.scalalogging.LazyLogging
 import io.circe.generic.auto._
 import io.jokester.fullstack_playground.genereated_scalikejdbc.{
   UserProfile,
@@ -18,8 +19,11 @@ import sttp.tapir.{auth, _}
 object UserTodoApi {
 
   sealed trait ErrorInfo
-  case class NotFound(what: String)          extends ErrorInfo
-  case class Unauthorized(realm: String)     extends ErrorInfo
+  case class BadRequest(error: String)       extends ErrorInfo
+  case class NotFound(error: String)         extends ErrorInfo
+  case class Unauthorized(error: String)     extends ErrorInfo
+  case class Unauthenticated(error: String)  extends ErrorInfo
+  case class InternalError()                 extends ErrorInfo
   case class Unknown(code: Int, msg: String) extends ErrorInfo
   case object NoContent                      extends ErrorInfo
 
@@ -27,7 +31,12 @@ object UserTodoApi {
   case class CreateUserResponse(userId: Int, userProfile: UserProfile)
 
   case class LoginRequest(email: String, password: String)
-  case class LoginResponse(userId: Int, userProfile: UserProfile)
+  case class LoginResponse(
+      userId: Int,
+      userProfile: UserProfile,
+      refreshToken: RefreshToken,
+      accessToken: AccessToken,
+  )
 
   case class AuthedUser(jwtToken: String, userId: Int)
 
@@ -47,29 +56,32 @@ object UserTodoApi {
         .errorOut(
           oneOf[ErrorInfo](
             statusMapping(StatusCode.NotFound, jsonBody[NotFound]),
+            statusMapping(StatusCode.Unauthorized, jsonBody[Unauthenticated]),
+            statusMapping(StatusCode.Forbidden, jsonBody[Unauthorized]),
           ),
         )
 
     private def authedBasePath =
-      basePath.in(
-        auth.bearer[String]().map[AccessToken](f = AccessToken)(_.value),
-      )
+      basePath
+        .in(
+          auth.bearer[String]().map[AccessToken](f = AccessToken)(_.value),
+        )
 
     val createUser =
-      basePath.in("users").post.in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
+      basePath.post.in("users").in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
 
     val login =
       basePath.post
         .in("auth" / "login")
         .in(jsonBody[LoginRequest])
         .out(jsonBody[LoginResponse])
-        .out(
-          setCookie("refreshToken"),
-        )
 
     val refreshToken = basePath.post
       .in("auth" / "refresh_token")
-      .in(cookie[String]("refreshToken").map[RefreshToken](f = RefreshToken)(_.value))
+      .in(
+        auth.bearer[String]().map[RefreshToken](f = RefreshToken)(_.value),
+      )
+      .out(jsonBody[LoginResponse])
 
     val updateUserProfile =
       authedBasePath.put
@@ -89,6 +101,7 @@ object UserTodoApi {
   val endpointList = Seq(
     endpoints.createUser,
     endpoints.login,
+    endpoints.refreshToken,
     endpoints.updateUserProfile,
     endpoints.createUser,
     endpoints.updateTodo,
@@ -104,29 +117,33 @@ trait UserTodoService {
 
   type ApiResult[T] = Id[Either[ErrorInfo, T]]
 
+  // signup
   def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse]
-  def loginUser(req: LoginRequest): ApiResult[(LoginResponse, RefreshToken)]
 
-  def issueAccessToken(refreshToken: RefreshToken): ApiResult[AccessToken]
-  def validateAccessToken(jwtToken: AccessToken): ApiResult[AuthedUser]
+  // auth
+  def loginUser(req: LoginRequest): ApiResult[LoginResponse]
+  def validateAccessToken(accessToken: AccessToken): ApiResult[AuthedUser]
+  def refreshAccessToken(refreshToken: RefreshToken): ApiResult[LoginResponse]
+
+  // user
   def updateProfile(authed: AuthedUser, newProfile: UserProfile): ApiResult[UserProfile]
 
+  // todo
   def createTodo(authed: AuthedUser, req: CreateTodoRequest): ApiResult[CreateTodoResponse]
   def updateTodo(authed: AuthedUser, req: UpdateTodoRequest): ApiResult[UpdateTodoResponse]
 
 }
 
-class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
+class UserTodoServiceImpl extends UserTodoService with UserTodoDb with LazyLogging {
   import UserTodoApi._
 
   private val dummyRefreshToken = RefreshToken("dummyRefresh")
   private val dummyAccessToken  = AccessToken("dummyAccess")
 
-  private def successRight[T](value: => T): ApiResult[T]                     = Right(value)
-  private def successEither[T](value: => Either[ErrorInfo, T]): ApiResult[T] = value
-  private def fail(value: ErrorInfo): ApiResult[Nothing]                     = Left(value)
+  private def successRight[T](value: => T): ApiResult[T] = Right(value)
+  private def fail(value: ErrorInfo): ApiResult[Nothing] = Left(value)
 
-  private def issueRefreshToken(user: UserRow): RefreshToken = RefreshToken("123")
+  private def issueRefreshToken(user: UserRow): RefreshToken = dummyRefreshToken
 
   override def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse] = {
     db().localTx(implicit session => {
@@ -137,18 +154,29 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
 
   override def loginUser(
       req: LoginRequest,
-  ): ApiResult[(LoginResponse, RefreshToken)] = {
+  ): ApiResult[LoginResponse] = {
     val user = db().readOnly(implicit session => {
       val found = userRepo.findUserByEmail(req.email)
       found
         .filter(_.userPassword == req.password)
         .toRight(NotFound("authed user"))
     })
-    user.map(u => (LoginResponse(u.userId, u.userProfile), issueRefreshToken(u)))
+    user.map(u => LoginResponse(u.userId, u.userProfile, issueRefreshToken(u), dummyAccessToken))
   }
 
-  override def issueAccessToken(refreshToken: RefreshToken): ApiResult[AccessToken] =
-    Right(dummyAccessToken)
+  override def refreshAccessToken(refreshToken: RefreshToken): ApiResult[LoginResponse] =
+    if (refreshToken == dummyRefreshToken) {
+      Right(
+        LoginResponse(
+          userId = -1,
+          userProfile = UserProfile(),
+          accessToken = dummyAccessToken,
+          refreshToken = dummyRefreshToken,
+        ),
+      )
+    } else {
+      Left(Unauthorized("invalid refresh token"))
+    }
 
   override def validateAccessToken(jwtToken: AccessToken): ApiResult[AuthedUser] = {
     if (jwtToken == dummyAccessToken)

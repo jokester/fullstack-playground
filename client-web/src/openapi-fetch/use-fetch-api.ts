@@ -1,20 +1,17 @@
-import type { DefaultApi, LoginResponse } from '../generated/openapi-rx';
+import type { DefaultApi, LoginResponse } from '../generated/openapi-fetch';
 import { inServer } from '../config/build-env';
 import { Never } from '@jokester/ts-commonutil/lib/concurrency/timing';
 import { PromiseResult, usePromised } from '@jokester/ts-commonutil/lib/react/hook/use-promised';
 import { useEffect, useState } from 'react';
-import { Observable } from 'rxjs';
-import { useLocalStorage } from 'react-use';
 
 const apiP: Promise<DefaultApi> = inServer
   ? Never
-  : import('../generated/openapi-rx').then(
+  : import('../generated/openapi-fetch').then(
       (_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080` })),
     );
 
 function readAuth(): null | LoginResponse {
   if (inServer) return null;
-
   try {
     return JSON.parse(localStorage.getItem('__auth') || '-');
   } catch (whatever) {
@@ -26,34 +23,38 @@ export function DEBUG_saveAuth(loginRes: LoginResponse): void {
   return localStorage.setItem('__auth', JSON.stringify(loginRes));
 }
 
-export function callRxApiClient<T>(
-  task: (api: DefaultApi) => Observable<T>,
+export function callFetchApiClient<T>(
+  task: (api: DefaultApi) => Promise<T>,
   options?: { withAccessToken?: boolean; withRefreshToken?: boolean },
 ): Promise<T> {
   const auth = readAuth();
   return apiP
     .then(
       (api): DefaultApi =>
-        api.withPreMiddleware([
-          (req) => ({
-            ...req,
-            headers: {
-              ...req.headers,
-              Authorization:
-                (options?.withAccessToken && auth?.accessToken && `Bearer ${auth.accessToken.value}`) ||
-                (options?.withRefreshToken && auth?.refreshToken && `Bearer ${auth.refreshToken.value}`) ||
-                '',
-            } as any,
-          }),
-        ]) as DefaultApi,
+        api.withPreMiddleware(async ({ init, url }) => {
+          return {
+            url: url,
+            init: {
+              ...init,
+              mode: 'cors',
+              headers: {
+                ...init.headers,
+                Authorization:
+                  (options?.withAccessToken && auth && `Bearer ${auth.accessToken.value}`) ||
+                  (options?.withRefreshToken && auth && `Bearer ${auth.refreshToken.value}`) ||
+                  '',
+              },
+            },
+          };
+        }),
     )
-    .then((api) => task(api).toPromise());
+    .then((api) => task(api));
 }
 
-export function useApiResult<T>(
+export function useFetchApiResult<T>(
   task: (api: DefaultApi) => Promise<T>,
   deps?: unknown[],
-  withAuth = false,
+  options?: { withAccessToken?: boolean; withRefreshToken?: boolean },
 ): readonly [PromiseResult<T>, () => void] {
   const [resultP, setResultP] = useState<Promise<T>>(Never);
   const [count, setCounter] = useState(1);
@@ -66,8 +67,9 @@ export function useApiResult<T>(
         effective = false;
       };
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    deps ? [count, ...deps] : [count],
+    deps
+      ? [count, options?.withAccessToken, options?.withRefreshToken, ...deps]
+      : [count, options?.withAccessToken, options?.withRefreshToken],
   );
 
   return [usePromised(resultP), () => setCounter((_) => _ + 1)] as const;

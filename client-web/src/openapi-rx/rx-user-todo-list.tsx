@@ -3,7 +3,7 @@ import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/us
 import { Button, List, ListItem } from '@chakra-ui/react';
 import { useMounted } from '@jokester/ts-commonutil/lib/react/hook/use-mounted';
 import { LoginResponse } from '../generated/openapi-rx';
-import { callRxApiClient } from '../openapi-rx/use-rx-api';
+import { callRxApiClient, DEBUG_saveAuth } from './use-rx-api';
 import { PreJson } from '../dummy/pre-json';
 import useConstant from 'use-constant';
 
@@ -36,17 +36,41 @@ function useUserTodoApi() {
 
   const onDummyLogin = () => onLogin(userEmail, 'pass');
 
-  return { authed, onCreateUser, onDummyLogin };
+  const onAuth = () =>
+    withLock(async () => {
+      const createdUser = await callRxApiClient((api) =>
+        api.postUserTodoApiUsers({
+          createUserRequest: {
+            email: userEmail,
+            initialPass: 'pass',
+            profile: {},
+          },
+        }),
+      );
+      const logined = await callRxApiClient((api) =>
+        api.postUserTodoApiAuthLogin({
+          loginRequest: {
+            email: userEmail,
+            password: 'pass',
+          },
+        }),
+      );
+      DEBUG_saveAuth(logined);
+      const issued = await callRxApiClient((api) => api.postUserTodoApiAuthRefreshToken(), { withRefreshToken: true });
+    });
+
+  return { authed, onCreateUser, onDummyLogin, onAuth };
 }
 
-export const FetchTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (props, ref) => {
-  const { authed, onCreateUser, onDummyLogin } = useUserTodoApi();
+export const RxUserTodoList: React.FC<{ revision?: number; onMutated?(): void }> = (props, ref) => {
+  const { authed, onCreateUser, onDummyLogin, onAuth } = useUserTodoApi();
 
   return (
     <div>
       <div>
         <Button onClick={onCreateUser}>create user</Button>
         <Button onClick={onDummyLogin}>login()</Button>
+        <Button onClick={onAuth}>auth()</Button>
       </div>
       <div>
         <div>

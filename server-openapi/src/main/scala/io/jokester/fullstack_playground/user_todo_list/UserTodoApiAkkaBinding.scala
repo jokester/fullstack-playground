@@ -20,20 +20,11 @@ object UserTodoApiAkkaBinding {
       .safeApply(value)
       .getOrElse(throw new Error(s"failed to encode cookie"))
 
-  def buildRoute(impl: UserTodoService): Route = {
+  def buildRoute(impl: UserTodoService): Route =
     Seq[Route](
-      endpoints.login.toRoute(req => {
-        val r = impl
-          .loginUser(req)
-          .map(tuple =>
-            (
-              tuple._1,
-              setCookie(tuple._2.value),
-            ),
-          )
-        r
-      }),
       endpoints.createUser.toRoute(req => impl.createUser(req)),
+      endpoints.login.toRoute(req => impl.loginUser(req)),
+      endpoints.refreshToken.toRoute(req => impl.refreshAccessToken(req)),
       endpoints.updateUserProfile.toRoute(params => {
         val (accessToken, userId, newProfile) = params
         for (
@@ -43,6 +34,5 @@ object UserTodoApiAkkaBinding {
       }),
       AkkaOpenAPIServer.openapiRoute(UserTodoApi.asOpenAPI),
     ).reduce(_ ~ _)
-  }
 
 }
