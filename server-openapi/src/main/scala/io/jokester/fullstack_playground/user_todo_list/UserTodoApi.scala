@@ -82,7 +82,7 @@ object UserTodoApi {
 trait UserTodoService {
   import UserTodoApi._
 
-  type ApiResult[T] = Future[Either[ErrorInfo, T]]
+  type ApiResult[+T] = Future[Either[ErrorInfo, T]]
 
   def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse]
   def loginUser(req: LoginRequest): ApiResult[LoginResponse]
@@ -96,17 +96,15 @@ trait UserTodoService {
 
 class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
 
-  private def success[T](value: => T): Future[Either[ErrorInfo, T]] =
-    Future.successful(Right(value))
-  private def success[T](value: => Either[ErrorInfo, T]): Future[Either[ErrorInfo, T]] =
+  private def successRight[T](value: => T): ApiResult[T] = Future.successful(Right(value))
+  private def successEither[T](value: => Either[ErrorInfo, T]): ApiResult[T] =
     Future.successful(value)
-  private def fail(value: ErrorInfo): Future[Either[ErrorInfo, Nothing]] =
-    Future.successful(Left(value))
+  private def fail(value: ErrorInfo): ApiResult[Nothing] = Future.successful(Left(value))
 
   override def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse] = {
     db().localTx(implicit session => {
       val created = userRepo.createUser(req.email, req.initialPass, req.profile)
-      success(CreateUserResponse(created.userId, created.userProfile, "dummy"))
+      successRight(CreateUserResponse(created.userId, created.userProfile, "dummy"))
     })
   }
 
@@ -118,17 +116,17 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
         .map(user => LoginResponse(user.userId, user.userProfile, "dummyJwt"))
         .toRight(NotFound("authed user"))
     })
-    success(result)
+    Future.successful(result)
   }
 
   override def validateAuth(jwtToken: String): ApiResult[AuthedUser] =
-    success(AuthedUser(userId = -1, jwtToken = jwtToken))
+    successRight(AuthedUser(userId = -1, jwtToken = jwtToken))
 
   override def updateProfile(
       authed: AuthedUser,
       newProfile: UserProfile,
   ): ApiResult[UserProfile] = {
-    db().localTx(implicit session => {
+    val result = db().localTx(implicit session => {
       val updated =
         for (
           orig <- userRepo.findUser(authed.userId).toRight(NotFound("user"));
@@ -136,8 +134,9 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb {
             userRepo.updateUser(orig.copy(userProfile = newProfile)).toRight(NotFound("user"))
         ) yield updated
 
-      success(updated.map(_.userProfile))
+      updated.map(_.userProfile)
     })
+    Future.successful(result)
   }
 
   override def createTodo(
