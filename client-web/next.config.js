@@ -53,13 +53,14 @@ const nextConf = {
 
 module.exports = withPlugins(
   [
-    //
     [optional(() => require('next-optimized-images')), { optimizeImages: false }, [PHASE_PRODUCTION_BUILD]],
     [optional(() => require('@zeit/next-bundle-analyzer')), {}, [PHASE_PRODUCTION_BUILD]],
     [optional(() => require('@zeit/next-source-maps')), {}, [PHASE_PRODUCTION_BUILD]],
     [
       optional(() =>
-        require('next-transpile-modules')([/* ES modules used in server code */ '@jokester/ts-commonutil']),
+        require('next-transpile-modules')([
+          /* ES modules used in server code */
+        ]),
       ),
       {},
       [PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD],
