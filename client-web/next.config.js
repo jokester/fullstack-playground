@@ -59,6 +59,7 @@ module.exports = withPlugins(
     [
       optional(() =>
         require('next-transpile-modules')([
+          "@jokester/ts-commonutil",
           /* ES modules used in server code */
         ]),
       ),
