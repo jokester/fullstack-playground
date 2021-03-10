@@ -29,13 +29,13 @@ const UserPanel: FC<{ cred: CredApi }> = (props) => {
         )}
       </div>
 
-      <Button onClick={authApi.onCreateUser} isLoading={!!authApi.lockDepth} isDisabled={!!me}>
+      <Button onClick={authApi.onCreateUser} isLoading={!!authApi.lockDepth}>
         create dummy user
       </Button>
-      <Button onClick={authApi.onLogin} isLoading={!!authApi.lockDepth} isDisabled={!!me}>
+      <Button onClick={authApi.onLogin} isLoading={!!authApi.lockDepth}>
         login as dummy user
       </Button>
-      <Button onClick={authApi.onLogout} isLoading={!!authApi.lockDepth} isDisabled={!me}>
+      <Button onClick={authApi.onLogout} isLoading={!!authApi.lockDepth}>
         logout
       </Button>
     </div>
