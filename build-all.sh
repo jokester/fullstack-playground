@@ -5,6 +5,8 @@ set -uex
 cd $(dirname "$0")
 
 # openapi decl + client
-pushd codegen-openapi
-./run-generator.sh
+pushd server-openapi
+  make openapi > ../api-spec/todo-api.yaml
 popd
+
+./scripts/openapi-codegen.sh

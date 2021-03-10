@@ -4,7 +4,7 @@ set -ue
 cd $(dirname "$0")/hasura
 
 # use assets in docker image instead of CDN
-if ! [[ -d ../console-assets ]]; then
+if ! [[ -d ../hasura-console-assets ]]; then
   docker cp fullstack-playground_hasura_1:/srv/console-assets ../hasura-console-assets
 fi
 
