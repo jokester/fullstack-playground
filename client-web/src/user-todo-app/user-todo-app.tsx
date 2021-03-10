@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { CredApi, useCredStorage } from './use-user-cred';
 import { useUserAuthApi } from './use-user-auth-api';
 import { Button } from '@chakra-ui/react';
+import { useUserTodoApi } from './use-user-todo-api';
 
 export const UserTodoApp: FC = () => {
   const cred = useCredStorage();
@@ -29,19 +30,20 @@ const UserPanel: FC<{ cred: CredApi }> = (props) => {
         )}
       </div>
 
-      <Button onClick={authApi.onCreateUser} isLoading={!!authApi.lockDepth}>
+      <Button onClick={authApi.onCreateUser} isLoading={!!authApi.lockDepth} isDisabled={!!me}>
         create dummy user
       </Button>
-      <Button onClick={authApi.onLogin} isLoading={!!authApi.lockDepth}>
+      <Button onClick={authApi.onLogin} isLoading={!!authApi.lockDepth} isDisabled={!!me}>
         login as dummy user
       </Button>
-      <Button onClick={authApi.onLogout} isLoading={!!authApi.lockDepth}>
+      <Button onClick={authApi.onLogout} isLoading={!!authApi.lockDepth} isDisabled={!me}>
         logout
       </Button>
     </div>
   );
 };
 
-const TodoPanel: FC<{ cred: CredApi }> = () => {
+const TodoPanel: FC<{ cred: CredApi }> = ({ cred }) => {
+  const todoApi = useUserTodoApi(cred);
   return null;
 };

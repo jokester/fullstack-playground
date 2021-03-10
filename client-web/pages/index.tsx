@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import { Heading } from '@chakra-ui/react';
 import { UserTodoApp } from '../src/user-todo-app/user-todo-app';
+import { inServer } from '../src/config/build-env';
 
 const TodoListPage: React.FC = () => {
   return (
@@ -19,9 +20,7 @@ const TodoListPage: React.FC = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <div className="p-2">
-              <UserTodoApp />
-            </div>
+            <div className="p-2">{!inServer && <UserTodoApp />}</div>
           </TabPanel>
         </TabPanels>
       </Tabs>
