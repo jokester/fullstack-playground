@@ -3,6 +3,7 @@ import { CredApi, useCredStorage } from './use-user-cred';
 import { useUserAuthApi } from './use-user-auth-api';
 import { Button } from '@chakra-ui/react';
 import { useUserTodoApi } from './use-user-todo-api';
+import { PreJson } from '../dummy/pre-json';
 
 export const UserTodoApp: FC = () => {
   const cred = useCredStorage();
@@ -10,7 +11,7 @@ export const UserTodoApp: FC = () => {
   return (
     <div>
       <UserPanel cred={cred} />
-      <TodoPanel cred={cred} />
+      <TodoPanelOpenApi cred={cred} />
     </div>
   );
 };
@@ -46,4 +47,29 @@ const UserPanel: FC<{ cred: CredApi }> = (props) => {
 const TodoPanel: FC<{ cred: CredApi }> = ({ cred }) => {
   const todoApi = useUserTodoApi(cred);
   return null;
+};
+
+const TodoPanelOpenApi: FC<{ cred: CredApi }> = ({ cred }) => {
+  const todoApi = useUserTodoApi(cred);
+
+  return (
+    todoApi.todos && (
+      <div>
+        <ul>
+          {todoApi.todos.map((todo) => (
+            <li key={todo.userId}>
+              <PreJson value={todo} />
+              <Button isLoading={todoApi.lockDepth > 0} onClick={() => todoApi.deleteTodo(todo)}>
+                delete
+              </Button>
+            </li>
+          ))}
+        </ul>
+
+        <Button isLoading={todoApi.lockDepth > 0} onClick={() => todoApi.createTodo('title', 'desc')}>
+          create
+        </Button>
+      </div>
+    )
+  );
 };
