@@ -20,7 +20,19 @@ object UserTodoApiAkkaBinding {
       .safeApply(value)
       .getOrElse(throw new Error(s"failed to encode cookie"))
 
-  def buildRoute(impl: UserTodoService): Route =
+  def buildRoute(impl: UserTodoService): Route = {
+
+    def loadUser(accessToken: AccessToken) =
+      impl
+        .validateSession(accessToken)
+        .map(user => user)
+
+    def loadUserAndValidateUserId(accessToken: AccessToken, expectedUserId: Int) =
+      for (
+        user <- impl.validateSession(accessToken);
+        _    <- Right(expectedUserId).filterOrElse(_ == user.userId, Unauthenticated("user"))
+      ) yield user
+
     Seq[Route](
       endpoints.createUser.toRoute(req => impl.createUser(req)),
       endpoints.login.toRoute(req => impl.loginUser(req)),
@@ -28,11 +40,31 @@ object UserTodoApiAkkaBinding {
       endpoints.updateUserProfile.toRoute(params => {
         val (accessToken, userId, newProfile) = params
         for (
-          user    <- impl.validateSession(accessToken);
+          user    <- loadUserAndValidateUserId(accessToken, userId);
           updated <- impl.updateProfile(user, newProfile)
         ) yield updated
       }),
+      endpoints.createTodo.toRoute(params => {
+        val (accessToken, userId, req) = params
+        for (
+          user    <- loadUserAndValidateUserId(accessToken, userId);
+          created <- impl.createTodo(user, req)
+        ) yield created
+      }),
+      endpoints.deleteTodo.toRoute(params => {
+        val (accessToken, userId, todoId) = params
+        for (
+          user    <- loadUserAndValidateUserId(accessToken, userId);
+          created <- impl.deleteTodo(user, todoId)
+        ) yield ()
+      }),
+      endpoints.listTodo.toRoute(params => {
+        val (accessToken, userId) = params
+        for (user <- loadUserAndValidateUserId(accessToken, userId); list <- impl.listTodo(user))
+          yield ListTodoResponse(list)
+      }),
       AkkaOpenAPIServer.openapiRoute(UserTodoApi.asOpenAPI),
     ).reduce(_ ~ _)
+  }
 
 }

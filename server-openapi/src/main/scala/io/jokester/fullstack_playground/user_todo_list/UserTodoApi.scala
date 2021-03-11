@@ -54,6 +54,7 @@ object UserTodoApi {
   type CreateTodoResponse = TodoRow
   type UpdateTodoRequest  = TodoRow
   type UpdateTodoResponse = TodoRow
+  case class ListTodoResponse(todos: Seq[TodoRow])
 
   object endpoints {
 
@@ -92,17 +93,27 @@ object UserTodoApi {
 
     val updateUserProfile =
       authedBasePath.put
-        .in("users" / path[Int] / "profile")
+        .in("users" / path[Int]("userId") / "profile")
         .in(jsonBody[UserProfile])
         .out(jsonBody[UserProfile])
 
     val createTodo =
-      basePath.post.in("todos").in(jsonBody[CreateTodoRequest]).out(jsonBody[CreateTodoResponse])
+      authedBasePath.post
+        .in("users" / path[Int]("userId") / "todos")
+        .in(jsonBody[CreateTodoRequest])
+        .out(jsonBody[CreateTodoResponse])
 
-    val updateTodo = basePath.patch
-      .in("todos" / path[Int])
+    val updateTodo = authedBasePath.patch
+      .in("users" / path[Int]("userId") / "todos" / path[Int]("todoId"))
       .in(jsonBody[CreateTodoResponse])
       .out(jsonBody[CreateTodoResponse])
+
+    val deleteTodo =
+      authedBasePath.delete.in("users" / path[Int]("userId") / "todos" / path[Int]("todoId"))
+
+    val listTodo = authedBasePath.get
+      .in("users" / path[Int]("userId") / "todos")
+      .out(jsonBody[ListTodoResponse])
   }
 
   val endpointList = Seq(
@@ -138,7 +149,8 @@ trait UserTodoService {
   // todo
   def createTodo(authed: AuthedUser, req: CreateTodoRequest): ApiResult[CreateTodoResponse]
   def updateTodo(authed: AuthedUser, req: UpdateTodoRequest): ApiResult[UpdateTodoResponse]
-
+  def deleteTodo(authed: AuthedUser, todoId: Int): ApiResult[TodoRow]
+  def listTodo(authed: AuthedUser): ApiResult[Seq[TodoRow]]
 }
 
 class UserTodoServiceImpl extends UserTodoService with UserTodoDb with JwtHelpers with LazyLogging {
@@ -202,7 +214,7 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb with JwtHelper
       authed: AuthedUser,
       newProfile: UserProfile,
   ): ApiResult[UserProfile] = {
-    val result = db().localTx(implicit session => {
+    db().localTx(implicit session => {
       val updated =
         for (
           orig <- userRepo.findUser(authed.userId).toRight(NotFound("user"));
@@ -212,16 +224,53 @@ class UserTodoServiceImpl extends UserTodoService with UserTodoDb with JwtHelper
 
       updated.map(_.userProfile)
     })
-    result
   }
 
   override def createTodo(
       authed: AuthedUser,
       req: CreateTodoRequest,
-  ): ApiResult[CreateTodoResponse] = ???
+  ): ApiResult[CreateTodoResponse] = {
+    db().localTx(implicit session => {
+
+      for (u <- userRepo.findUser(authed.userId).toRight(NotFound("user")))
+        yield todoRepo.createTodo(u, req.title, req.description)
+    })
+  }
 
   override def updateTodo(
       authed: AuthedUser,
       req: UpdateTodoRequest,
-  ): ApiResult[UpdateTodoResponse] = ???
+  ): ApiResult[UpdateTodoResponse] = {
+    db().localTx(implicit session => {
+      for (
+        orig <-
+          todoRepo
+            .findTodo(req.todoId)
+            .toRight(NotFound("todo item"))
+            .filterOrElse(_.userId == authed.userId, Unauthorized("permission to update"))
+      ) yield todoRepo.updateTodo(req)
+    })
+  }
+
+  override def deleteTodo(
+      authed: AuthedUser,
+      todoId: Int,
+  ): ApiResult[TodoRow] = {
+    db().localTx(implicit session => {
+      for (
+        orig <-
+          todoRepo
+            .findTodo(todoId)
+            .toRight(NotFound("todo item"))
+            .filterOrElse(_.userId == authed.userId, Unauthorized("permission to remove"))
+      ) yield todoRepo.removeTodo(orig)
+    })
+  }
+
+  override def listTodo(authed: AuthedUser): ApiResult[Seq[TodoRow]] = {
+    db().localTx(implicit session => {
+      for (u <- userRepo.findUser(authed.userId).toRight(NotFound("user")))
+        yield todoRepo.listTodo(u)
+    })
+  }
 }
