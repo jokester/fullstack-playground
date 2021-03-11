@@ -121,8 +121,10 @@ object UserTodoApi {
     endpoints.login,
     endpoints.refreshToken,
     endpoints.updateUserProfile,
-    endpoints.createUser,
+    endpoints.createTodo,
+    endpoints.deleteTodo,
     endpoints.updateTodo,
+    endpoints.listTodo,
   )
 
   def asOpenAPI: OpenAPI = {
