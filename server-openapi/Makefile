@@ -2,8 +2,10 @@ server:
 	sbt "run runServer"
 
 openapi:
-	@#                           v to skip sbt output
-	@sbt "run openapi" | grep -v -e '^\['
+	sbt "run openapi"
+
+migration:
+	sbt flywayMigrate
 
 models:
 	sbt scalikejdbcGenAllForce scalafmtAll

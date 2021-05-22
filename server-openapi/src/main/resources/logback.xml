@@ -15,7 +15,8 @@
     <logger name="io.jokester" level="debug"/>
     <logger name="slick" level="info"/>
     <logger name="com.zaxxer.hikari" level="info"/>
-    <logger name="slick.jdbc.JdbcBackend" level="debug"/>
-    <logger name="scalikejdbc" level="debug" />
+    <logger name="scalikejdbc" level="info"/>
+    <logger name="org.flywaydb" level="info"/>
+    <logger name="akka" level="info"/>
 
 </configuration>

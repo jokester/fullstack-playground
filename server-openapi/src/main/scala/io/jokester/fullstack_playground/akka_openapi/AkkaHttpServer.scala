@@ -2,13 +2,15 @@ package io.jokester.fullstack_playground.akka_openapi
 
 import akka.actor.{ActorSystem, ClassicActorSystemProvider}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpMethods
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Directive0, Route}
+import akka.http.scaladsl.server.{Directive0, Route, RouteResult}
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.typesafe.scalalogging.LazyLogging
 
+import java.time.Clock
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 object AkkaHttpServer extends LazyLogging {
@@ -20,7 +22,7 @@ object AkkaHttpServer extends LazyLogging {
     implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
 
     val completeRoute: Route =
-      withLogging {
+      withLogging2 {
         withCors {
           inner
         }
@@ -45,10 +47,29 @@ object AkkaHttpServer extends LazyLogging {
     }
   }
 
+  def withLogging2: Directive0 = {
+    val reqId = UUID.randomUUID()
+    logRequestResult((req: HttpRequest) =>
+      (res: RouteResult) => {
+        logger.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
+        logger.debug(s"Response ${reqId}: ${res}")
+        None
+      },
+    )
+  }
+
   def withLogging: Directive0 =
     extractRequest.flatMap(req => {
-      logger.debug(s"Request: ${req.method.name} ${req.uri}")
-      pass
+      val reqId    = UUID.randomUUID()
+      val reqStart = Clock.systemUTC().millis()
+      logger.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
+
+      mapResponse(res => {
+        logger.debug(
+          s"Request ${reqId}: ${res.status.value} in ${Clock.systemUTC().millis() - reqStart}ms",
+        )
+        res
+      })
     })
 
   def withCors: Directive0 = {
@@ -74,13 +95,13 @@ object AkkaHttpServer extends LazyLogging {
     Option(System.console())
       .map(console =>
         Future[Unit] {
-          logger.debug(s"Press ENTER to stop")
+          logger.info(s"Press ENTER to stop")
           // let it run until user presses return
           console.readLine()
         },
       )
       .getOrElse({
-        logger.debug(s"No TTY found. Ignoring console.")
+        logger.info(s"No TTY found. Ignoring console.")
         Future.never
       })
 }

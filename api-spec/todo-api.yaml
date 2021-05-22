@@ -1,0 +1,438 @@
+openapi: 3.0.3
+info:
+  title: User Todos
+  version: '1.0'
+paths:
+  /user_todo_api/users:
+    post:
+      operationId: postUser_todo_apiUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+  /user_todo_api/auth/login:
+    post:
+      operationId: postUser_todo_apiAuthLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+  /user_todo_api/auth/refresh_token:
+    post:
+      operationId: postUser_todo_apiAuthRefresh_token
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+      security:
+      - httpAuth: []
+  /user_todo_api/users/{userId}/profile:
+    put:
+      operationId: putUser_todo_apiUsersUseridProfile
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+      security:
+      - httpAuth: []
+  /user_todo_api/users/{userId}/todos:
+    get:
+      operationId: getUser_todo_apiUsersUseridTodos
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTodoResponse'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+      security:
+      - httpAuth: []
+    post:
+      operationId: postUser_todo_apiUsersUseridTodos
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoRequest'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItem'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+      security:
+      - httpAuth: []
+  /user_todo_api/users/{userId}/todos/{todoId}:
+    delete:
+      operationId: deleteUser_todo_apiUsersUseridTodosTodoid
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: todoId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: ''
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+      security:
+      - httpAuth: []
+    patch:
+      operationId: patchUser_todo_apiUsersUseridTodosTodoid
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: todoId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoItem'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoItem'
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '401':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthenticated'
+        '403':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+      security:
+      - httpAuth: []
+components:
+  schemas:
+    CreateUserRequest:
+      required:
+      - email
+      - initialPass
+      - profile
+      type: object
+      properties:
+        email:
+          type: string
+        initialPass:
+          type: string
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+    UserProfile:
+      type: object
+      properties:
+        nickname:
+          type: string
+        avatarUrl:
+          type: string
+    NotFound:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+    Unauthenticated:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+    Unauthorized:
+      required:
+      - error
+      type: object
+      properties:
+        error:
+          type: string
+    CreateUserResponse:
+      required:
+      - userId
+      - userProfile
+      type: object
+      properties:
+        userId:
+          type: integer
+        userProfile:
+          $ref: '#/components/schemas/UserProfile'
+    LoginRequest:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    LoginResponse:
+      required:
+      - userId
+      - userProfile
+      - refreshToken
+      - accessToken
+      type: object
+      properties:
+        userId:
+          type: integer
+        userProfile:
+          $ref: '#/components/schemas/UserProfile'
+        refreshToken:
+          $ref: '#/components/schemas/RefreshToken'
+        accessToken:
+          $ref: '#/components/schemas/AccessToken'
+    RefreshToken:
+      required:
+      - value
+      type: object
+      properties:
+        value:
+          type: string
+    AccessToken:
+      required:
+      - value
+      type: object
+      properties:
+        value:
+          type: string
+    CreateTodoRequest:
+      required:
+      - title
+      - description
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    TodoItem:
+      required:
+      - todoId
+      - userId
+      - title
+      - description
+      type: object
+      properties:
+        todoId:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        finishedAt:
+          type: string
+          format: date-time
+    ListTodoResponse:
+      type: object
+      properties:
+        todos:
+          type: array
+          items:
+            $ref: '#/components/schemas/TodoItem'
+  securitySchemes:
+    httpAuth:
+      type: http
+      scheme: bearer

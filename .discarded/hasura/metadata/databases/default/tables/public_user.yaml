@@ -1,0 +1,13 @@
+table:
+  name: user
+  schema: public
+select_permissions:
+- permission:
+    columns:
+    - user_email
+    - user_id
+    - user_profile
+    filter:
+      user_id:
+        _eq: X-Hasura-User-Id
+  role: authed_user

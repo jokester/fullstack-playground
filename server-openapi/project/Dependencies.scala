@@ -37,33 +37,25 @@ object Dependencies {
         //      "com.zaxxer"     % "HikariCP"   % "4.0.1", // this resolves to bad version
       ),
       Seq(
-        // quill
-        "io.getquill" %% "quill-jdbc" % "3.6.0",
+        "org.scalikejdbc" %% "scalikejdbc" % Versions.scalikeJDBC,
       ),
       Seq(
-        // slick
-        "com.typesafe.slick" %% "slick",
-        "com.typesafe.slick" %% "slick-hikaricp",
-        "com.typesafe.slick" %% "slick-codegen",
-      ).map(_ % Versions.slick),
-      Seq(
-        // slick-pg
-        "com.github.tminglei" %% "slick-pg",
-        "com.github.tminglei" %% "slick-pg_circe-json",
-      ).map(_ % Versions.slickPg),
-      Seq(
-        "org.scalikejdbc" %% "scalikejdbc" % Versions.scalikeJDBC,
+        "org.flywaydb" % "flyway-core" % Versions.flyway,
       ),
     ).flatten,
     Seq(
       "com.typesafe" % "config" % "1.4.1",
       // rest
+      // auth0's jwt impl
+      //      "com.auth0" % "java-jwt" % "3.13.0",
+      "com.pauldijou" %% "jwt-circe" % "5.0.0",
     ),
   ).flatten
 
   lazy val testDeps: Seq[ModuleID] = Seq(
-    "org.scalatest"   %% "scalatest"        % Versions.scalaTest,
-    "org.scalikejdbc" %% "scalikejdbc-test" % Versions.scalikeJDBC,
+    "org.scalatest"       %% "scalatest"        % Versions.scalaTest,
+    "org.scalikejdbc"     %% "scalikejdbc-test" % Versions.scalikeJDBC,
+    "com.github.javafaker" % "javafaker"        % "1.0.2",
   ).map(_ % Test)
 
   lazy val buildDeps: Seq[ModuleID] = Seq.empty
@@ -77,8 +69,8 @@ private object Versions {
   val sttp        = "3.0.0-RC5"
   val sttpModel   = "1.2.0-RC4"
   val sttpShared  = "1.0.0-RC6"
-  val akkaHttp    = "10.2.1"
-  val akkaStreams = "2.6.10"
+  val akkaHttp    = "10.2.3"
+  val akkaStreams = "2.6.12"
   val swaggerUi   = "3.35.2"
   val upickle     = "1.2.2"
   val playJson    = "2.9.1"
@@ -100,6 +92,8 @@ private object Versions {
   val postgresql = "42.2.8"
 
   val scalikeJDBC = "3.5.0"
+
+  val flyway = "7.8.2"
 
   // wtf
   val refined        = "0.9.17"
