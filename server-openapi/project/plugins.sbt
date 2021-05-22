@@ -7,3 +7,5 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.6")
 libraryDependencies += "org.postgresql" % "postgresql" % "42.2.8"
 
 addSbtPlugin("org.scalikejdbc" %% "scalikejdbc-mapper-generator" % "3.5.0")
+
+addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "7.4.0")

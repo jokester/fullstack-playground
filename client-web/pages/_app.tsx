@@ -1,26 +1,21 @@
 import React from 'react';
-import App from 'next/app';
+import App, { AppProps } from 'next/app';
 import '../src/app.scss';
 import { ChakraProvider } from '@chakra-ui/react';
+import { DefaultMeta } from '../src/components/meta/default-meta';
 
-export default class extends App {
-  static getInitialProps = App.getInitialProps;
-
-  render() {
-    const { Component } = this.props;
-
-    const { pathname, asPath, query } = this.props.router;
-    const pageProps: Record<string, unknown> = {
-      ...this.props.pageProps,
-      route: { pathname, asPath, query },
-    };
-
-    return (
+const CustomApp: React.FC<AppProps> & Partial<Pick<typeof App, 'getInitialProps'>> = (props) => {
+  const { Component, pageProps } = props;
+  return (
+    <React.StrictMode>
       <ChakraProvider>
-        <React.StrictMode>
-          <Component {...pageProps} />
-        </React.StrictMode>
+        <DefaultMeta />
+        <Component {...pageProps} />
       </ChakraProvider>
-    );
-  }
-}
+    </React.StrictMode>
+  );
+};
+
+CustomApp.getInitialProps = App.getInitialProps;
+
+export default CustomApp;

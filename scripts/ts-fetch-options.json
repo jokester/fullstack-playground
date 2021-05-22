@@ -1,3 +1,4 @@
 {
-  "typescriptThreePlus": true
+  "typescriptThreePlus": true,
+  "supportsES6": true
 }

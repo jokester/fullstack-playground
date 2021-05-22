@@ -1,0 +1,17 @@
+table:
+  name: todo
+  schema: public
+select_permissions:
+- permission:
+    columns:
+    - todo_id
+    - user_id
+    - title
+    - description
+    - finished_at
+    - created_at
+    - updated_at
+    filter:
+      user_id:
+        _eq: X-Hasura-User-Id
+  role: authed_user

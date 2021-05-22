@@ -1,7 +1,0 @@
-version: 2
-endpoint: http://localhost:61081
-metadata_directory: metadata
-migrations_directory: migrations
-actions:
-  kind: synchronous
-  handler_webhook_baseurl: http://localhost:3000
