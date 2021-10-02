@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  lazy val logDeps: Seq[ModuleID] = Seq(
+  lazy val loggingDeps: Seq[ModuleID] = Seq(
     // logging
     "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.2",
     "ch.qos.logback"              % "logback-classic" % "1.2.3", // this provides SLJ4J backend

@@ -10,15 +10,18 @@ ThisBuild / organizationName := "gh/jokester/fullstack-playground"
 lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
   .settings(
     name := "",
-    libraryDependencies ++= logDeps ++ akkaDeps,
+    libraryDependencies ++= loggingDeps ++ akkaDeps,
     scalaVersion := scala2Version,
     scalacOptions ++= Seq("-Xlint"),
   )
+  .enablePlugins(
+    JavaServerAppPackaging,
+  )
 
-lazy val statelessOpenapi = (project in file("statless-openapi"))
+lazy val statelessOpenapi = (project in file("stateless-openapi"))
   .settings(
     name := "",
-    libraryDependencies ++= runtimeDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= loggingDeps ++ akkaDeps ++ runtimeDeps ++ testDeps ++ buildDeps,
     scalaVersion := scala2Version,
     scalacOptions ++= Seq("-Xlint"),
   )
@@ -35,7 +38,6 @@ lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
     flywayLocations += "db/migration",
   )
   .enablePlugins(
-    JavaAppPackaging,
     // see http://scalikejdbc.org/documentation/reverse-engineering.html
     // (not generating prefect code)
     ScalikejdbcPlugin,
