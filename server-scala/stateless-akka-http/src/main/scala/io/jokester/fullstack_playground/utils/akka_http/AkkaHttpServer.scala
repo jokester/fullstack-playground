@@ -8,10 +8,13 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.Directives.{
   extractActorSystem,
+  extractLog,
   extractRequest,
-  logRequest,
-  logRequestResult,
+  extractExecutionContext,
   logResult,
+  logRequest,
+  pass,
+  provide,
 }
 import akka.http.scaladsl.server.directives.LoggingMagnet
 import akka.http.scaladsl.server.{Directive0, Route, RouteResult}
@@ -65,26 +68,23 @@ object AkkaHttpServer extends LazyLogging {
     }
   }
 
-  def withLogging2: Directive0 = {
-    val reqId    = UUID.randomUUID()
-    val reqStart = Clock.systemUTC().millis()
-
-    val d1: Directive0 = logRequest(
-      LoggingMagnet((adapter: LoggingAdapter) =>
-        (req: HttpRequest) => {
-          adapter.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
-        },
-      ),
-    )
-
-    val d2: Directive0 = logResult(
-      LoggingMagnet((adapter: LoggingAdapter) =>
-        (res: RouteResult) => {
-          adapter.debug(s"Request ${reqId}: finished in ${Clock.systemUTC().millis() - reqStart}ms")
-        },
-      ),
-    )
-    d1 & d2
+  def withRequestLogging: Directive0 = {
+    extractRequest.flatMap(req => {
+      extractLog.flatMap(logger => {
+        val reqId      = UUID.randomUUID()
+        val reqStartAt = System.currentTimeMillis()
+        logger.debug(s"req[${reqId}]: ${req.method} ${req.uri}")
+        logResult(
+          LoggingMagnet(_logger =>
+            _res => {
+              logger.debug(
+                s"req[${reqId}]: got ${_res} in ${System.currentTimeMillis() - reqStartAt}ms",
+              )
+            },
+          ),
+        )
+      })
+    })
   }
 
   def withCors: Directive0 = {

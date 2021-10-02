@@ -1,6 +1,6 @@
 package io.jokester.fullstack_playground.stateless_akka_http
 
-import akka.http.scaladsl.model.HttpHeader
+import akka.http.scaladsl.model.{HttpHeader, HttpRequest}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import com.typesafe.scalalogging.LazyLogging
@@ -29,18 +29,22 @@ object Main extends App with LazyLogging {
   def echoHeadersRoute: Route = {
     (get & path("echoHeaders")) {
       extractRequest(req => {
-        val dump = IncomingHttpHeaderDump(
-          req.headers.map((a: HttpHeader) => IncomingHttpHeader(a.name(), a.value())),
-        )
+        val dump = dumpRequestHeaders(req)
         complete(dump)
       })
     }
   }
 
+  private def dumpRequestHeaders(req: HttpRequest) = {
+    IncomingHttpHeaderDump(
+      req.headers.map((a: HttpHeader) => IncomingHttpHeader(a.name(), a.value())),
+    )
+  }
+
   def fullRoute = concat(pingRoute, echoHeadersRoute)
 
   AkkaHttpServer.listen(
-    (AkkaHttpServer.withCors & AkkaHttpServer.withLogging2)(fullRoute),
+    (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging)(fullRoute),
     port = Option(8082),
   )
 }
