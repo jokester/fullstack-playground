@@ -3,18 +3,13 @@ package io.jokester.fullstack_playground.utils.akka_http
 import akka.actor.typed.ActorSystem
 import akka.actor.{ActorSystem => UntypedActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
-import akka.event.LoggingAdapter
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.Directives.{
   extractActorSystem,
   extractLog,
   extractRequest,
-  extractExecutionContext,
   logResult,
-  logRequest,
-  pass,
-  provide,
 }
 import akka.http.scaladsl.server.directives.LoggingMagnet
 import akka.http.scaladsl.server.{Directive0, Route, RouteResult}
@@ -48,7 +43,7 @@ object AkkaHttpServer extends LazyLogging {
   )(implicit untypedSystem: UntypedActorSystem): Unit = {
     import scala.concurrent.duration._
 
-    implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
+    implicit val executionContext: ExecutionContextExecutor = untypedSystem.getDispatcher
 
     val bindingFuture = Http()
       .newServerAt(interface = interface.getOrElse("0.0.0.0"), port = port.getOrElse(8080))
