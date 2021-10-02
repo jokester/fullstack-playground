@@ -1,14 +1,11 @@
-package io.jokester.fullstack_playground.akka_openapi
+package io.jokester.fullstack_playground.utils.akka_http
 
-import akka.actor.{ActorSystem, ClassicActorSystemProvider}
+import akka.actor.typed.ActorSystem
+import akka.actor.{ActorSystem => UntypedActorSystem}
+import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest}
-import akka.http.scaladsl.server.Directives.{
-  extractActorSystem,
-  extractRequest,
-  logRequestResult,
-  mapResponse,
-}
+import akka.http.scaladsl.server.Directives.{extractActorSystem, logRequestResult}
 import akka.http.scaladsl.server.{Directive0, Route, RouteResult}
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
@@ -20,26 +17,31 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 object AkkaHttpServer extends LazyLogging {
 
+  /**
+    * Listen with a new `ActorSystem`
+    */
   def listen(inner: Route, interface: Option[String] = None, port: Option[Int] = None): Unit = {
+    val typedSystem: ActorSystem[Any] = ActorSystem(Behaviors.empty, "my-system")
+    listenWithSystem((withCors & withLogging2)(inner), interface, port)(untypedSystem =
+      typedSystem.classicSystem,
+    )
+  }
+
+  def listenWithSystem(
+      rootRoute: Route,
+      interface: Option[String] = None,
+      port: Option[Int] = None,
+  )(implicit untypedSystem: UntypedActorSystem): Unit = {
     import scala.concurrent.duration._
 
-    implicit val untypedSystem: ActorSystem                 = ActorSystem("ClassicToTypedSystem")
     implicit val executionContext: ExecutionContextExecutor = ExecutionContext.global
 
-    val completeRoute: Route =
-      withLogging2 {
-        withCors {
-          inner
-        }
-      }
-
-    val bindingFuture = Http()(new ClassicActorSystemProvider {
-      override def classicSystem: ActorSystem = untypedSystem
-    }).newServerAt(interface = interface.getOrElse("0.0.0.0"), port = port.getOrElse(8080))
-      .bind(completeRoute)
+    val bindingFuture = Http()
+      .newServerAt(interface = interface.getOrElse("0.0.0.0"), port = port.getOrElse(8080))
+      .bind(rootRoute)
       .map(_.addToCoordinatedShutdown(10.seconds))
       .map(server => {
-        logger.debug(s"Server online at http://localhost:8080/")
+        logger.debug(s"Server online at http://localhost:${port.getOrElse(8080)}/")
         server
       })
 
@@ -53,35 +55,25 @@ object AkkaHttpServer extends LazyLogging {
   }
 
   def withLogging2: Directive0 = {
-    val reqId = UUID.randomUUID()
+    val reqId    = UUID.randomUUID()
+    val reqStart = Clock.systemUTC().millis()
     logRequestResult((req: HttpRequest) =>
       (res: RouteResult) => {
         logger.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
-        logger.debug(s"Response ${reqId}: ${res}")
+        logger.debug(s"Request ${reqId}: res = ${res}")
+        logger.debug(
+          s"Request ${reqId}: finished in ${Clock.systemUTC().millis() - reqStart}ms",
+        )
         None
       },
     )
   }
 
-  def withLogging: Directive0 =
-    extractRequest.flatMap(req => {
-      val reqId    = UUID.randomUUID()
-      val reqStart = Clock.systemUTC().millis()
-      logger.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
-
-      mapResponse(res => {
-        logger.debug(
-          s"Request ${reqId}: ${res.status.value} in ${Clock.systemUTC().millis() - reqStart}ms",
-        )
-        res
-      })
-    })
-
   def withCors: Directive0 = {
-    extractActorSystem.flatMap((actorSystem: ActorSystem) =>
+    extractActorSystem.flatMap(actorSystem =>
       cors(
         CorsSettings
-          .default(actorSystem)
+          .default(actorSystem.classicSystem)
           .withAllowedMethods(
             Seq(
               HttpMethods.GET,

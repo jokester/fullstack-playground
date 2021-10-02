@@ -12,7 +12,7 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
     "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka,
     "com.typesafe.akka" %% "akka-slf4j"       % Versions.akka,
-    "ch.megard"         %% "akka-http-cors"   % "1.1.0",
+    "ch.megard"         %% "akka-http-cors"   % "1.1.2",
   )
   lazy val runtimeDeps: Seq[ModuleID] = Seq(
     Seq(
