@@ -3,9 +3,17 @@ package io.jokester.fullstack_playground.utils.akka_http
 import akka.actor.typed.ActorSystem
 import akka.actor.{ActorSystem => UntypedActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
+import akka.event.LoggingAdapter
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest}
-import akka.http.scaladsl.server.Directives.{extractActorSystem, logRequestResult}
+import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
+import akka.http.scaladsl.server.Directives.{
+  extractActorSystem,
+  extractRequest,
+  logRequest,
+  logRequestResult,
+  logResult,
+}
+import akka.http.scaladsl.server.directives.LoggingMagnet
 import akka.http.scaladsl.server.{Directive0, Route, RouteResult}
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
@@ -18,15 +26,18 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 object AkkaHttpServer extends LazyLogging {
 
   /**
-    * Listen with a new `ActorSystem`
+    * Listen with an ad-hoc `ActorSystem`
+    * and block until keypress
     */
-  def listen(inner: Route, interface: Option[String] = None, port: Option[Int] = None): Unit = {
+  def listen(rootRoute: Route, interface: Option[String] = None, port: Option[Int] = None): Unit = {
     val typedSystem: ActorSystem[Any] = ActorSystem(Behaviors.empty, "my-system")
-    listenWithSystem((withCors & withLogging2)(inner), interface, port)(untypedSystem =
-      typedSystem.classicSystem,
-    )
+    listenWithSystem(rootRoute, interface, port)(untypedSystem = typedSystem.classicSystem)
   }
 
+  /**
+    * Listen with provided `ActorSystem`
+    * and block until keypress
+    */
   def listenWithSystem(
       rootRoute: Route,
       interface: Option[String] = None,
@@ -57,16 +68,23 @@ object AkkaHttpServer extends LazyLogging {
   def withLogging2: Directive0 = {
     val reqId    = UUID.randomUUID()
     val reqStart = Clock.systemUTC().millis()
-    logRequestResult((req: HttpRequest) =>
-      (res: RouteResult) => {
-        logger.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
-        logger.debug(s"Request ${reqId}: res = ${res}")
-        logger.debug(
-          s"Request ${reqId}: finished in ${Clock.systemUTC().millis() - reqStart}ms",
-        )
-        None
-      },
+
+    val d1: Directive0 = logRequest(
+      LoggingMagnet((adapter: LoggingAdapter) =>
+        (req: HttpRequest) => {
+          adapter.debug(s"Request ${reqId}: ${req.method.name} ${req.uri}")
+        },
+      ),
     )
+
+    val d2: Directive0 = logResult(
+      LoggingMagnet((adapter: LoggingAdapter) =>
+        (res: RouteResult) => {
+          adapter.debug(s"Request ${reqId}: finished in ${Clock.systemUTC().millis() - reqStart}ms")
+        },
+      ),
+    )
+    d1 & d2
   }
 
   def withCors: Directive0 = {

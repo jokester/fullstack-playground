@@ -13,14 +13,17 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka,
     "com.typesafe.akka" %% "akka-slf4j"       % Versions.akka,
     "ch.megard"         %% "akka-http-cors"   % "1.1.2",
+    "de.heikoseeberger" %% "akka-http-circe"  % "1.38.2",
   )
+  lazy val circeDeps: Seq[ModuleID] = Seq(
+    // circe
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-parser",
+  ).map(_ % Versions.circe)
+
   lazy val runtimeDeps: Seq[ModuleID] = Seq(
-    Seq(
-      // circe
-      "io.circe" %% "circe-core",
-      "io.circe" %% "circe-generic",
-      "io.circe" %% "circe-parser",
-    ).map(_ % Versions.circe),
+    circeDeps,
     Seq(
       // sttp / tapir
       "com.softwaremill.sttp.tapir" %% "tapir-core",
@@ -64,7 +67,7 @@ object Dependencies {
 private object Versions {
   val http4s     = "0.21.8"
   val catsEffect = "2.2.0"
-  val circe      = "0.13.0"
+  val circe      = "0.14.1"
   val circeYaml  = "0.13.1"
   val sttp       = "3.0.0-RC5"
   val sttpModel  = "1.2.0-RC4"
