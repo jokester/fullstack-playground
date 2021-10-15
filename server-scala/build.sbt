@@ -13,6 +13,7 @@ lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
     libraryDependencies ++= loggingDeps ++ akkaDeps ++ circeDeps,
     scalaVersion := scala2Version,
     scalacOptions ++= Seq("-Xlint"),
+    Universal / target := file("target/universal"),
   )
   .enablePlugins(
     JavaServerAppPackaging,
