@@ -9,7 +9,7 @@ ThisBuild / organizationName := "gh/jokester/fullstack-playground"
 
 lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
   .settings(
-    name := "",
+    name := "stateless-akka-http",
     libraryDependencies ++= loggingDeps ++ akkaDeps ++ circeDeps,
     scalaVersion := scala2Version,
     scalacOptions ++= Seq("-Xlint"),
