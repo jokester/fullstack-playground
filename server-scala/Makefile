@@ -11,9 +11,7 @@ models:
 	sbt scalikejdbcGenAllForce scalafmtAll
 
 bin:
-	sbt universal:packageBin universal:packageXzTarball
+	sbt statelessAkkaHttp/packageXzTarball
 
 image: bin
-	docker build --tag=server-openapi-local --file=./Dockerfile target/universal/
-
-.PHONY: target/universal/server-openapi-current.txz
+	docker build --tag=fullplay-playground-scala-servers --file=./Dockerfile .
