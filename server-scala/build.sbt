@@ -21,7 +21,7 @@ lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
 
 lazy val statelessOpenapi = (project in file("stateless-openapi"))
   .settings(
-    name := "",
+    name := "stateless-openapi",
     libraryDependencies ++= loggingDeps ++ akkaDeps ++ runtimeDeps ++ testDeps ++ buildDeps,
     scalaVersion := scala2Version,
     scalacOptions ++= Seq("-Xlint"),
