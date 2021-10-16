@@ -14,4 +14,4 @@ bin:
 	sbt statelessAkkaHttp/packageXzTarball
 
 image: bin
-	docker build --tag=fullplay-playground-scala-servers --file=./Dockerfile ./dist/
+	docker build --tag=fullplay-playground-scala-servers --file=./Dockerfile ./target/universal/
