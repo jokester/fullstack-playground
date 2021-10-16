@@ -7,12 +7,12 @@ import com.typesafe.scalalogging.LazyLogging
 import java.util.UUID
 
 object SinkManagerActor extends LazyLogging {
-  sealed trait SinkManagerCommand
-  case class GetSink(sinkId: UUID, replyTo: ActorRef[GotSink]) extends SinkManagerCommand
-  case class GotSink(x: ActorRef[SinkActor.SinkCommand])       extends SinkManagerCommand
+  sealed trait Command
+  case class GetSink(sinkId: UUID, replyTo: ActorRef[GotSink]) extends Command
+  case class GotSink(sinkActor: ActorRef[SinkActor.Command])   extends Command
 
-  def apply(): Behaviors.Receive[SinkManagerCommand] = {
-    var map: Map[UUID, ActorRef[SinkActor.SinkCommand]] = Map.empty
+  def apply(): Behaviors.Receive[Command] = {
+    var map: Map[UUID, ActorRef[SinkActor.Command]] = Map.empty
 
     Behaviors.receive({
       case (ctx, GetSink(sinkId, replyTo)) =>
