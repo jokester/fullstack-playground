@@ -16,7 +16,7 @@ lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
     Universal / target := file("target/universal"),
   )
   .enablePlugins(
-    JavaServerAppPackaging,
+    JavaAppPackaging,
   )
 
 lazy val statelessOpenapi = (project in file("stateless-openapi"))
