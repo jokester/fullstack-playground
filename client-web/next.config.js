@@ -50,9 +50,9 @@ const nextConf = {
     return config;
   },
 
-  future: {
-    webpack5: true,
-  },
+  webpack5: false,
+
+  future: { },
 };
 
 module.exports = withPlugins(
