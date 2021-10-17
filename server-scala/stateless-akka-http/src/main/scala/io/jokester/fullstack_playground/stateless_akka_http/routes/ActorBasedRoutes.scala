@@ -1,5 +1,6 @@
 package io.jokester.fullstack_playground.stateless_akka_http.routes
 
+import akka.NotUsed
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
@@ -7,10 +8,15 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Directive1, Route}
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
+import akka.http.scaladsl.model.ws.{Message, TextMessage}
+import akka.stream.{CompletionStrategy, Materializer, OverflowStrategy}
+import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.typed.scaladsl.{ActorSource, ActorSink}
 
 import scala.util.{Failure, Success}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
+import io.circe.syntax._
 import io.jokester.fullstack_playground.stateless_akka_http.actors.{SinkActor, SinkManagerActor}
 
 import java.time.Clock
@@ -69,7 +75,65 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
     }
   }
 
-  private def subscribeSinkRoute: Route = ???
+  private def subscribeSinkRoute: Route = {
+    (get & path("message-sink" / Segment / "ws")) { sinkName =>
+      sinkByName(sinkName) { sinkActor =>
+        handleWebSocketMessages(createWsFlow(sinkActor))
+      }
+    }
+  }
+
+  private def createWsFlow(
+      sinkActor: ActorRef[SinkActor.Command],
+  ): Flow[Message, TextMessage, NotUsed] = {
+    val (outgoingActor, outgoingSrcRaw) = ActorSource
+      .actorRef[SinkActor.Event](
+        completionMatcher = { case SinkActor.Disconnect => },
+        failureMatcher = { case SinkActor.DisconnectNow => new RuntimeException("killed") },
+        bufferSize = 16,
+        overflowStrategy = OverflowStrategy.fail,
+      )
+      .preMaterialize()
+
+    val outgoingSrc: Source[TextMessage, NotUsed] = outgoingSrcRaw.map({
+      case m: SinkActor.MessageBatch => TextMessage.Strict(m.asJson.spaces2)
+    })
+
+    val ignoreBinaryMessage: Flow[Message, TextMessage, NotUsed] =
+      Flow[Message].mapConcat[TextMessage]({
+        case m: TextMessage => Some(m)
+        case _              => None
+      })
+
+    val readMsg: Flow[TextMessage, TextMessage.Strict, NotUsed] = Flow[TextMessage].mapAsync(1) {
+      msg =>
+        msg.toStrict(2.seconds)
+    }
+
+    val incomingSink = Flow[Message]
+      .via(ignoreBinaryMessage)
+      .via(readMsg)
+      .map(msg =>
+        SinkActor.PostMessage(
+          SinkActor.ReceivedMessage(msg.text, clock.instant()),
+          actorSystem.ignoreRef[Any],
+        ),
+      )
+      .to(
+        ActorSink.actorRef[SinkActor.Command](
+          sinkActor,
+          onCompleteMessage = {
+            SinkActor.UnsubscribeMessage(outgoingActor)
+          },
+          onFailureMessage = (throwable) => {
+            logger.debug("incomingSink: onFailure")
+            SinkActor.UnsubscribeMessage(outgoingActor)
+          },
+        ),
+      )
+
+    Flow.fromSinkAndSource(incomingSink, outgoingSrc)
+  }
 
   private def readBodyAsString: Directive1[String] = {
     extractStrictEntity(5.seconds, 16 * 1_024L).map(entity => entity.data.utf8String)

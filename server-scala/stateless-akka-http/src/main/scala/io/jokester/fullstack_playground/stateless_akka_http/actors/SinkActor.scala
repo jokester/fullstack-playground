@@ -15,20 +15,24 @@ object SinkActor extends LazyLogging {
   case class PostMessage(msg: ReceivedMessage, replyTo: ActorRef[MessageBatch]) extends Command
   case class GetMessage(replyTo: ActorRef[MessageBatch])                        extends Command
   case class WaitMessage(replyTo: ActorRef[MessageBatch])                       extends Command
-  case class SubscribeMessage(replyTo: ActorRef[MessageBatch])                  extends Command
-  // TODO: unsubscribe
+  case class SubscribeMessage(outgoing: ActorRef[MessageBatch])                 extends Command
+  case class UnsubscribeMessage(outgoing: ActorRef[MessageBatch])               extends Command
 
+  trait Event
   case class MessageBatch(sinkName: String, sinkId: UUID, messages: Seq[ReceivedMessage])
+      extends Event
+  case object Disconnect    extends Event
+  case object DisconnectNow extends Event
 
   def apply(sinkName: String, sinkId: UUID): Behavior[SinkActor.Command] = {
 
     def buildBatch(messages: Seq[ReceivedMessage]) = MessageBatch(sinkName, sinkId, messages)
 
     Behaviors.setup { ctx =>
-      val maxMsgCount                          = 10
-      var recentMessages: Seq[ReceivedMessage] = Seq.empty
-      var subscribers: Set[SubscribeMessage]   = Set.empty
-      var waiters: List[WaitMessage]           = List.empty
+      val maxMsgCount                              = 10
+      var recentMessages: Seq[ReceivedMessage]     = Seq.empty
+      var subscribers: Set[ActorRef[MessageBatch]] = Set.empty
+      var waiters: List[WaitMessage]               = List.empty
 
       Behaviors.receiveMessage({
         case GetMessage(replyTo) =>
@@ -39,9 +43,17 @@ object SinkActor extends LazyLogging {
           waiters :+= wm
           Behaviors.same
 
-        case sm @ SubscribeMessage(out) =>
-          subscribers += sm
+        case SubscribeMessage(out) =>
+          subscribers += out
+          logger
+            .debug("sink={} have a new subscriber. {} subscriber present", sinkId, subscribers.size)
           out ! buildBatch(recentMessages)
+          Behaviors.same
+
+        case UnsubscribeMessage(out) =>
+          subscribers -= out
+          logger
+            .debug("sink={} lost a new subscriber. {} subscriber present", sinkId, subscribers.size)
           Behaviors.same
 
         case PostMessage(msg, replyTo) =>
@@ -50,7 +62,7 @@ object SinkActor extends LazyLogging {
             .debug("sink={} received new message. {} messages present", sinkId, recentMessages.size)
 
           val forSubscribers = buildBatch(Seq(msg))
-          subscribers.foreach(s => s.replyTo ! forSubscribers)
+          subscribers.foreach(s => s ! forSubscribers)
 
           waiters.foreach(s => s.replyTo ! forSubscribers)
           waiters = List.empty

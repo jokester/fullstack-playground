@@ -9,9 +9,10 @@ object Dependencies {
   lazy val akkaDeps: Seq[ModuleID] = Seq(
     // akka
     "com.typesafe.akka" %% "akka-stream"      % Versions.akka,
-    "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
     "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka,
+    "com.typesafe.akka" %% "akka-stream-typed" % Versions.akka,
     "com.typesafe.akka" %% "akka-slf4j"       % Versions.akka,
+    "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
     "ch.megard"         %% "akka-http-cors"   % "1.1.2",
     "de.heikoseeberger" %% "akka-http-circe"  % "1.38.2",
   )
