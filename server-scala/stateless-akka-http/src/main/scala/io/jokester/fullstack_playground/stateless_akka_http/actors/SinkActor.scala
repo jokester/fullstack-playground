@@ -1,41 +1,63 @@
 package io.jokester.fullstack_playground.stateless_akka_http.actors
 
-import akka.NotUsed
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import com.typesafe.scalalogging.LazyLogging
 
+import java.time.Instant
 import java.util.UUID
 
-object SinkActor {
+object SinkActor extends LazyLogging {
   trait Command
 
-  case class PostMessage(msg: String, replyTo: ActorRef[MessageUpdateBatch]) extends Command
-  case class GetMessage(replyTo: ActorRef[MessageUpdateBatch])               extends Command
-  case class WaitMessage(replyTo: ActorRef[MessageUpdateBatch])              extends Command
-  case class SubscribeMessage(out: ActorRef[MessageUpdateBatch])             extends Command
+  final case class ReceivedMessage(msg: String, receivedAt: Instant)
 
-  case class MessageUpdateBatch(recentMessages: Seq[String]) extends AnyVal
+  case class PostMessage(msg: ReceivedMessage, replyTo: ActorRef[MessageBatch]) extends Command
+  case class GetMessage(replyTo: ActorRef[MessageBatch])                        extends Command
+  case class WaitMessage(replyTo: ActorRef[MessageBatch])                       extends Command
+  case class SubscribeMessage(replyTo: ActorRef[MessageBatch])                  extends Command
+  // TODO: unsubscribe
 
-  def apply(sinkName: String, sinkId: UUID): Behavior[SinkActor.Command] =
+  case class MessageBatch(sinkName: String, sinkId: UUID, messages: Seq[ReceivedMessage])
+
+  def apply(sinkName: String, sinkId: UUID): Behavior[SinkActor.Command] = {
+
+    def buildBatch(messages: Seq[ReceivedMessage]) = MessageBatch(sinkName, sinkId, messages)
+
     Behaviors.setup { ctx =>
-      val maxMsgCount                                    = 100
-      var recentMessages: Seq[String]                    = Seq("1", "2", "3")
-      var subscribers: Set[ActorRef[MessageUpdateBatch]] = Set.empty
+      val maxMsgCount                          = 10
+      var recentMessages: Seq[ReceivedMessage] = Seq.empty
+      var subscribers: Set[SubscribeMessage]   = Set.empty
+      var waiters: List[WaitMessage]           = List.empty
 
       Behaviors.receiveMessage({
-        case PostMessage(msg, replyTo) =>
-          val forSubscribers = MessageUpdateBatch(Seq(msg))
-          subscribers.foreach(s => s ! forSubscribers)
-          recentMessages = (recentMessages :+ msg).takeRight(maxMsgCount)
-          replyTo ! MessageUpdateBatch(recentMessages)
-          Behaviors.same
-
         case GetMessage(replyTo) =>
-          replyTo ! MessageUpdateBatch(recentMessages)
+          replyTo ! buildBatch(recentMessages)
           Behaviors.same
 
-      })
+        case wm @ WaitMessage(_) =>
+          waiters :+= wm
+          Behaviors.same
 
+        case sm @ SubscribeMessage(out) =>
+          subscribers += sm
+          out ! buildBatch(recentMessages)
+          Behaviors.same
+
+        case PostMessage(msg, replyTo) =>
+          recentMessages = (msg +: recentMessages).take(maxMsgCount)
+          logger
+            .debug("sink={} received new message. {} messages present", sinkId, recentMessages.size)
+
+          val forSubscribers = buildBatch(Seq(msg))
+          subscribers.foreach(s => s.replyTo ! forSubscribers)
+
+          waiters.foreach(s => s.replyTo ! forSubscribers)
+          waiters = List.empty
+
+          replyTo ! buildBatch(recentMessages)
+          Behaviors.same
+      })
     }
+  }
 }
-class SinkActor {}

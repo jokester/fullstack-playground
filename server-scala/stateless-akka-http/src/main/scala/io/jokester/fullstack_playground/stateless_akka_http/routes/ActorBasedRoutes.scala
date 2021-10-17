@@ -2,26 +2,33 @@ package io.jokester.fullstack_playground.stateless_akka_http.routes
 
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ActorRef, ActorSystem}
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Directive1, Route}
 import akka.util.Timeout
+import com.typesafe.scalalogging.LazyLogging
+
+import scala.util.{Failure, Success}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
 import io.jokester.fullstack_playground.stateless_akka_http.actors.{SinkActor, SinkManagerActor}
 
-import java.util.UUID
+import java.time.Clock
+import java.util.concurrent.TimeoutException
 import scala.concurrent.duration.DurationInt
 
 class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])(implicit
     val actorSystem: ActorSystem[Nothing],
-) {
+) extends LazyLogging {
 
-  def route: Route = concat(getSinkRoute, postSinkRoute)
+  private val clock = Clock.systemUTC()
 
-  def getSinkRoute: Route = {
+  def route: Route = concat(getSinkRoute, postSinkRoute, waitSinkRoute)
+
+  private def getSinkRoute: Route = {
     (get & path("message-sink" / Segment)) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
-        askSink[SinkActor.MessageUpdateBatch](sinkActor, asker => SinkActor.GetMessage(asker)) {
+        askSink[SinkActor.MessageBatch](sinkActor, asker => SinkActor.GetMessage(asker)) {
           messages =>
             complete(messages)
         }
@@ -29,15 +36,44 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
     }
   }
 
-  def postSinkRoute: Route = {
-    (post & path("message-sink")) {
-      reject()
+  private def postSinkRoute: Route = {
+    (post & path("message-sink" / Segment / "append")) { sinkName =>
+      sinkByName(sinkName) { sinkActor =>
+        readBodyAsString { msgText =>
+          askSink[SinkActor.MessageBatch](
+            sinkActor,
+            asker =>
+              SinkActor.PostMessage(SinkActor.ReceivedMessage(msgText, clock.instant()), asker),
+          ) { messages =>
+            complete(messages)
+          }
+        }
+      }
     }
   }
 
-  def waitSinkRoute: Route = ???
+  private def waitSinkRoute: Route = {
+    (get & path("message-sink" / Segment / "next")) { sinkName =>
+      sinkByName(sinkName) { sinkActor =>
+        // NOTE akka has a 20s timeout
+        implicit val askTimeout: Timeout = 10.seconds
+        onComplete(
+          sinkActor.ask[SinkActor.MessageBatch](asker => SinkActor.WaitMessage(asker)),
+        ) {
+          case Success(reply) => complete(reply)
+          case Failure(e: TimeoutException) =>
+            logger.debug("timeout waiting for reply", e)
+            complete(StatusCodes.NotFound, "no new message in 10 seconds")
+        }
+      }
+    }
+  }
 
-  def subscribeSinkRoute: Route = ???
+  private def subscribeSinkRoute: Route = ???
+
+  private def readBodyAsString: Directive1[String] = {
+    extractStrictEntity(5.seconds, 16 * 1_024L).map(entity => entity.data.utf8String)
+  }
 
   private def sinkByName(sinkName: String): Directive1[ActorRef[SinkActor.Command]] = {
     implicit val timeout: Timeout = 1.seconds
@@ -52,7 +88,7 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
       sinkActor: ActorRef[SinkActor.Command],
       buildMsg: ActorRef[Res] => SinkActor.Command,
   ): Directive1[Res] = {
-    implicit val timeout: Timeout = 1.seconds
+    implicit val timeout: Timeout = 2.seconds
     onSuccess(sinkActor.ask(buildMsg)).map(tuple => tuple)
   }
 }

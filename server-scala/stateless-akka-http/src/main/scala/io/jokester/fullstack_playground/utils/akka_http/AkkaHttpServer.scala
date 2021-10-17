@@ -68,7 +68,7 @@ object AkkaHttpServer extends LazyLogging {
       extractLog.flatMap(logger => {
         val reqId      = UUID.randomUUID()
         val reqStartAt = System.currentTimeMillis()
-        logger.debug(s"req[${reqId}]: ${req.method} ${req.uri}")
+        logger.debug(s"req[${reqId}]: ${req.method.value} ${req.uri}")
         logResult(
           LoggingMagnet(_logger =>
             _res => {
