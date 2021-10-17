@@ -19,8 +19,8 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
   def route: Route = concat(getSinkRoute, postSinkRoute)
 
   def getSinkRoute: Route = {
-    (get & path("message-sink" / JavaUUID)) { uuid =>
-      sinkByUUID(uuid) { sinkActor =>
+    (get & path("message-sink" / Segment)) { sinkName =>
+      sinkByName(sinkName) { sinkActor =>
         askSink[SinkActor.MessageUpdateBatch](sinkActor, asker => SinkActor.GetMessage(asker)) {
           messages =>
             complete(messages)
@@ -39,10 +39,12 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
 
   def subscribeSinkRoute: Route = ???
 
-  private def sinkByUUID(uuid: UUID): Directive1[ActorRef[SinkActor.Command]] = {
+  private def sinkByName(sinkName: String): Directive1[ActorRef[SinkActor.Command]] = {
     implicit val timeout: Timeout = 1.seconds
     onSuccess(
-      sinkManagerActor.ask[SinkManagerActor.GotSink](asker => SinkManagerActor.GetSink(uuid, asker)),
+      sinkManagerActor.ask[SinkManagerActor.GotSink](asker =>
+        SinkManagerActor.GetSink(sinkName, asker),
+      ),
     ).map(gotSink => gotSink.sinkActor)
   }
 

@@ -16,7 +16,7 @@ object SinkActor {
 
   case class MessageUpdateBatch(recentMessages: Seq[String]) extends AnyVal
 
-  def apply(props: UUID): Behavior[SinkActor.Command] =
+  def apply(sinkName: String, sinkId: UUID): Behavior[SinkActor.Command] =
     Behaviors.setup { ctx =>
       val maxMsgCount                                    = 100
       var recentMessages: Seq[String]                    = Seq("1", "2", "3")

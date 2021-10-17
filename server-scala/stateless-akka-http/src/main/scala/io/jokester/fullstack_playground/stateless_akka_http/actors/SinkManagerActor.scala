@@ -8,17 +8,20 @@ import java.util.UUID
 
 object SinkManagerActor extends LazyLogging {
   sealed trait Command
-  case class GetSink(sinkId: UUID, replyTo: ActorRef[GotSink]) extends Command
-  case class GotSink(sinkActor: ActorRef[SinkActor.Command])   extends Command
+  case class GetSink(sinkName: String, replyTo: ActorRef[GotSink]) extends Command
+  case class GotSink(sinkActor: ActorRef[SinkActor.Command])       extends Command
 
   def apply(): Behaviors.Receive[Command] = {
-    var map: Map[UUID, ActorRef[SinkActor.Command]] = Map.empty
+    var map: Map[String, ActorRef[SinkActor.Command]] = Map.empty
 
     Behaviors.receive({
-      case (ctx, GetSink(sinkId, replyTo)) =>
-        val existed = map.get(sinkId)
-        val c       = existed.getOrElse(ctx.spawn(SinkActor(sinkId), s"sink-${sinkId}"))
-        map += sinkId -> c
+      case (ctx, GetSink(sinkName, replyTo)) =>
+        val existed = map.get(sinkName)
+        val c = {
+          val sinkId = UUID.randomUUID()
+          existed.getOrElse(ctx.spawn(SinkActor(sinkName, sinkId), s"sink-${sinkId}"))
+        }
+        map += sinkName -> c
         replyTo ! SinkManagerActor.GotSink(c)
 
         Behaviors.same
