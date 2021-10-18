@@ -52,14 +52,19 @@ const nextConf = {
 
   webpack5: true,
 
+  productionBrowserSourceMaps: true,
+
   future: {},
 };
 
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: !!process.env.BUNDLE_ANALYZE,
+})
+
 module.exports = withPlugins(
   [
+    [ withBundleAnalyzer ], // no idea how to make it optional
     [optional(() => require('next-optimized-images')), { optimizeImages: false }, [PHASE_PRODUCTION_BUILD]],
-    [optional(() => require('@zeit/next-bundle-analyzer')), {}, [PHASE_PRODUCTION_BUILD]],
-    [optional(() => require('@zeit/next-source-maps')), {}, [PHASE_PRODUCTION_BUILD]],
     [
       optional(() =>
         require('next-transpile-modules')([
