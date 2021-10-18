@@ -1,4 +1,4 @@
-import {FC, useRef, useState} from "react";
+import {FC, useEffect, useRef, useState} from "react";
 import useConstant from "use-constant";
 import {webSocket, WebSocketSubject} from "rxjs/webSocket";
 import {Json, } from "fp-ts/Json";
@@ -19,10 +19,17 @@ export const MessageSinkDemo: FC<{onClose?(): void, name: string}> = props => {
 }
 
 export const MessageSinkWsDemo: FC<{wsUrl: string}> = props => {
-    const wsX = useConstant(() => {
+    interface SocketEntities {
+        subject: WebSocketSubject<string>
+        isOpen: boolean
+    }
+    const [s, setS] = useState<null | SocketEntities>(null)
+
+    useEffect(() => {
+        setS(null)
         const subject = webSocket<string>({url: props.wsUrl, serializer: (value) => value, deserializer: e => e.data as string});
-        return {subject} as const
-    })
+        // TODO: xxx
+    }, [props.wsUrl])
 
     return null;
 }
