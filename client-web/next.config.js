@@ -27,8 +27,7 @@ const nextConf = {
   },
 
   // see https://nextjs.org/docs/#customizing-webpack-config
-  webpack(config, { buildId, dev, isServer }) {
-    const webpack = require('webpack');
+  webpack(config, { buildId, dev, isServer, webpack }) {
     config.plugins.push(
       new webpack.DefinePlugin({
         // becomes process.env.NEXT_DEV : boolean
@@ -47,7 +46,16 @@ const nextConf = {
       __filename: true,
     };
 
+    config.resolve = {
+      ...config.resolve,
+      symlinks: false,
+    };
+
     return config;
+  },
+
+  images: {
+    disableStaticImages: true,
   },
 
   webpack5: true,
@@ -59,12 +67,12 @@ const nextConf = {
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: !!process.env.BUNDLE_ANALYZE,
-})
+});
 
 module.exports = withPlugins(
   [
-    [ withBundleAnalyzer ], // no idea how to make it optional
-    [optional(() => require('next-optimized-images')), { optimizeImages: false }, [PHASE_PRODUCTION_BUILD]],
+    [withBundleAnalyzer], // no idea how to make it optional
+    [require('next-images'), {}], // required after { disableStaticImages: true }
     [
       optional(() =>
         require('next-transpile-modules')([
