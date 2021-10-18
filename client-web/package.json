@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --watch --noEmit",
     "lint": "    eslint '**/*.@(ts|js|tsx|jsx)'",
-    "lint:fix": "eslint '**/*.@(ts|js|tsx|jsx)' --fix"
+    "lint:fix": "eslint --fix '**/*.@(ts|js|tsx|jsx)'"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.6.10",
@@ -37,33 +37,28 @@
   },
   "devDependencies": {
     "@types/jest": "^27",
-    "@types/node": "^16",
+    "@types/node": "^12",
     "@types/react": "^17.0.30",
     "@types/react-dom": "^17.0.9",
     "@types/react-relay": "^11.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
     "@zeit/next-bundle-analyzer": "^0.1.2",
     "@zeit/next-source-maps": "^0.0.3",
     "autoprefixer": "^10",
     "babel-plugin-relay": "^12.0.0",
-    "eslint": "8.0.1",
-    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "graphql": "^15.6.1",
+    "gts": "^3.1.0",
     "jest": "^27",
     "next-optimized-images": "^2.6.2",
     "next-transpile-modules": "^8.0.0",
-    "prettier": "^2.4.1",
     "sass": "^1.43.2",
     "ts-jest": "^27",
     "typescript": "^4.4"
   },
   "resolutions": {
-    "@types/node": "^12",
+    "@types/node": "12",
     "tslib": "^2"
   }
 }

@@ -50,9 +50,9 @@ const nextConf = {
     return config;
   },
 
-  webpack5: false,
+  webpack5: true,
 
-  future: { },
+  future: {},
 };
 
 module.exports = withPlugins(
@@ -63,7 +63,7 @@ module.exports = withPlugins(
     [
       optional(() =>
         require('next-transpile-modules')([
-          "@jokester/ts-commonutil",
+          '@jokester/ts-commonutil',
           /* ES modules used in server code */
         ]),
       ),
