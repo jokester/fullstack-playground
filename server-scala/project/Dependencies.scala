@@ -3,18 +3,19 @@ import sbt._
 object Dependencies {
   lazy val loggingDeps: Seq[ModuleID] = Seq(
     // logging
-    "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.2",
-    "ch.qos.logback"              % "logback-classic" % "1.2.3", // this provides SLJ4J backend
+    "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.4",
+    "ch.qos.logback"              % "logback-classic" % "1.2.6", // this provides SLJ4J backend
   )
   lazy val akkaDeps: Seq[ModuleID] = Seq(
     // akka
-    "com.typesafe.akka" %% "akka-stream"      % Versions.akka,
-    "com.typesafe.akka" %% "akka-actor-typed" % Versions.akka,
-    "com.typesafe.akka" %% "akka-stream-typed" % Versions.akka,
-    "com.typesafe.akka" %% "akka-slf4j"       % Versions.akka,
-    "com.typesafe.akka" %% "akka-http"        % Versions.akkaHttp,
-    "ch.megard"         %% "akka-http-cors"   % "1.1.2",
-    "de.heikoseeberger" %% "akka-http-circe"  % "1.38.2",
+    "com.typesafe.akka" %% "akka-stream"        % Versions.akka,
+    "com.typesafe.akka" %% "akka-actor-typed"   % Versions.akka,
+    "com.typesafe.akka" %% "akka-stream-typed"  % Versions.akka,
+    "com.typesafe.akka" %% "akka-slf4j"         % Versions.akka,
+    "com.typesafe.akka" %% "akka-cluster-typed" % Versions.akka,
+    "com.typesafe.akka" %% "akka-http"          % Versions.akkaHttp,
+    "ch.megard"         %% "akka-http-cors"     % "1.1.2",
+    "de.heikoseeberger" %% "akka-http-circe"    % "1.38.2",
   )
   lazy val circeDeps: Seq[ModuleID] = Seq(
     // circe
