@@ -75,6 +75,7 @@ module.exports = withPlugins(
     [require('next-images'), {}], // required after { disableStaticImages: true }
     [
       optional(() =>
+        // eslint-disable-next-line node/no-unpublished-require
         require('next-transpile-modules')([
           '@jokester/ts-commonutil',
           /* ES modules used in server code */

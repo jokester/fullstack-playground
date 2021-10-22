@@ -1238,10 +1238,10 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@jokester/ts-commonutil@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@jokester/ts-commonutil/-/ts-commonutil-0.3.3.tgz#77cff2da88eb2069c463b23a81963a94af3ed4eb"
-  integrity sha512-O3qqJd5cNsulyPdWKMWhhAQ4yHlseid58sVR6+Iq4j+p0SOtFcCgbj/KT5LgS46O1APaFJ/RL/syTVI/xka8NA==
+"@jokester/ts-commonutil@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@jokester/ts-commonutil/-/ts-commonutil-0.3.4.tgz#1c8776fafcb2ccece181fbc9f8fdff4454e81001"
+  integrity sha512-RZmAfPdW0kdErARL5X5zi3U27wIdZ3Yuk/MtjEoUlXUWkxRhcoVpwduNuxcAtS+P2v7yluCvLFjVgMZaZT9W9Q==
 
 "@napi-rs/triples@^1.0.3":
   version "1.0.3"
