@@ -53,7 +53,7 @@ object SinkActor extends LazyLogging {
         case UnsubscribeMessage(out) =>
           subscribers -= out
           logger
-            .debug("sink={} lost a new subscriber. {} subscriber present", sinkId, subscribers.size)
+            .debug("sink={} lost a subscriber. {} subscriber present", sinkId, subscribers.size)
           Behaviors.same
 
         case PostMessage(msg, replyTo) =>

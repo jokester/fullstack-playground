@@ -95,6 +95,8 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
       )
       .preMaterialize()
 
+    sinkActor ! SinkActor.SubscribeMessage(outgoingActor)
+
     val outgoingSrc: Source[TextMessage, NotUsed] = outgoingSrcRaw.map({
       case m: SinkActor.MessageBatch => TextMessage.Strict(m.asJson.spaces2)
     })
