@@ -8,10 +8,10 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{Directive1, Route}
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
-import akka.http.scaladsl.model.ws.{Message, TextMessage}
+import akka.http.scaladsl.model.ws.{BinaryMessage, Message, TextMessage}
 import akka.stream.{CompletionStrategy, Materializer, OverflowStrategy}
 import akka.stream.scaladsl.{Flow, Sink, Source}
-import akka.stream.typed.scaladsl.{ActorSource, ActorSink}
+import akka.stream.typed.scaladsl.{ActorSink, ActorSource}
 
 import scala.util.{Failure, Success}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -104,6 +104,9 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
     val ignoreBinaryMessage: Flow[Message, TextMessage, NotUsed] =
       Flow[Message].mapConcat[TextMessage]({
         case m: TextMessage => Some(m)
+        case b: BinaryMessage =>
+          b.dataStream.runWith(Sink.ignore)
+          Nil
         case _              => None
       })
 
