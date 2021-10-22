@@ -1,35 +1,48 @@
-import {FC, useEffect, useRef, useState} from "react";
-import useConstant from "use-constant";
-import {webSocket, WebSocketSubject} from "rxjs/webSocket";
-import {Json, } from "fp-ts/Json";
+import { FC, useEffect, useRef, useState } from 'react';
+import { Box, Button, Center, Input } from '@chakra-ui/react';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
-export const MessageSinkPicker: FC<{onNameDetermined?(name: string): void}> = () => {
-    const [sinkName, setSinkName] = useState<null | string>(null)
+export const MessageSinkPicker: FC<{ onNameSet?(name: string): void }> = (props) => {
+  const [sinkName, setSinkName] = useState<string>('');
 
-    return null
-}
+  return (
+    <Box display="flex">
+      <Input
+        placeholder="Sink name (any string except whitespace)"
+        value={sinkName}
+        onChange={(ev) => setSinkName(ev.target.value.trim())}
+      />
 
-export const MessageSinkDemo: FC<{onClose?(): void, name: string}> = props => {
-    const msgLogCount = useRef(100)
+      <Button className="ml-2" disabled={!sinkName} onClick={() => props.onNameSet?.(sinkName)}>
+        GO
+      </Button>
+    </Box>
+  );
+};
 
+export const MessageSinkDemo: FC<{ onClose?(): void; name: string }> = (props) => {
+  const msgLogCount = useRef(100);
 
+  return null;
+};
 
-    return null
+export const MessageSinkWsDemo: FC<{ wsUrl: string }> = (props) => {
+  interface SocketEntities {
+    subject: WebSocketSubject<string>;
+    isOpen: boolean;
+  }
 
-}
+  const [s, setS] = useState<null | SocketEntities>(null);
 
-export const MessageSinkWsDemo: FC<{wsUrl: string}> = props => {
-    interface SocketEntities {
-        subject: WebSocketSubject<string>
-        isOpen: boolean
-    }
-    const [s, setS] = useState<null | SocketEntities>(null)
+  useEffect(() => {
+    setS(null);
+    const subject = webSocket<string>({
+      url: props.wsUrl,
+      serializer: (value) => value,
+      deserializer: (e) => e.data as string,
+    });
+    // TODO: xxx
+  }, [props.wsUrl]);
 
-    useEffect(() => {
-        setS(null)
-        const subject = webSocket<string>({url: props.wsUrl, serializer: (value) => value, deserializer: e => e.data as string});
-        // TODO: xxx
-    }, [props.wsUrl])
-
-    return null;
-}
+  return null;
+};
