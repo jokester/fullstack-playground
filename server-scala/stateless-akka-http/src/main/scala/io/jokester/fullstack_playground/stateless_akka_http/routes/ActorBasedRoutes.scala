@@ -29,7 +29,7 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
 
   private val clock = Clock.systemUTC()
 
-  def route: Route = concat(getSinkRoute, postSinkRoute, waitSinkRoute)
+  def route: Route = concat(getSinkRoute, postSinkRoute, waitSinkRoute, subscribeSinkRoute)
 
   private def getSinkRoute: Route = {
     (get & path("message-sink" / Segment)) { sinkName =>
@@ -43,7 +43,7 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
   }
 
   private def postSinkRoute: Route = {
-    (post & path("message-sink" / Segment / "append")) { sinkName =>
+    (post & path("message-sink" / Segment)) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
         readBodyAsString { msgText =>
           askSink[SinkActor.MessageBatch](
