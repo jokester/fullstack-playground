@@ -59,7 +59,7 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
   }
 
   private def waitSinkRoute: Route = {
-    (get & path("message-sink" / Segment / "next")) { sinkName =>
+    (get & path("message-sink" / Segment / "wait")) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
         // NOTE akka has a 20s timeout
         implicit val askTimeout: Timeout = 10.seconds

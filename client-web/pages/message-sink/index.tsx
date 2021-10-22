@@ -7,9 +7,11 @@ const MessageSinkIndexPage: React.FC = () => {
   const router = useRouter();
   return (
     <div className="max-w-screen-sm mx-auto pt-24">
-      <Heading as="h1" fontSize="lg" className="mb-12 text-center">
-        DEMO: message-sink API
-      </Heading>
+      <div className="h-24">
+        <Heading as="h1" fontSize="xl" className="text-center">
+          DEMO: message-sink API
+        </Heading>
+      </div>
       <MessageSinkPicker onNameSet={(name) => router.push(`/message-sink/${encodeURIComponent(name)}`)} />
     </div>
   );
