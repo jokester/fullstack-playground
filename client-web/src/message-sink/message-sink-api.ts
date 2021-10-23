@@ -26,7 +26,7 @@ export class MessageSinkApi {
     return fetch(this.sinkEndpoint, { method: 'POST', body: msg }).then((res) => res.json());
   }
 
-  createSocketURL(sinkName: string): string {
+  createSocketURL(): string {
     return this.sinkEndpoint.replace(/^http/i, 'ws') + '/ws';
   }
 
