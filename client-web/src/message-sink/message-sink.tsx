@@ -5,8 +5,6 @@ import { MessageSinkApi } from './message-sink-api';
 import { useCounter } from 'react-use';
 import { useMounted } from '@jokester/ts-commonutil/lib/react/hook/use-mounted';
 
-const API_ROOT = 'http://127.0.0.1:8082';
-
 export const MessageSinkPicker: FC<{ onNameSet?(name: string): void }> = (props) => {
   const [sinkName, setSinkName] = useState<string>('');
 
