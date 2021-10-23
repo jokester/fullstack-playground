@@ -1,0 +1,47 @@
+name: check client-web
+
+on:
+  pull_request:
+    paths:
+      - api-spec/**
+      - client-web/**
+
+defaults:
+  run:
+    shell: bash
+    working-directory: client-web/
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+      - uses: bahmutov/npm-install@v1
+        with:
+          working-directory: client-web
+      - name: Type Check
+        run: yarn typecheck
+      - name: Lint
+        run: yarn lint
+      - name: Test
+        run: yarn test --ci
+      - name: Restore next.js build cache
+        uses: actions/cache@v2
+        with:
+          path: client-web/.next
+          key: cache-nextjs-build-${{ hashFiles('client-web/yarn.lock') }}
+      - name: Create Prod Build
+        run: yarn analyze
+      - name: Archive Bundle Analyze Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: webpack-bundle-analyzer-report
+          path: .next/**/analyze/*
+
+
