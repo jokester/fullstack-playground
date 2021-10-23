@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  pull_request: # NOTE: checkout commit would be a temporal merge commit
     paths:
       - server-scala/**/*
 
