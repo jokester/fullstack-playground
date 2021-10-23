@@ -16,7 +16,7 @@ object SinkActor extends LazyLogging {
   case class GetMessage(replyTo: ActorRef[MessageBatch])                        extends Command
   case class WaitMessage(replyTo: ActorRef[MessageBatch])                       extends Command
   case class SubscribeMessage(outgoing: ActorRef[MessageBatch])                 extends Command
-  case class UnsubscribeMessage(outgoing: ActorRef[MessageBatch])               extends Command
+  case class UnsubscribeMessage(outgoing: ActorRef[Event])                      extends Command
 
   trait Event
   case class MessageBatch(sinkName: String, sinkId: UUID, messages: Seq[ReceivedMessage])
@@ -51,6 +51,7 @@ object SinkActor extends LazyLogging {
           Behaviors.same
 
         case UnsubscribeMessage(out) =>
+          out ! Disconnect
           subscribers -= out
           logger
             .debug("sink={} lost a subscriber. {} subscriber present", sinkId, subscribers.size)

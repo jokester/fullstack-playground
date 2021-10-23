@@ -88,8 +88,15 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
   ): Flow[Message, TextMessage, NotUsed] = {
     val (outgoingActor, outgoingSrcRaw) = ActorSource
       .actorRef[SinkActor.Event](
-        completionMatcher = { case SinkActor.Disconnect => },
-        failureMatcher = { case SinkActor.DisconnectNow => new RuntimeException("killed") },
+        completionMatcher = {
+          case SinkActor.Disconnect =>
+            logger.debug("completionMatcher")
+        },
+        failureMatcher = {
+          case SinkActor.DisconnectNow =>
+            logger.debug("failureMatcher")
+            new RuntimeException("killed")
+        },
         bufferSize = 16,
         overflowStrategy = OverflowStrategy.fail,
       )
@@ -107,7 +114,7 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
         case b: BinaryMessage =>
           b.dataStream.runWith(Sink.ignore)
           Nil
-        case _              => None
+        case _ => None
       })
 
     val readMsg: Flow[TextMessage, TextMessage.Strict, NotUsed] = Flow[TextMessage].mapAsync(1) {
@@ -128,10 +135,12 @@ class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])
         ActorSink.actorRef[SinkActor.Command](
           sinkActor,
           onCompleteMessage = {
+            // when browser calls ws.close()
             SinkActor.UnsubscribeMessage(outgoingActor)
           },
           onFailureMessage = (throwable) => {
-            logger.debug("incomingSink: onFailure")
+            // when browser calls ws.close(CODE, REASON)
+            logger.debug("incomingSink: onFailure", throwable)
             SinkActor.UnsubscribeMessage(outgoingActor)
           },
         ),
