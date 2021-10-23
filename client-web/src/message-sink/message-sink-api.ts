@@ -12,7 +12,7 @@ export interface MessageSinkMessageBatch {
 }
 
 export class MessageSinkApi {
-  constructor(private readonly apiHttpOrigin: string, private readonly sinkName: string) {}
+  constructor(private readonly apiHttpOrigin: string, readonly sinkName: string) {}
 
   getMessage(): Promise<MessageSinkMessageBatch> {
     return fetch(this.sinkEndpoint).then((res) => res.json());

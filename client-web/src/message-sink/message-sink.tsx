@@ -3,6 +3,7 @@ import { Box, Button, Input } from '@chakra-ui/react';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { MessageSinkApi } from './message-sink-api';
 import { useCounter } from 'react-use';
+import { useMounted } from '@jokester/ts-commonutil/lib/react/hook/use-mounted';
 
 const API_ROOT = 'http://127.0.0.1:8082';
 
@@ -24,20 +25,7 @@ export const MessageSinkPicker: FC<{ onNameSet?(name: string): void }> = (props)
   );
 };
 
-export const MessageSinkDemo: FC<{ onClose?(): void; sinkName: string }> = (props) => {
-  const api = useMemo(() => new MessageSinkApi(API_ROOT, props.sinkName), [props.sinkName]);
-
-  return (
-    <div className="space-y-4">
-      <hr />
-      <MessageSinkHttpDemo api={api} />
-      <hr />
-      <MessageSinkWsDemo api={api} />
-    </div>
-  );
-};
-
-const MessageSinkHttpDemo: FC<{ api: MessageSinkApi }> = (props) => {
+export const MessageSinkHttpDemo: FC<{ api: MessageSinkApi }> = (props) => {
   const reqCount = useRef(0);
   const [msgDraft, setMsgDraft] = useState<string>('');
 
@@ -90,7 +78,7 @@ const MessageSinkHttpDemo: FC<{ api: MessageSinkApi }> = (props) => {
   );
 };
 
-const MessageSinkWsDemo: FC<{ api: MessageSinkApi }> = (props) => {
+export const MessageSinkWsDemo: FC<{ api: MessageSinkApi }> = (props) => {
   interface ConnState {
     subject: WebSocketSubject<string>;
     isOpen: boolean;
@@ -100,6 +88,7 @@ const MessageSinkWsDemo: FC<{ api: MessageSinkApi }> = (props) => {
   const [conn, setConn] = useState<null | ConnState>(null);
 
   const [connectId, connectCounter] = useCounter();
+  const mounted = useMounted();
 
   useEffect(() => {
     setConn(null);
@@ -108,7 +97,7 @@ const MessageSinkWsDemo: FC<{ api: MessageSinkApi }> = (props) => {
 
     const patchState = (patch: Partial<ConnState>) => {
       setConn((orig) => {
-        if (orig?.subject === subject) {
+        if (mounted.current && orig?.subject === subject) {
           return {
             ...orig,
             ...patch,
@@ -199,7 +188,7 @@ const MessageSinkWsDemo: FC<{ api: MessageSinkApi }> = (props) => {
 
   return (
     <div className="space-y-4">
-      <div>WebSocket API</div>
+      <div>WebSocket API {conn?.isOpen ? '(connected)' : ''} </div>
       <div>
         <Button isDisabled={!conn?.isOpen} onClick={onClose}>
           CLOSE normally

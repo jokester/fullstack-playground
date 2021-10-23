@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MessageSinkPicker } from '../../src/message-sink/message-sink';
 import { useRouter } from 'next/router';
 import { Heading } from '@chakra-ui/react';
@@ -6,6 +6,7 @@ import { DefaultMeta } from '../../src/components/meta/default-meta';
 
 const MessageSinkIndexPage: React.FC = () => {
   const router = useRouter();
+
   return (
     <div className="max-w-screen-sm mx-auto pt-24 px-2 md:px-0">
       <DefaultMeta title="Message Sink DEMO" />
