@@ -36,35 +36,42 @@ export const MessageSinkDemo: FC<{ onClose?(): void; sinkName: string }> = (prop
 };
 
 const MessageSinkHttpDemo: FC<{ api: MessageSinkApi }> = (props) => {
+  const reqCount = useRef(0);
   const [msgDraft, setMsgDraft] = useState<string>('');
 
   const onGet = () => {
-    console.debug('onGet start');
+    const reqTag = `req #${++reqCount.current}`;
+    console.debug(reqTag, 'onGet start');
     props.api.getMessage().then((res) => {
-      console.debug('onGet complete', res);
+      console.debug(reqTag, 'onGet complete', res);
     });
   };
 
   const onWait = () => {
-    console.debug('onWait start');
+    const reqTag = `req #${++reqCount.current}`;
+    console.debug(reqTag, 'onWait start');
     props.api.waitMessage().then((res) => {
-      console.debug('onWait complete', res);
+      console.debug(reqTag, 'onWait complete', res);
     });
   };
 
   const onPost = () => {
     if (!msgDraft) return;
     setMsgDraft('');
+    const reqTag = `req #${++reqCount.current}`;
 
-    console.debug('onPost start');
+    console.debug(reqTag, 'onPost start');
     props.api.postMessage(msgDraft).then((res) => {
-      console.debug('onPost complete', res);
+      console.debug(reqTag, 'onPost complete', res);
     });
   };
 
   return (
     <div className="space-y-4">
-      <div>HTTP API:</div>
+      <div>
+        HTTP API
+        <span className="text-sm ml-2">caution: too many concurrent requests may hit your browser limit</span>
+      </div>
       <div>
         <Button onClick={onGet}>GET /message-sink/{'${NAME}'}</Button>
       </div>
