@@ -1,0 +1,12 @@
+{
+  "name": "hasura",
+  "version": "0.1.0",
+  "description": "hasura data and scripts",
+  "license": "MIT",
+  "scripts": {
+    "console": "hasura console"
+  },
+  "dependencies": {
+    "hasura-cli": "^2.0.1"
+  }
+}

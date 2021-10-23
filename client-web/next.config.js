@@ -27,8 +27,7 @@ const nextConf = {
   },
 
   // see https://nextjs.org/docs/#customizing-webpack-config
-  webpack(config, { buildId, dev, isServer }) {
-    const webpack = require('webpack');
+  webpack(config, { buildId, dev, isServer, webpack }) {
     config.plugins.push(
       new webpack.DefinePlugin({
         // becomes process.env.NEXT_DEV : boolean
@@ -47,23 +46,38 @@ const nextConf = {
       __filename: true,
     };
 
+    config.resolve = {
+      ...config.resolve,
+      symlinks: false,
+    };
+
     return config;
   },
 
-  future: {
-    webpack5: true,
+  images: {
+    disableStaticImages: true,
   },
+
+  webpack5: true,
+
+  productionBrowserSourceMaps: true,
+
+  future: {},
 };
+
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: !!process.env.BUNDLE_ANALYZE,
+});
 
 module.exports = withPlugins(
   [
-    [optional(() => require('next-optimized-images')), { optimizeImages: false }, [PHASE_PRODUCTION_BUILD]],
-    [optional(() => require('@zeit/next-bundle-analyzer')), {}, [PHASE_PRODUCTION_BUILD]],
-    [optional(() => require('@zeit/next-source-maps')), {}, [PHASE_PRODUCTION_BUILD]],
+    [withBundleAnalyzer], // no idea how to make it optional
+    [require('next-images'), {}], // required after { disableStaticImages: true }
     [
       optional(() =>
+        // eslint-disable-next-line node/no-unpublished-require
         require('next-transpile-modules')([
-          "@jokester/ts-commonutil",
+          '@jokester/ts-commonutil',
           /* ES modules used in server code */
         ]),
       ),

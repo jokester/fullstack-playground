@@ -1,6 +1,5 @@
 import React from 'react';
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
-import { Heading } from '@chakra-ui/react';
+import { Tabs, TabList, TabPanels, Tab, TabPanel, Heading } from '@chakra-ui/react';
 import { UserTodoApp } from '../src/user-todo-app/user-todo-app';
 import { inServer } from '../src/config/build-env';
 
@@ -9,7 +8,7 @@ const TodoListPage: React.FC = () => {
     <div>
       <Heading className="mx-auto">
         Demo:
-        <a href="https://github.com/jokester/fullstack-playground" target="_blank" className="mx-2">
+        <a href="https://github.com/jokester/fullstack-playground" target="_blank" className="mx-2" rel="noreferrer">
           https://github.com/jokester/fullstack-playground
         </a>
       </Heading>

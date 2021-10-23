@@ -1,0 +1,3 @@
+- "!include chatroom_message.yaml"
+- "!include chatroom_room.yaml"
+- "!include chatroom_user.yaml"
