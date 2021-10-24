@@ -1,6 +1,7 @@
 import Dependencies._
 
 val scala2Version = "2.13.6"
+val scala3Version = "3.0.0" // TODO: try compile with scala3
 
 // "bare" definition, applies to all projects
 ThisBuild / version := "current"
@@ -25,7 +26,12 @@ lazy val statelessOpenapi = (project in file("stateless-openapi"))
     libraryDependencies ++= loggingDeps ++ akkaDeps ++ runtimeDeps ++ testDeps ++ buildDeps,
     scalaVersion := scala2Version,
     scalacOptions ++= Seq("-Xlint"),
+    Universal / target := file("target/universal"),
   )
+  .enablePlugins(
+    JavaAppPackaging,
+  )
+  .dependsOn(statelessAkkaHttp)
 
 lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
   .settings(
