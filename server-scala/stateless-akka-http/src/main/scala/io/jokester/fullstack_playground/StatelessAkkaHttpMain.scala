@@ -8,7 +8,7 @@ import io.jokester.fullstack_playground.stateless_akka_http.routes.StatelessRout
 import io.jokester.fullstack_playground.stateless_akka_http.routes.ActorBasedRoutes
 import io.jokester.fullstack_playground.utils.akka_http.AkkaHttpServer
 
-object Main extends App with LazyLogging {
+object StatelessAkkaHttpMain extends App with LazyLogging {
 
   private val actorSystem: ActorSystem[SinkManagerActor.Command] =
     ActorSystem(SinkManagerActor(), "ping")

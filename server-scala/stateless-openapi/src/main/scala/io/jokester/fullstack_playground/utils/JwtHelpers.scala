@@ -1,8 +1,8 @@
-package io.jokester.fullstack_playground.akka_openapi.utils
+package io.jokester.fullstack_playground.utils
 
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, _}
+import io.circe._
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 
 import java.time.Instant
