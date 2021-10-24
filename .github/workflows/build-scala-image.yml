@@ -27,7 +27,7 @@ jobs:
         with:
           version: 1.5.5
       - name: Run sbt-native-packager
-        run: sbt statelessAkkaHttp/packageXzTarball
+        run: sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball
 
       - uses: crazy-max/ghaction-docker-meta@v3
         id: docker_meta

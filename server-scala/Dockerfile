@@ -1,9 +1,14 @@
 FROM alpine:3.12
 COPY ./stateless-akka-http-current.txz /usr/src/
-RUN mkdir -pv /srv && tar xvf /usr/src/stateless-akka-http-current.txz -C /srv/
+COPY ./stateless-openapi-current.txz /usr/src/
+RUN mkdir -pv /srv \
+        && tar xvf /usr/src/stateless-akka-http-current.txz -C /srv/ \
+        && tar xvf /usr/src/stateless-openapi-current.txz -C /srv/
+
+#################
 
 # https://github.com/corretto/corretto-docker
-FROM amazoncorretto:11
+FROM amazoncorretto:11-alpine3.14
 COPY --from=0 /srv /srv
 # default entrypoint ["bash"] is not overriden
 # just execute like command: [ "/PATH/BASH_SCRIPT" ]
