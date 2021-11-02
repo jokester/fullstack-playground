@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.todolist_app_v1
+package io.jokester.fullstack_playground.stateless_openapi.todolist_api
 
 import io.circe.generic.auto._
 import sttp.model.StatusCode
@@ -24,8 +24,8 @@ object TodoApi {
   }
 
   def asOpenAPI: OpenAPI = {
-    import sttp.tapir.docs.openapi._
-    TodoApi.endpointList.toOpenAPI("Todos", "1.0")
+    import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
+    OpenAPIDocsInterpreter().toOpenAPI(endpointList, "TodoAPI", "1.0")
   }
 
   sealed trait ErrorInfo

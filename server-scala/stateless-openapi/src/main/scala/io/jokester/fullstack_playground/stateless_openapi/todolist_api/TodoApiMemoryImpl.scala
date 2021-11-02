@@ -1,10 +1,11 @@
-package io.jokester.fullstack_playground.todolist_app_v1
+package io.jokester.fullstack_playground.stateless_openapi.todolist_api
 
 import com.typesafe.scalalogging.LazyLogging
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 
 class TodoApiMemoryImpl extends TodoApiImpl with LazyLogging {
+  import TodoApi._
 
   private val _nextId = new AtomicInteger(0)
   private val _todos  = new AtomicReference[Map[Int, Todo]](Map.empty)
