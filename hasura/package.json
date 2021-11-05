@@ -7,6 +7,6 @@
     "console": "hasura console"
   },
   "dependencies": {
-    "hasura-cli": "^2.0.1"
+    "hasura-cli": "^2.0.9"
   }
 }

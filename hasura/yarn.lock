@@ -10,11 +10,11 @@ ansi-styles@^3.2.1:
     color-convert "^1.9.0"
 
 axios@^0.21.1:
-  version "0.21.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
-  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+  version "0.21.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
+  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
   dependencies:
-    follow-redirects "^1.10.0"
+    follow-redirects "^1.14.0"
 
 chalk@^2.4.2:
   version "2.4.2"
@@ -42,20 +42,20 @@ escape-string-regexp@^1.0.5:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
 
-follow-redirects@^1.10.0:
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.1.tgz#d9114ded0a1cfdd334e164e6662ad02bfd91ff43"
-  integrity sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
+follow-redirects@^1.14.0:
+  version "1.14.5"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.5.tgz#f09a5848981d3c772b5392309778523f8d85c381"
+  integrity sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==
 
 has-flag@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/has-flag/-/has-flag-3.0.0.tgz#b5d454dc2199ae225699f3467e5a07f3b955bafd"
   integrity sha1-tdRU3CGZriJWmfNGfloH87lVuv0=
 
-hasura-cli@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/hasura-cli/-/hasura-cli-2.0.1.tgz#7fe704412cfd199094a8958afffbf3c777db1b0a"
-  integrity sha512-bH/CVd8n3tE1YtyxKBaIq2VXE5KXXzYRiWChQA6cdGDukk7vZp6Lo/3a9/kNV6GW+dIHObBo93HbgIWM4IsUug==
+hasura-cli@^2.0.9:
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/hasura-cli/-/hasura-cli-2.0.9.tgz#d58b7994244729e82d96f6b8e3c7d6f8326f9411"
+  integrity sha512-95xAxNFfF1nntncULGKGQ9UEbhEWsgcMHdqOLsreq9E1emh2CVu1xuY/WezGMaCe1D4ZII7HxSQZBIhdnF9vKg==
   dependencies:
     axios "^0.21.1"
     chalk "^2.4.2"
