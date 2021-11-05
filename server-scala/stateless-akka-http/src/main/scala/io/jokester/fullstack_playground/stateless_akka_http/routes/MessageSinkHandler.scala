@@ -23,7 +23,7 @@ import java.time.Clock
 import java.util.concurrent.TimeoutException
 import scala.concurrent.duration.DurationInt
 
-class ActorBasedRoutes(val sinkManagerActor: ActorRef[SinkManagerActor.Command])(implicit
+class MessageSinkHandler(val sinkManagerActor: ActorRef[SinkManagerActor.Command])(implicit
     val actorSystem: ActorSystem[Nothing],
 ) extends LazyLogging {
 

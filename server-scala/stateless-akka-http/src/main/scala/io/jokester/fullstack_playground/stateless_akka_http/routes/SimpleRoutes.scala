@@ -20,7 +20,7 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
-object StatelessRoutes {
+object SimpleRoutes {
 
   private case class IncomingHttpHeader(name: String, value: String)
   private case class IncomingRequestDump(
@@ -30,7 +30,15 @@ object StatelessRoutes {
 
   private val clock = Clock.systemUTC()
 
-  def pingRoute: Route = {
+  def route: Route = path("simple") {
+    concat(
+      pingRoute,
+      echoHeadersRoute,
+      echoRequestRoute,
+    )
+  }
+
+  private def pingRoute: Route = {
     (get & path("ping")) {
       complete(
         s"Server running at ${clock.instant()}. JVM Uptime= ${ManagementFactory.getRuntimeMXBean.getUptime}ms",
@@ -38,7 +46,7 @@ object StatelessRoutes {
     }
   }
 
-  def echoHeadersRoute: Route = {
+  private def echoHeadersRoute: Route = {
     (get & path("echo-headers")) {
       extractRequest(req => {
         val dump = IncomingRequestDump(dumpRequestHeaders(req))
@@ -47,7 +55,7 @@ object StatelessRoutes {
     }
   }
 
-  def echoRequestRoute: Route = {
+  private def echoRequestRoute: Route = {
     path("echo-request") {
       extractRequest(req => {
         extractStrictEntity(FiniteDuration(15, TimeUnit.SECONDS)) { strictEntity =>
