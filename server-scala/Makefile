@@ -2,7 +2,7 @@ server:
 	sbt "run runServer"
 
 openapi:
-	sbt "run openapi"
+	sbt "statelessOpenapi/run writeApiSpec ../api-spec/todo-api.yaml"
 
 migration:
 	sbt flywayMigrate

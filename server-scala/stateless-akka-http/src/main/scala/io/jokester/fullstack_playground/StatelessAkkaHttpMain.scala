@@ -12,7 +12,7 @@ import io.jokester.fullstack_playground.utils.akka_http.AkkaHttpServer
 object StatelessAkkaHttpMain extends App with LazyLogging {
 
   private val actorSystem: ActorSystem[SinkManagerActor.Command] =
-    ActorSystem(SinkManagerActor(), "ping")
+    ActorSystem(SinkManagerActor(), "sink-system")
   private val sinkRoute = new MessageSinkHandler(actorSystem)(actorSystem)
 
   AkkaHttpServer.listenWithSystem(
@@ -32,6 +32,6 @@ object StatelessAkkaHttpMain extends App with LazyLogging {
         )
       }
     },
-    port = Option(8082),
+    port = Option(8080),
   )(actorSystem.classicSystem)
 }

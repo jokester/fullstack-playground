@@ -7,7 +7,10 @@ import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
 
+import java.time.Instant
+
 object TodoApi {
+  import ApiConvention._
 
   def endpointList =
     Seq(
@@ -28,60 +31,77 @@ object TodoApi {
     OpenAPIDocsInterpreter().toOpenAPI(endpointList, "TodoAPI", "1.0")
   }
 
-  sealed trait ErrorInfo
-
-  case class Todo(id: Int, title: String, desc: String, finished: Boolean)
+  case class Todo(
+      id: Int,
+      title: String,
+      desc: String,
+      finished: Boolean,
+      updatedAt: Instant,
+  )
 
   case class TodoCreateRequest(title: String, desc: String)
-
-  case class NotFound(what: String) extends ErrorInfo
-
-  case class Unauthorized(realm: String) extends ErrorInfo
-
-  case class Unknown(code: Int, msg: String) extends ErrorInfo
-
-  case object NoContent extends ErrorInfo
+  case class TodoList(todos: Seq[Todo]) extends AnyVal
 
   object endpoints {
-    val listTodo: Endpoint[Unit, ErrorInfo, Seq[Todo], Any] = basePath.get
-      .out(jsonBody[Seq[Todo]])
+    val listTodo: Endpoint[Unit, ErrorInfo, TodoList, Any] = basePath.get
+      .out(statusCode(StatusCode.Ok))
+      .out(jsonBody[TodoList])
+      .name("list TODO")
+      .description("get list of TODOs")
+
     val showTodo: Endpoint[Int, ErrorInfo, Todo, Any] =
-      basePath.post.in(path[Int]).out(jsonBody[Todo])
+      basePath.get
+        .in(path[Int]("todoId"))
+        .out(statusCode(StatusCode.Ok))
+        .out(jsonBody[Todo])
+        .name("show TODO")
+        .description("get TODO by id")
+
     val createTodo: Endpoint[TodoCreateRequest, ErrorInfo, Todo, Any] = basePath.post
       .in(jsonBody[TodoCreateRequest])
+      .out(statusCode(StatusCode.Created))
       .out(jsonBody[Todo])
+      .name("create TODO")
+      .description("create TODO item")
+
     val updateTodo: Endpoint[(Int, Todo), ErrorInfo, Todo, Any] =
       basePath.patch
-        .in("todo" / path[Int])
+        .in(path[Int]("todoId"))
         .in(jsonBody[Todo])
+        .out(statusCode(StatusCode.Ok))
         .out(jsonBody[Todo])
+        .name("update TODO")
+        .description("update todoItem")
+
     val deleteTodo: Endpoint[Int, ErrorInfo, Unit, Any] =
-      basePath.delete.in(path[Int])
+      basePath.delete
+        .in(path[Int]("todoId"))
+        .out(statusCode(StatusCode.Ok))
+        .name("delete TODO")
+        .description("delete todoItem")
+
     private def basePath =
       endpoint
         .in("todos")
-        .errorOut(
-          oneOf[ErrorInfo](
-            statusMapping(StatusCode.NotFound, jsonBody[NotFound].description("not found")),
-          ),
-        )
+        .errorOut(defaultErrorOutputMapping)
   }
 
 }
 
 trait TodoApiImpl {
+  import ApiConvention._
 
   import TodoApi._
 
-  type Failable[T] = Either[ErrorInfo, T]
+  type ApiResult[T] = Either[ErrorInfo, T]
 
-  def create(req: TodoCreateRequest): Failable[Todo]
+  def create(req: TodoCreateRequest): ApiResult[Todo]
 
-  def list(): Failable[Seq[Todo]]
+  def list(): ApiResult[Seq[Todo]]
 
-  def show(todoId: Int): Failable[Todo]
+  def show(todoId: Int): ApiResult[Todo]
 
-  def update(todoId: Int, updated: Todo): Failable[Todo]
+  def update(todoId: Int, patch: Todo): ApiResult[Todo]
 
-  def remove(todoId: Int): Failable[Todo]
+  def remove(todoId: Int): ApiResult[Todo]
 }
