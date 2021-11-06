@@ -56,12 +56,12 @@ const nextConf = {
   },
 
   images: {
-    disableStaticImages: true,
+    // disableStaticImages: true,
   },
 
   webpack5: true,
 
-  productionBrowserSourceMaps: true,
+  // productionBrowserSourceMaps: true,
 
   future: {},
 };

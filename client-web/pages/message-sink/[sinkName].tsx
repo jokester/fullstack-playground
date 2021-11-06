@@ -6,8 +6,8 @@ import { MessageSinkApi } from '../../src/message-sink/message-sink-api';
 import { useCounter, useLocalStorage } from 'react-use';
 import { MessageSinkHttpDemo, MessageSinkWsDemo } from '../../src/message-sink/message-sink';
 
-// const DEFAULT_API_ORIGIN = 'http://127.0.0.1:8082'
-const DEFAULT_API_ORIGIN = 'https://server-demo.jokester.io';
+// const DEFAULT_API_ORIGIN = 'http://127.0.0.1:8082/stateless-akka-http';
+const DEFAULT_API_ORIGIN = 'https://server-demo.jokester.io/stateless-akka-http';
 
 const MessageSinkShowPage: React.FC = () => {
   const router = useRouter();

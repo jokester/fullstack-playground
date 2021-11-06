@@ -29,10 +29,13 @@ class MessageSinkHandler(val sinkManagerActor: ActorRef[SinkManagerActor.Command
 
   private val clock = Clock.systemUTC()
 
-  def route: Route = concat(getSinkRoute, postSinkRoute, waitSinkRoute, subscribeSinkRoute)
+  def route: Route =
+    pathPrefix("message-sink") {
+      concat(getSinkRoute, postSinkRoute, waitSinkRoute, subscribeSinkRoute)
+    }
 
   private def getSinkRoute: Route = {
-    (get & path("message-sink" / Segment)) { sinkName =>
+    (get & path(Segment)) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
         askSink[SinkActor.MessageBatch](sinkActor, asker => SinkActor.GetMessage(asker)) {
           messages =>
@@ -43,7 +46,7 @@ class MessageSinkHandler(val sinkManagerActor: ActorRef[SinkManagerActor.Command
   }
 
   private def postSinkRoute: Route = {
-    (post & path("message-sink" / Segment)) { sinkName =>
+    (post & path(Segment)) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
         readBodyAsString { msgText =>
           askSink[SinkActor.MessageBatch](
@@ -59,7 +62,7 @@ class MessageSinkHandler(val sinkManagerActor: ActorRef[SinkManagerActor.Command
   }
 
   private def waitSinkRoute: Route = {
-    (get & path("message-sink" / Segment / "wait")) { sinkName =>
+    (get & path(Segment / "wait")) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
         // NOTE akka has a 20s timeout
         implicit val askTimeout: Timeout = 10.seconds
@@ -76,7 +79,7 @@ class MessageSinkHandler(val sinkManagerActor: ActorRef[SinkManagerActor.Command
   }
 
   private def subscribeSinkRoute: Route = {
-    (get & path("message-sink" / Segment / "ws")) { sinkName =>
+    (get & path(Segment / "ws")) { sinkName =>
       sinkByName(sinkName) { sinkActor =>
         handleWebSocketMessages(createWsFlow(sinkActor))
       }

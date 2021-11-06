@@ -17,18 +17,18 @@ object StatelessAkkaHttpMain extends App with LazyLogging {
 
   AkkaHttpServer.listenWithSystem(
     (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging) {
-      path("stateless-akka-http") {
+      pathPrefix("stateless-akka-http") {
         concat(
           /**
             * GET /stateless-akka-http/simple/ping
             * GET /stateless-akka-http/simple/echo-headers
             * (any method) /stateless-akka-http/simple/echo-request
             */
-          sinkRoute.route,
+          SimpleRoutes.route,
           /**
             * @see `ActorBasedRoutes`
             */
-          SimpleRoutes.route,
+          sinkRoute.route,
         )
       }
     },

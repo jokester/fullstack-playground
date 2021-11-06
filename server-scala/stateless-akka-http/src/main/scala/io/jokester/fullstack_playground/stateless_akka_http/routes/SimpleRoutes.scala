@@ -9,6 +9,7 @@ import akka.http.scaladsl.server.Directives.{
   extractStrictEntity,
   get,
   path,
+  pathPrefix,
 }
 import akka.http.scaladsl.server.Route
 
@@ -24,19 +25,21 @@ object SimpleRoutes {
 
   private case class IncomingHttpHeader(name: String, value: String)
   private case class IncomingRequestDump(
+      method: String,
       incomingHeaders: Seq[IncomingHttpHeader],
       body: Option[String] = None,
   )
 
   private val clock = Clock.systemUTC()
 
-  def route: Route = path("simple") {
-    concat(
-      pingRoute,
-      echoHeadersRoute,
-      echoRequestRoute,
-    )
-  }
+  def route: Route =
+    pathPrefix("simple") {
+      concat(
+        pingRoute,
+        echoHeadersRoute,
+        echoRequestRoute,
+      )
+    }
 
   private def pingRoute: Route = {
     (get & path("ping")) {
@@ -49,7 +52,8 @@ object SimpleRoutes {
   private def echoHeadersRoute: Route = {
     (get & path("echo-headers")) {
       extractRequest(req => {
-        val dump = IncomingRequestDump(dumpRequestHeaders(req))
+        val dump =
+          IncomingRequestDump(method = req.method.value, incomingHeaders = dumpRequestHeaders(req))
         complete(dump)
       })
     }
@@ -62,6 +66,7 @@ object SimpleRoutes {
           {
             complete(
               IncomingRequestDump(
+                method = req.method.value,
                 incomingHeaders = dumpRequestHeaders(req),
                 body = Some(strictEntity.data.encodeBase64.utf8String),
               ),
