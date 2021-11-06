@@ -4,6 +4,7 @@ const { withPlugins, optional } = require('next-compose-plugins');
 const { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } = require('next/constants');
 
 const nextConf = {
+  poweredByHeader: false,
   analyzeServer: ['server', 'both'].includes(process.env.BUNDLE_ANALYZE),
   analyzeBrowser: ['browser', 'both'].includes(process.env.BUNDLE_ANALYZE),
   bundleAnalyzerConfig: {
@@ -72,12 +73,13 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 module.exports = withPlugins(
   [
     [withBundleAnalyzer], // no idea how to make it optional
-    [require('next-images'), {}], // required after { disableStaticImages: true }
+    // [require('next-images'), {}], // required after { disableStaticImages: true }
     [
       optional(() =>
         // eslint-disable-next-line node/no-unpublished-require
         require('next-transpile-modules')([
           '@jokester/ts-commonutil',
+          // 'lodash-es',
           /* ES modules used in server code */
         ]),
       ),
