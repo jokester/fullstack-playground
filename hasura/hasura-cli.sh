@@ -5,6 +5,7 @@
 
 $0 migrate apply                 # migrate
 $0 migrate apply --down 1        # revert
+$0 init .                        # run after removing all files, for a new start
 
 ###
 END
