@@ -2,7 +2,6 @@
   "scripts": {},
   "dependencies": {},
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.2.6",
-    "prettier": "^2.2.1"
+    "@openapitools/openapi-generator-cli": "^2.4.13"
   }
 }

@@ -1,0 +1,13 @@
+.openapi-generator-ignore
+apis/DefaultApi.ts
+apis/index.ts
+index.ts
+models/BadRequest.ts
+models/NotFound.ts
+models/NotImplemented.ts
+models/ServerError.ts
+models/Todo.ts
+models/TodoCreateRequest.ts
+models/Unauthorized.ts
+models/index.ts
+runtime.ts
