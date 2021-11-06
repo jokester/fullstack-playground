@@ -7,6 +7,8 @@ services:
     environment:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: secret
+      POSTGRES_DB: playground
+
 
     volumes:
       - ./data-pgsql:/var/lib/postgresql/data
@@ -19,7 +21,7 @@ services:
     # 
     image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/try_hasura
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false" # start console with ./scripts/hasura-cli.sh for migration functionality
     links:
       - pgsql
