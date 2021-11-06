@@ -23,6 +23,7 @@ module.exports = {
     'react/display-name': 0,
     'react/prop-types': 0,
     'react/react-in-jsx-scope': 0,
+    'react/button-has-type': 'error',
     '@typescript-eslint/no-var-requires': 2,
     '@typescript-eslint/no-unused-vars': 0,
     '@typescript-eslint/explicit-member-accessibility': 0,
