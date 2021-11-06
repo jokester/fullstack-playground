@@ -13,29 +13,7 @@
  */
 
 import * as runtime from '../runtime';
-import {
-  BadRequest,
-  BadRequestFromJSON,
-  BadRequestToJSON,
-  NotFound,
-  NotFoundFromJSON,
-  NotFoundToJSON,
-  NotImplemented,
-  NotImplementedFromJSON,
-  NotImplementedToJSON,
-  ServerError,
-  ServerErrorFromJSON,
-  ServerErrorToJSON,
-  Todo,
-  TodoFromJSON,
-  TodoToJSON,
-  TodoCreateRequest,
-  TodoCreateRequestFromJSON,
-  TodoCreateRequestToJSON,
-  Unauthorized,
-  UnauthorizedFromJSON,
-  UnauthorizedToJSON,
-} from '../models';
+import { BadRequest, NotFound, NotImplemented, ServerError, Todo, TodoCreateRequest, Unauthorized } from '../models';
 
 export interface CreateTODORequest {
   todoCreateRequest: TodoCreateRequest;
@@ -84,12 +62,12 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: TodoCreateRequestToJSON(requestParameters.todoCreateRequest),
+        body: requestParameters.todoCreateRequest,
       },
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => TodoFromJSON(jsonValue));
+    return new runtime.JSONApiResponse(response);
   }
 
   /**
@@ -156,7 +134,7 @@ export class DefaultApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TodoFromJSON));
+    return new runtime.JSONApiResponse(response);
   }
 
   /**
@@ -195,7 +173,7 @@ export class DefaultApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => TodoFromJSON(jsonValue));
+    return new runtime.JSONApiResponse(response);
   }
 
   /**
@@ -239,12 +217,12 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PATCH',
         headers: headerParameters,
         query: queryParameters,
-        body: TodoToJSON(requestParameters.todo),
+        body: requestParameters.todo,
       },
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response, (jsonValue) => TodoFromJSON(jsonValue));
+    return new runtime.JSONApiResponse(response);
   }
 
   /**

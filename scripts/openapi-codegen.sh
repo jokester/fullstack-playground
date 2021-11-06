@@ -9,13 +9,13 @@ SPEC_DIR="$PWD/../api-spec"
 CLIENT_ROOT="$PWD/../client-web"
 
 generate-web () {
-  local API_ID="$1"
-  local GENERATED_ROOT="$PWD/../client-web/src/generated/$API_ID"
+  local OPENAPI_YAML="$1"
+  local GENERATED_ROOT="$2"
   rm -rf $GENERATED_ROOT && mkdir -pv $GENERATED_ROOT
 
   yarn openapi-generator-cli generate \
       -g typescript-fetch             \
-      -i "$SPEC_DIR/$API_ID.yaml"    \
+      -i "$OPENAPI_YAML"    \
       -c ./ts-fetch-options.json      \
       -o "$GENERATED_ROOT"
 
@@ -25,4 +25,5 @@ generate-web () {
 }
 
 yarn
-generate-web "todo-api"
+generate-web "$SPEC_DIR/todo-api.yaml" "$CLIENT_ROOT/src/todo-app-v1/generated"
+generate-web "$SPEC_DIR/user-todo-api.yaml" "$CLIENT_ROOT/src/todo-app-v2/generated"

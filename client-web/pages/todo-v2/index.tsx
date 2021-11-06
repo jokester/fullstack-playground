@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabList, TabPanels, Tab, TabPanel, Heading } from '@chakra-ui/react';
-import { UserTodoApp } from '../src/user-todo-app/user-todo-app';
-import { inServer } from '../src/config/build-env';
+import { UserTodoApp } from '../../src/todo-app-v2/user-todo-app';
+import { inServer } from '../../src/config/build-env';
 
 const TodoListPage: React.FC = () => {
   return (

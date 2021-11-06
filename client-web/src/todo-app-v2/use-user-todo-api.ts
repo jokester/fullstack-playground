@@ -1,7 +1,7 @@
 import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/use-concurrency-control';
 import { CredApi } from './use-user-cred';
 import { useEffect, useState } from 'react';
-import { TodoItem } from '../generated/openapi-fetch';
+import { TodoItem } from './generated';
 
 export function useUserTodoApi(credApi: CredApi) {
   const [withLock, lockDepth] = useConcurrencyControl(1);

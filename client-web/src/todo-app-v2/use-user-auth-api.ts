@@ -1,7 +1,7 @@
 import type { CredApi } from './use-user-cred';
 import { useConcurrencyControl } from '@jokester/ts-commonutil/lib/react/hook/use-concurrency-control';
 import { useMemo, useState } from 'react';
-import { callFetchApiClient } from '../api/use-fetch-api';
+import { callFetchApiClient } from './use-fetch-api';
 
 export function useUserAuthApi(cred: CredApi) {
   const [withLock, lockDepth] = useConcurrencyControl(1);

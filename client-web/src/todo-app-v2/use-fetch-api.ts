@@ -1,4 +1,4 @@
-import type { DefaultApi, LoginResponse } from '../generated/openapi-fetch';
+import type { DefaultApi, LoginResponse } from './generated';
 import { inServer } from '../config/build-env';
 import { Never } from '@jokester/ts-commonutil/lib/concurrency/timing';
 import { PromiseResult, usePromised } from '@jokester/ts-commonutil/lib/react/hook/use-promised';
@@ -6,9 +6,7 @@ import { useEffect, useState } from 'react';
 
 const apiP: Promise<DefaultApi> = inServer
   ? Never
-  : import('../generated/openapi-fetch').then(
-      (_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080` })),
-    );
+  : import('./generated').then((_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080` })));
 
 function readAuth(): null | LoginResponse {
   if (inServer) return null;

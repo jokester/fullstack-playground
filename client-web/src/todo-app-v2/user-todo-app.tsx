@@ -3,7 +3,7 @@ import { CredApi, useCredStorage } from './use-user-cred';
 import { useUserAuthApi } from './use-user-auth-api';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { useUserTodoApi } from './use-user-todo-api';
-import { TodoItem } from '../generated/openapi-fetch';
+import { TodoItem } from './generated';
 
 export const UserTodoApp: FC = () => {
   const credApi = useCredStorage();

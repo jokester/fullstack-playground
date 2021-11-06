@@ -3,8 +3,8 @@ import { useLocalStorage } from 'react-use';
 import { useState } from 'react';
 import { pipe } from 'fp-ts/function';
 import { never } from 'fp-ts/Task';
-import { callFetchApiClient } from '../api/use-fetch-api';
-import type { DefaultApi, LoginResponse } from '../generated/openapi-fetch';
+import { callFetchApiClient } from './use-fetch-api';
+import type { DefaultApi, LoginResponse } from './generated';
 
 export interface CredApi {
   getCurrent(): null | LoginResponse;
