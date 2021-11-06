@@ -2,7 +2,8 @@ version: '3'
 
 services:
   pgsql:
-    image: postgres:12.7
+    # https://hub.docker.com/_/postgres
+    image: postgres:12.8
     environment:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: secret
@@ -13,8 +14,10 @@ services:
       - 61432:5432
     restart: on-failure
 
+
   hasura:
-    image: hasura/graphql-engine:v2.0.1.cli-migrations-v3
+    # 
+    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/try_hasura
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false" # start console with ./scripts/hasura-cli.sh for migration functionality
