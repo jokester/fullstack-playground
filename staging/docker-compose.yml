@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  pgsql:
+    # https://hub.docker.com/_/postgres
+    image: postgres:12.8
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: playground_stg
+    volumes:
+      - ./data-pgsql:/var/lib/postgresql/data
+    ports:
+      - 61432:5432
+    restart: on-failure
+
+  hasura:
+    # 
+    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground_stg
+      # start console with ./scripts/hasura-cli.sh for migration functionality
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
+      HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
+    volumes:
+      - ../hasura/migrations/:/srv/hasura/migrations:ro
+      - ../hasura/metadata/:/srv/hasura/metadata:ro
+
+    links:
+      - pgsql
+    ports:
+      - 61081:8080
+    restart: on-failure
+
