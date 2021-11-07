@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: playground
-
-
     volumes:
       - ./data-pgsql:/var/lib/postgresql/data
     ports:

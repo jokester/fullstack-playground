@@ -36,6 +36,13 @@ object Dependencies {
   ).map(_ % Versions.tapir) :+ ("com.pauldijou" %% "jwt-circe" % "5.0.0")
   //      "com.softwaremill.sttp.client3" %% "core"            % Versions.sttp
 
+  lazy val quillDeps: Seq[ModuleID] = Seq(
+    "com.zaxxer"     % "HikariCP"           % "5.0.0",
+    "org.postgresql" % "postgresql"         % Versions.postgresql,
+    "io.getquill"   %% "quill-jdbc"         % "3.10.0",
+    "io.getquill"   %% "quill-codegen-jdbc" % "3.10.0",
+  )
+
   lazy val rdbDeps: Seq[ModuleID] = Seq(
     // pgsql / hikariCP
     "org.postgresql" % "postgresql" % Versions.postgresql,
@@ -65,12 +72,12 @@ private object Versions {
   val upickle   = "1.2.2"
 
   // rdbms
-  val postgresql  = "42.2.24"
-  val scalikeJDBC = "3.5.0"
-  val flyway      = "8.0.1"
+  val postgresql  = "42.3.1"
+  val scalikeJDBC = "4.0.0"
+  val flyway      = "8.0.2"
 
   // testing
-  val scalaTest               = "3.2.2"
+  val scalaTest               = "3.2.9"
   val scalaTestPlusScalaCheck = "3.2.2.0"
 
 }

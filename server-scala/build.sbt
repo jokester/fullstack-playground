@@ -30,7 +30,7 @@ lazy val statelessOpenapi = (project in file("stateless-openapi"))
 lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
   .settings(
     name := "server-openapi",
-    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ rdbDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ quillDeps ++ testDeps ++ buildDeps,
     Universal / target := file("target/universal"),
   )
   .enablePlugins(
@@ -40,3 +40,9 @@ lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
     ScalikejdbcPlugin,
   )
   .dependsOn(statelessAkkaHttp, statelessOpenapi)
+
+lazy val rdbCodegen = (project in file("rdb-codegen"))
+  .settings(
+    name := "rdb-codegen",
+    libraryDependencies ++= basicDeps ++ quillDeps ++ testDeps ++ buildDeps,
+  )
