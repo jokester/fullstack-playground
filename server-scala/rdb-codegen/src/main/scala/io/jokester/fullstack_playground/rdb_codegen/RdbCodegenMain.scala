@@ -10,7 +10,7 @@ import org.postgresql.ds.PGSimpleDataSource
 object RdbCodegenMain extends App with LazyLogging {
   logger.debug("started")
 
-  val destPkg = "io.jokester.fullstack_playground.stated"
+  val destPkg = "io.jokester.fullstack_playground.quill.generated"
 
   def setupPostgres(configPrefix: String) = new PostgresJdbcContext(SnakeCase, configPrefix)
 
