@@ -13,7 +13,7 @@ module.exports = {
   },
   globals: {
     'ts-jest': {
-      tscnfig: {
+      tsconfig: {
         jsx: 'react',
       },
     },
