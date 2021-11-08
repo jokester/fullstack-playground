@@ -44,12 +44,11 @@ object Dependencies {
     "io.getquill"   %% "quill-codegen-jdbc" % "3.10.0",
   )
 
-  lazy val rdbDeps: Seq[ModuleID] = Seq(
+  lazy val scalikeJdbcDeps: Seq[ModuleID] = Seq(
     // pgsql / hikariCP
     "org.postgresql" % "postgresql" % Versions.postgresql,
     //      "com.zaxxer"     % "HikariCP"   % "4.0.1", // this resolves to bad version
     "org.scalikejdbc" %% "scalikejdbc" % Versions.scalikeJDBC,
-    "org.flywaydb"     % "flyway-core" % Versions.flyway,
   )
 
   lazy val testDeps: Seq[ModuleID] = Seq(
@@ -74,7 +73,7 @@ private object Versions {
 
   // rdbms
   val postgresql  = "42.3.1"
-  val scalikeJDBC = "4.0.0"
+  val scalikeJDBC = "3.5.0"
   val flyway      = "8.0.2"
 
   // testing

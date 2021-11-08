@@ -1,8 +1,9 @@
-package io.jokester.fullstack_playground.todolist_app_v2
+package io.jokester.fullstack_playground.user_todolist_api
 
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto._
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.jokester.fullstack_playground.todolist_api.TodoApi.asOpenAPI
 import sttp.model.StatusCode
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto._
@@ -139,6 +140,12 @@ object UserTodoApi {
   )
 
   def asOpenAPI: OpenAPI = {
-    OpenAPIDocsInterpreter.toOpenAPI(endpointList, "User Todos", "1.0")
+    import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
+    OpenAPIDocsInterpreter().toOpenAPI(endpointList, "User Todos", "1.0")
+  }
+
+  def asOpenAPIYaml: String = {
+    import sttp.tapir.openapi.circe.yaml._
+    asOpenAPI.toYaml
   }
 }

@@ -2,7 +2,7 @@ package io.jokester.fullstack_playground
 
 import akka.http.scaladsl.server.Directives.pathPrefix
 import com.typesafe.scalalogging.LazyLogging
-import io.jokester.fullstack_playground.stateless_openapi.todolist_api.{
+import io.jokester.fullstack_playground.todolist_api.{
   TodoApi,
   TodoApiAkkaBinding,
   TodoApiImpl,

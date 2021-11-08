@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.stateless_openapi.todolist_api
+package io.jokester.fullstack_playground.todolist_api
 
 import com.typesafe.scalalogging.LazyLogging
 

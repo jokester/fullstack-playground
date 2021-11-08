@@ -1,8 +1,7 @@
-package io.jokester.fullstack_playground.db
+package io.jokester.fullstack_playground.scalikejdbc
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
-import org.flywaydb.core.Flyway
 import scalikejdbc.ConnectionPool
 
 object DatabaseInit extends LazyLogging {
@@ -37,9 +36,5 @@ object DatabaseInit extends LazyLogging {
       user = cred.user,
       password = cred.password,
     )
-
-    val f = Flyway.configure().dataSource(cred.url, cred.user, cred.password).load();
-    f.migrate()
-
   }
 }

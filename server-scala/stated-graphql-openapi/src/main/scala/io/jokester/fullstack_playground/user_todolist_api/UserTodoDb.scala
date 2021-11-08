@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.todolist_app_v2
+package io.jokester.fullstack_playground.user_todolist_api
 
 import scalikejdbc.{DB}
 

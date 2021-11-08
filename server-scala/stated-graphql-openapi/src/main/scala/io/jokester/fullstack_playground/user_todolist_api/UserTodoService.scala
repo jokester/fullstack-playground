@@ -1,11 +1,9 @@
-package io.jokester.fullstack_playground.todolist_app_v2
+package io.jokester.fullstack_playground.user_todolist_api
 
-import cats.Id
-
-trait UserTodoService {
+trait UserTodoService[Result[_]] {
   import UserTodoApi._
 
-  type ApiResult[T] = Id[Either[ErrorInfo, T]]
+  type ApiResult[T] = Result[Either[ErrorInfo, T]]
 
   // signup
   def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse]

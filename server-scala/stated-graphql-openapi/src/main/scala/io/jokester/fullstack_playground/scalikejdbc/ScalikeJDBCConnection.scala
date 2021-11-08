@@ -1,7 +1,7 @@
-package io.jokester.fullstack_playground.todolist_app_v2
+package io.jokester.fullstack_playground.scalikejdbc
 
 import com.typesafe.scalalogging.LazyLogging
-import scalikejdbc._
+import scalikejdbc.{ConnectionPool, DB}
 
 object ScalikeJDBCConnection extends LazyLogging {
   private def initSingleton(): Unit = {

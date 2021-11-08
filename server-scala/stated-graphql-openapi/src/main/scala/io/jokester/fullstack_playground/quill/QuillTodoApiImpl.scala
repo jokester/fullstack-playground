@@ -1,15 +1,16 @@
 package io.jokester.fullstack_playground.quill
 
-import io.jokester.fullstack_playground.quill.generated.public.Todos
-import io.getquill.{EntityQuery, PostgresJdbcContext, SnakeCase}
+import io.jokester.fullstack_playground.quill.generated.public.{PublicExtensions, Todos}
+import io.getquill.{EntityQuery, PostgresDialect, PostgresJdbcContext, SnakeCase}
 
-class QuillTodoApiImpl(private val ctx: PostgresJdbcContext[SnakeCase.type]) {
+class QuillTodoApiImpl(
+    private val ctx: PostgresJdbcContext[SnakeCase.type]
+      with PublicExtensions[PostgresDialect, SnakeCase.type],
+) {
   import ctx.{query, quote}
+  import ctx.PublicSchema.TodosDao
 
-  val listTodoQuery = quote { query[Todos] }
-  val constQuery    = quote(3.14)
-
-  def listTodos(): Unit = {
-    val queried = ctx.run(listTodoQuery)
-  }
+  /**
+    * TODO: impl with quill
+    */
 }

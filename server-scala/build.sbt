@@ -30,7 +30,7 @@ lazy val statelessOpenapi = (project in file("stateless-openapi"))
 lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
   .settings(
     name := "server-openapi",
-    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ quillDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ quillDeps ++ scalikeJdbcDeps ++ testDeps ++ buildDeps,
     Universal / target := file("target/universal"),
   )
   .enablePlugins(
