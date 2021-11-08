@@ -44,5 +44,6 @@ lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
 lazy val rdbCodegen = (project in file("rdb-codegen"))
   .settings(
     name := "rdb-codegen",
-    libraryDependencies ++= basicDeps ++ quillDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= basicDeps ++ quillDeps,
+    dependencyOverrides ++= /** force use of SLF4J API <1.8 (no idea why this is required) */ basicDeps,
   )

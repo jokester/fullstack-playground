@@ -7,6 +7,9 @@ import io.getquill.codegen.model.{NameParser, SnakeCaseNames}
 import io.getquill.{PostgresJdbcContext, SnakeCase}
 import org.postgresql.ds.PGSimpleDataSource
 
+/**
+  * A to run code generation (before I learned better way)
+  */
 object RdbCodegenMain extends App with LazyLogging {
   logger.debug("started")
 
