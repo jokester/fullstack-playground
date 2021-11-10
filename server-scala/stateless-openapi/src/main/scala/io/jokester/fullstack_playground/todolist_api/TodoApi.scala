@@ -1,5 +1,6 @@
 package io.jokester.fullstack_playground.todolist_api
 
+import cats.Id
 import io.circe.generic.auto._
 import sttp.model.StatusCode
 import sttp.tapir._
@@ -8,6 +9,7 @@ import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
 
 import java.time.Instant
+import scala.concurrent.Future
 
 object TodoApi {
   import ApiConvention._
@@ -90,7 +92,6 @@ object TodoApi {
 
 trait TodoApiImpl {
   import ApiConvention._
-
   import TodoApi._
 
   type ApiResult[T] = Either[ErrorInfo, T]

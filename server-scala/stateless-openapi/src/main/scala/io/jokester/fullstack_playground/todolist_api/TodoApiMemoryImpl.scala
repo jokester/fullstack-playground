@@ -1,5 +1,6 @@
 package io.jokester.fullstack_playground.todolist_api
 
+import cats.Id
 import com.typesafe.scalalogging.LazyLogging
 
 import java.time.Clock
@@ -73,5 +74,4 @@ class TodoApiMemoryImpl extends TodoApiImpl with LazyLogging {
 
     found
   }
-
 }

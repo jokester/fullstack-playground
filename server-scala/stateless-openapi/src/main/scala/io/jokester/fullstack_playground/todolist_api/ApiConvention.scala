@@ -6,6 +6,8 @@ import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{EndpointOutput, oneOf, oneOfDefaultMapping, oneOfMapping}
 
+import scala.concurrent.Future
+
 object ApiConvention {
   sealed trait ErrorInfo
 
@@ -30,4 +32,11 @@ object ApiConvention {
       oneOfDefaultMapping(jsonBody[ServerError]),
     )
 
+  trait LifterHelpers {
+    type ApiResult[T] = Either[ErrorInfo, T]
+
+    def liftResult[T](t: ApiResult[T]): Future[ApiResult[T]] = Future.successful(t)
+    def liftSuccess[T](t: T): Future[ApiResult[T]]           = Future.successful(Right(t))
+    def liftError(r: ErrorInfo): Future[ApiResult[Nothing]]  = Future.successful(Left(r))
+  }
 }
