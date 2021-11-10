@@ -3,9 +3,7 @@ package io.jokester.fullstack_playground.user_todolist_api
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.auto._
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.jokester.fullstack_playground.todolist_api.TodoApi.asOpenAPI
 import sttp.model.StatusCode
-import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
