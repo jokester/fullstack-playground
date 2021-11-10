@@ -6,9 +6,16 @@ import io.getquill.{EntityQuery, PostgresDialect, PostgresJdbcContext, SnakeCase
 class QuillTodoApiImpl(
     private val ctx: PostgresJdbcContext[SnakeCase.type]
       with PublicExtensions[PostgresDialect, SnakeCase.type],
-) {
-  import ctx.{query, quote}
-  import ctx.PublicSchema.TodosDao
+) extends QuillDatetimeEncoding {
+  import ctx._
+
+  def listTodos(): Seq[Todos] = {
+    val q = quote {
+      query[Todos]
+    }
+    val r = ctx.run(q)
+    r
+  }
 
   /**
     * TODO: impl with quill
