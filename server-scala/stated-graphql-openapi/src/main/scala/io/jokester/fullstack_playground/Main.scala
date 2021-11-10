@@ -16,7 +16,8 @@ object Main extends App with LazyLogging {
     case Array("quill") =>
       val ctx  = QuillCtxFactory.setupPostgres("database.default")
       val impl = new QuillTodoApiImpl(ctx)
-      logger.info("got todos: {}", impl.listTodos())
+      logger.info("got todos: {}", impl.list())
+      ctx.close()
 
     case _ =>
       logger.debug("ARGV: {}", args.toList)

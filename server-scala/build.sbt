@@ -45,5 +45,5 @@ lazy val rdbCodegen = (project in file("rdb-codegen"))
   .settings(
     name := "rdb-codegen",
     libraryDependencies ++= basicDeps ++ quillDeps,
-    dependencyOverrides ++= /** force use of SLF4J API <1.8 (no idea why this is required) */ basicDeps,
+    // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
   )

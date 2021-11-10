@@ -5,7 +5,7 @@ object Dependencies {
     // logging
     "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.4",
     "org.slf4j"                   % "slf4j-api"       % "1.7.32",
-    "ch.qos.logback"              % "logback-classic" % "1.2.6", // this provides SLF4J backend
+    "ch.qos.logback"              % "logback-classic" % "1.3.0-alpha10", // this provides SLF4J backend
     // config
     "com.typesafe" % "config" % "1.4.1",
   )
