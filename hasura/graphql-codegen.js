@@ -1,6 +1,7 @@
 const path = require('path');
 
 const clientWebSrc = path.join(__dirname, '../client-web/src');
+const specX = 
 
 module.exports = {
   // see https://www.graphql-code-generator.com/docs/getting-started/codegen-config
