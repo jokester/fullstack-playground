@@ -8,8 +8,7 @@ import io.getquill.{EntityQuery, PostgresDialect, PostgresJdbcContext, SnakeCase
 import java.time.{Clock, OffsetDateTime, OffsetTime}
 
 class QuillTodoApiImpl(
-    private val ctx: PostgresJdbcContext[SnakeCase.type]
-      with PublicExtensions[PostgresDialect, SnakeCase.type],
+    private val ctx: QuillCtxFactory.OurCtx,
 ) extends TodoApiImpl
     with QuillDatetimeEncoding {
   import ctx._

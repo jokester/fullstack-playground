@@ -8,7 +8,7 @@ object TestQuillCtxFactory {
 
   def withTestContext(
       testCase: (
-          PostgresJdbcContext[SnakeCase.type] with PublicExtensions[PostgresDialect, SnakeCase.type],
+          QuillCtxFactory.OurCtx,
       ) => Unit,
   ): Unit = {
     val created = createTestContext

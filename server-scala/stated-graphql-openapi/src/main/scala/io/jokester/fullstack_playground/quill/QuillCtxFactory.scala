@@ -10,9 +10,20 @@ import javax.sql.DataSource
 
 object QuillCtxFactory {
 
+  /**
+    * how
+    */
+  object FixedPostgresNaming extends SnakeCase {
+    override def table(s: String): String  = s"""\"${super.table(s)}\""""
+    override def column(s: String): String = s"""\"${super.column(s)}\""""
+  }
+  type OurCtx = PostgresJdbcContext[FixedPostgresNaming.type]
+    with PublicExtensions[PostgresDialect, FixedPostgresNaming.type]
+
   def createContext(
       configPrefix: String,
-  ): PostgresJdbcContext[SnakeCase.type] with PublicExtensions[PostgresDialect, SnakeCase.type] = {
+  ): PostgresJdbcContext[FixedPostgresNaming.type]
+    with PublicExtensions[PostgresDialect, FixedPostgresNaming.type] = {
     val dbConf = LoadConfig(configPrefix)
     val pgSource = simplePgDataSource(
       dbConf.getString("url"),
@@ -21,8 +32,8 @@ object QuillCtxFactory {
     )
     val hikariSource = pooledDataSource(pgSource)
 
-    new PostgresJdbcContext[SnakeCase.type](SnakeCase, hikariSource)
-      with PublicExtensions[PostgresDialect, SnakeCase.type]
+    new PostgresJdbcContext[FixedPostgresNaming.type](FixedPostgresNaming, hikariSource)
+      with PublicExtensions[PostgresDialect, FixedPostgresNaming.type]
   }
 
   /**

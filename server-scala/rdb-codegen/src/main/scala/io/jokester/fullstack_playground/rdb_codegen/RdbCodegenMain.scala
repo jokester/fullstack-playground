@@ -2,10 +2,8 @@ package io.jokester.fullstack_playground.rdb_codegen
 
 import com.typesafe.scalalogging.LazyLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import io.getquill.codegen.jdbc.model.JdbcTypes.JdbcQuerySchemaNaming
 import io.getquill.codegen.jdbc.{ComposeableTraitsJdbcCodegen, SimpleJdbcCodegen}
 import io.getquill.codegen.model._
-import io.getquill.{PostgresJdbcContext, SnakeCase}
 import org.postgresql.ds.PGSimpleDataSource
 
 /**
@@ -47,10 +45,14 @@ object RdbCodegenMain extends App with LazyLogging {
 //      override def defaultNamespace: String = "public"
 
       /**
-        * CustomNames() for explicit postgres schema
+        * how columns are named at "Scala side"
+        * override def generateQuerySchemas=true to generate explicit schemas
         */
       override def nameParser: NameParser = CustomNames()
 
+      /**
+        * how generated files are names / organized
+        */
       override def packagingStrategy: PackagingStrategy = {
         PackagingStrategy.ByPackageHeader
           .TablePerSchema(destPkg)
@@ -61,15 +63,24 @@ object RdbCodegenMain extends App with LazyLogging {
       }
 
       /**
-        * use `ThrowTypingError` to fail early
+        * how JDBC columns are mapped to JVM types
+        */
+      override def typer: Typer = new OurPostgresTyper(unrecognizedTypeStrategy, numericPreference)
+
+      /**
+        * what to do when `Typer` returns None
+        * `ThrowTypingError` fails early
         */
       override def unrecognizedTypeStrategy: UnrecognizedTypeStrategy = ThrowTypingError
 
-      override def typer: Typer = new OurPostgresTyper(unrecognizedTypeStrategy, numericPreference)
+      /**
+        * not making difference?
+        */
+      override val columnGetter: JdbcColumnMeta => String = cm => "WHAT DOES THIS DO???"
 
 //      override def namespacer: Namespacer[JdbcTableMeta] = ts => ts.tableSchem.getOrElse("public")
 
-      override def querySchemaNaming: JdbcQuerySchemaNaming = super.querySchemaNaming
+//      override def querySchemaNaming: JdbcQuerySchemaNaming = super.querySchemaNaming
     }
   }
 
