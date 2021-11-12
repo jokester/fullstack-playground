@@ -14,7 +14,7 @@ object Main extends App with LazyLogging {
       Files.writeString(Path.of(yamlPath), UserTodoApi.asOpenAPIYaml)
 
     case Array("quill") =>
-      val ctx  = QuillCtxFactory.setupPostgres("database.default")
+      val ctx  = QuillCtxFactory.createContext("database.default")
       val impl = new QuillTodoApiImpl(ctx)
       logger.info("got todos: {}", impl.list())
       ctx.close()

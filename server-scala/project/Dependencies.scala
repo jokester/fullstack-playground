@@ -77,7 +77,7 @@ private object Versions {
   val flyway      = "8.0.2"
 
   // testing
-  val scalaTest               = "3.2.9"
+  val scalaTest               = "3.2.10"
   val scalaTestPlusScalaCheck = "3.2.2.0"
 
 }

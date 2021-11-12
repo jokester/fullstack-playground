@@ -1,6 +1,5 @@
 package io.jokester.fullstack_playground.quill
 
-import com.typesafe.config.ConfigFactory
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import io.getquill.util.LoadConfig
 import io.getquill.{PostgresDialect, PostgresJdbcContext, SnakeCase}
@@ -11,7 +10,7 @@ import javax.sql.DataSource
 
 object QuillCtxFactory {
 
-  def setupPostgres(
+  def createContext(
       configPrefix: String,
   ): PostgresJdbcContext[SnakeCase.type] with PublicExtensions[PostgresDialect, SnakeCase.type] = {
     val dbConf = LoadConfig(configPrefix)
@@ -27,7 +26,8 @@ object QuillCtxFactory {
   }
 
   /**
-    * @param url JDBC URL like "jdbc:postgresql://localhost:61432/playground?user=pguser&password=secret&ssl=false"
+    * @param url JDBC URL like "jdbc:postgresql://localhost:61432/playground"
+    *            (user / password in URL gets ignored)
     * @return
     */
   private def simplePgDataSource(
@@ -43,7 +43,7 @@ object QuillCtxFactory {
   }
 
   /**
-    * @deprecated DO NOT USE not required or useful in codegen
+    * @note must be closed manually
     */
   private def pooledDataSource(wrapped: DataSource): HikariDataSource = {
     val config = new HikariConfig()
