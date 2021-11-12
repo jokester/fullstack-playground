@@ -13,11 +13,17 @@ services:
     ports:
       - 61432:5432
     restart: on-failure
+    command: # see https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh
+      - postgres
+      - -c
+      - log_min_error_statement=ERROR
+      - -c
+      - log_statement=all
 
 
   hasura:
-    # 
     image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
+    # image: spaster/alpine-sleep  # uncomment to disable hasura
     command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
       - graphql-engine
       - serve
