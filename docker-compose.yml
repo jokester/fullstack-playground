@@ -16,9 +16,13 @@ services:
     command: # see https://github.com/docker-library/postgres/blob/master/docker-entrypoint.sh
       - postgres
       - -c
-      - log_min_error_statement=ERROR
+      - log_min_error_statement=notice
       - -c
       - log_statement=all
+      - -c
+      - log_duration=on
+      - -c
+      - log_error_verbosity=default # terse / default / debug
 
 
   hasura:

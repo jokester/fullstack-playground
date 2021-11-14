@@ -62,14 +62,13 @@ class TodoApiMemoryImpl extends TodoApiImpl with LazyLogging {
 
     _todos.getAndUpdate(todos => {
       todos
-        .get(todoId)
-        .map(existed => {
+        .get(todoId) match {
+        case Some(existed) =>
           found = Right(existed)
-          todos.removed(todoId)
-        })
-        .getOrElse({
+          todos - todoId
+        case _ =>
           todos
-        })
+      }
     })
 
     found

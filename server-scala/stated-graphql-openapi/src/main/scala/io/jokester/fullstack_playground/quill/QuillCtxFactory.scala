@@ -59,7 +59,7 @@ object QuillCtxFactory {
   private def pooledDataSource(wrapped: DataSource): HikariDataSource = {
     val config = new HikariConfig()
     config.setDataSource(wrapped)
-    config.setConnectionInitSql("set time zone 'UTC'")
+//    config.setConnectionInitSql("set time zone 'UTC'")
     new HikariDataSource(config)
   }
 

@@ -39,7 +39,7 @@ lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
     // (not generating prefect code)
     ScalikejdbcPlugin,
   )
-  .dependsOn(statelessAkkaHttp, statelessOpenapi)
+  .dependsOn(statelessAkkaHttp, statelessOpenapi % "compile->compile;test->test;")
 
 lazy val rdbCodegen = (project in file("rdb-codegen"))
   .settings(
@@ -47,3 +47,10 @@ lazy val rdbCodegen = (project in file("rdb-codegen"))
     libraryDependencies ++= basicDeps ++ quillDeps,
     // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
   )
+
+def enableQuillLog(): Unit = {
+  sys.props.put("quill.macro.log", false.toString)
+  sys.props.put("quill.binds.log", true.toString)
+}
+
+val _ = enableQuillLog()
