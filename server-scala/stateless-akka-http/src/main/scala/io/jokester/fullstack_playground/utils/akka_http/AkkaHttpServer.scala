@@ -27,7 +27,11 @@ object AkkaHttpServer extends LazyLogging {
     * Listen with an ad-hoc `ActorSystem`
     * and block until keypress
     */
-  def listen(rootRoute: Route, interface: Option[String] = None, port: Option[Int] = None): Unit = {
+  def listen(
+      rootRoute: Route,
+      interface: Option[String] = None,
+      port: Option[Int] = None,
+  ): Future[Unit] = {
     val typedSystem: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "adhoc-system")
     listenWithSystem(rootRoute, interface, port)(untypedSystem = typedSystem.classicSystem)
   }
@@ -40,7 +44,7 @@ object AkkaHttpServer extends LazyLogging {
       rootRoute: Route,
       interface: Option[String] = None,
       port: Option[Int] = None,
-  )(implicit untypedSystem: UntypedActorSystem): Unit = {
+  )(implicit untypedSystem: UntypedActorSystem): Future[Unit] = {
     import scala.concurrent.duration._
 
     implicit val executionContext: ExecutionContextExecutor = untypedSystem.getDispatcher
@@ -55,11 +59,13 @@ object AkkaHttpServer extends LazyLogging {
       })
 
     for (
-      bound   <- bindingFuture;
-      stop    <- waitKeyboardInterrupt();
-      unbound <- bound.unbind()
-    ) {
-      untypedSystem.terminate()
+      bound      <- bindingFuture;
+      stop       <- waitKeyboardInterrupt();
+      unbound    <- bound.unbind();
+      terminated <- untypedSystem.terminate()
+    ) yield {
+      logger.debug("ActorSystem terminiated: {}", terminated)
+      ()
     }
   }
 
