@@ -1,6 +1,6 @@
 import { DeleteTODORequest, Todo, CreateTODORequest, UpdateTODORequest } from './generated';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { callTodoApi } from './todo-api';
+import { callTodoApi } from './todo-http-api';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { array, date, ord } from 'fp-ts';
 
