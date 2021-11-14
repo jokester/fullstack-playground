@@ -1,10 +1,11 @@
 package io.jokester.fullstack_playground.todolist_api
 
 import com.typesafe.scalalogging.LazyLogging
+import io.jokester.fullstack_playground.quill.QuillCtxFactory.OurCtx
 import io.jokester.fullstack_playground.quill.generated.public.Todos
 import io.jokester.fullstack_playground.quill.{
   QuillCtxFactory,
-  QuillDatetimeEncoding,
+  QuillDatetimeEncoding => QuillDatetimeEncoding,
   QuillWorkarounds,
 }
 import io.jokester.fullstack_playground.todolist_api.TodoApi.CreateTodoIntent
@@ -20,10 +21,12 @@ class QuillTodoApiImpl(
   import io.jokester.fullstack_playground.todolist_api.ApiConvention._
   import ctx._
 
+  protected override val _quillContext: OurCtx = ctx
+
   override def create(req: CreateTodoIntent): ApiResult[TodoApi.Todo] = {
     val created = ctx.run(quote {
       query[Todos]
-        .insert(_.title -> lift(req.title), _.desc -> lift(req.title))
+        .insert(_.title -> lift(req.title), _.desc -> lift(req.desc))
         .returning(row => row)
     })
     resultRight(mapFromDB(created))
@@ -61,14 +64,16 @@ class QuillTodoApiImpl(
               case _                          => found.finishedAt
             },
           )
+          logger.debug("updating {} with {}", existed, merged)
 
           val updated = run {
 
             findById(todoId)
-            /**
-              */
               .update(
-                lift(merged),
+                _.title      -> lift(merged.title),
+                _.desc       -> lift(merged.desc),
+                _.finishedAt -> lift(merged.finishedAt: Option[OffsetDateTime]),
+//                lift(merged),
               )
               .returning(row => row)
           }
@@ -118,9 +123,11 @@ class QuillTodoApiImpl(
   private def now   = OffsetDateTime.now(clock)
 
   /**
-    * this allows us to lift(todo_value) , and exclude todoId columns in update
+    * @note updateMeta for some reason doesn't work
+    * this WAS SUPPOSED TO allows us to lift(todo_value) , and exclude todoId columns in update
+    *
     * @see https://getquill.io/#extending-quill-meta-dsl-update-meta
     */
-  private implicit val todoUpdateMeta: UpdateMeta[Todos] =
-    updateMeta[Todos](_.todoId, _.updatedAt, _.createdAt)
+//  private implicit val todoUpdateMeta: UpdateMeta[Todos] =
+//    updateMeta[Todos](_.todoId, _.updatedAt, _.createdAt)
 }

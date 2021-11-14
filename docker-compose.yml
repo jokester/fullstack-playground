@@ -32,6 +32,7 @@ services:
       - graphql-engine
       - serve
       - --connections=20
+      - --schema-sync-poll-interval=60000
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
       # start console with ./scripts/hasura-cli.sh for migration functionality
