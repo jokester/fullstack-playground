@@ -16,7 +16,7 @@ defaults:
 
 jobs:
 
-  test:
+  scala-test:
     name: run ScalaTest
     runs-on: ubuntu-20.04
     services:
@@ -43,6 +43,7 @@ jobs:
     name: Build and push docker image
     # github ubuntu image contains https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
     runs-on: ubuntu-20.04
+    needs: scala-test
 
     steps:
       # mostly taken from https://github.com/marketplace/actions/build-and-push-docker-images
