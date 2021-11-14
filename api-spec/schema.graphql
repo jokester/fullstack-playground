@@ -1,5 +1,6 @@
 schema {
   query: query_root
+  mutation: mutation_root
   subscription: subscription_root
 }
 
@@ -12,7 +13,495 @@ directive @cached(
   refresh: Boolean! = false
 ) on QUERY
 
-type query_root
+"""
+Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
+"""
+input Int_comparison_exp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _is_null: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
 
-type subscription_root
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input String_comparison_exp {
+  _eq: String
+  _gt: String
+  _gte: String
+
+  """does the column match the given case-insensitive pattern"""
+  _ilike: String
+  _in: [String!]
+
+  """
+  does the column match the given POSIX regular expression, case insensitive
+  """
+  _iregex: String
+  _is_null: Boolean
+
+  """does the column match the given pattern"""
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+
+  """does the column NOT match the given case-insensitive pattern"""
+  _nilike: String
+  _nin: [String!]
+
+  """
+  does the column NOT match the given POSIX regular expression, case insensitive
+  """
+  _niregex: String
+
+  """does the column NOT match the given pattern"""
+  _nlike: String
+
+  """
+  does the column NOT match the given POSIX regular expression, case sensitive
+  """
+  _nregex: String
+
+  """does the column NOT match the given SQL regular expression"""
+  _nsimilar: String
+
+  """
+  does the column match the given POSIX regular expression, case sensitive
+  """
+  _regex: String
+
+  """does the column match the given SQL regular expression"""
+  _similar: String
+}
+
+"""mutation root"""
+type mutation_root {
+  """
+  delete data from the table: "todos"
+  """
+  delete_todos(
+    """filter the rows which have to be deleted"""
+    where: todos_bool_exp!
+  ): todos_mutation_response
+
+  """
+  delete single row from the table: "todos"
+  """
+  delete_todos_by_pk(todo_id: Int!): todos
+
+  """
+  insert data into the table: "todos"
+  """
+  insert_todos(
+    """the rows to be inserted"""
+    objects: [todos_insert_input!]!
+
+    """on conflict condition"""
+    on_conflict: todos_on_conflict
+  ): todos_mutation_response
+
+  """
+  insert a single row into the table: "todos"
+  """
+  insert_todos_one(
+    """the row to be inserted"""
+    object: todos_insert_input!
+
+    """on conflict condition"""
+    on_conflict: todos_on_conflict
+  ): todos
+
+  """
+  update data of the table: "todos"
+  """
+  update_todos(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: todos_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: todos_set_input
+
+    """filter the rows which have to be updated"""
+    where: todos_bool_exp!
+  ): todos_mutation_response
+
+  """
+  update single row of the table: "todos"
+  """
+  update_todos_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: todos_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: todos_set_input
+    pk_columns: todos_pk_columns_input!
+  ): todos
+}
+
+"""column ordering options"""
+enum order_by {
+  """in ascending order, nulls last"""
+  asc
+
+  """in ascending order, nulls first"""
+  asc_nulls_first
+
+  """in ascending order, nulls last"""
+  asc_nulls_last
+
+  """in descending order, nulls first"""
+  desc
+
+  """in descending order, nulls first"""
+  desc_nulls_first
+
+  """in descending order, nulls last"""
+  desc_nulls_last
+}
+
+type query_root {
+  """
+  fetch data from the table: "todos"
+  """
+  todos(
+    """distinct select on columns"""
+    distinct_on: [todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [todos_order_by!]
+
+    """filter the rows returned"""
+    where: todos_bool_exp
+  ): [todos!]!
+
+  """
+  fetch aggregated fields from the table: "todos"
+  """
+  todos_aggregate(
+    """distinct select on columns"""
+    distinct_on: [todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [todos_order_by!]
+
+    """filter the rows returned"""
+    where: todos_bool_exp
+  ): todos_aggregate!
+
+  """fetch data from the table: "todos" using primary key columns"""
+  todos_by_pk(todo_id: Int!): todos
+}
+
+type subscription_root {
+  """
+  fetch data from the table: "todos"
+  """
+  todos(
+    """distinct select on columns"""
+    distinct_on: [todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [todos_order_by!]
+
+    """filter the rows returned"""
+    where: todos_bool_exp
+  ): [todos!]!
+
+  """
+  fetch aggregated fields from the table: "todos"
+  """
+  todos_aggregate(
+    """distinct select on columns"""
+    distinct_on: [todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [todos_order_by!]
+
+    """filter the rows returned"""
+    where: todos_bool_exp
+  ): todos_aggregate!
+
+  """fetch data from the table: "todos" using primary key columns"""
+  todos_by_pk(todo_id: Int!): todos
+}
+
+scalar timestamptz
+
+"""
+Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
+"""
+input timestamptz_comparison_exp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz!]
+  _is_null: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz!]
+}
+
+"""
+columns and relationships of "todos"
+"""
+type todos {
+  created_at: timestamptz!
+  desc: String!
+  finished_at: timestamptz
+  title: String!
+  todo_id: Int!
+  updated_at: timestamptz!
+}
+
+"""
+aggregated selection of "todos"
+"""
+type todos_aggregate {
+  aggregate: todos_aggregate_fields
+  nodes: [todos!]!
+}
+
+"""
+aggregate fields of "todos"
+"""
+type todos_aggregate_fields {
+  avg: todos_avg_fields
+  count(columns: [todos_select_column!], distinct: Boolean): Int!
+  max: todos_max_fields
+  min: todos_min_fields
+  stddev: todos_stddev_fields
+  stddev_pop: todos_stddev_pop_fields
+  stddev_samp: todos_stddev_samp_fields
+  sum: todos_sum_fields
+  var_pop: todos_var_pop_fields
+  var_samp: todos_var_samp_fields
+  variance: todos_variance_fields
+}
+
+"""aggregate avg on columns"""
+type todos_avg_fields {
+  todo_id: Float
+}
+
+"""
+Boolean expression to filter rows from the table "todos". All fields are combined with a logical 'AND'.
+"""
+input todos_bool_exp {
+  _and: [todos_bool_exp!]
+  _not: todos_bool_exp
+  _or: [todos_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  desc: String_comparison_exp
+  finished_at: timestamptz_comparison_exp
+  title: String_comparison_exp
+  todo_id: Int_comparison_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "todos"
+"""
+enum todos_constraint {
+  """unique or primary key constraint"""
+  todos_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "todos"
+"""
+input todos_inc_input {
+  todo_id: Int
+}
+
+"""
+input type for inserting data into table "todos"
+"""
+input todos_insert_input {
+  created_at: timestamptz
+  desc: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+}
+
+"""aggregate max on columns"""
+type todos_max_fields {
+  created_at: timestamptz
+  desc: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+}
+
+"""aggregate min on columns"""
+type todos_min_fields {
+  created_at: timestamptz
+  desc: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+}
+
+"""
+response of any mutation on the table "todos"
+"""
+type todos_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [todos!]!
+}
+
+"""
+on conflict condition type for table "todos"
+"""
+input todos_on_conflict {
+  constraint: todos_constraint!
+  update_columns: [todos_update_column!]! = []
+  where: todos_bool_exp
+}
+
+"""Ordering options when selecting data from "todos"."""
+input todos_order_by {
+  created_at: order_by
+  desc: order_by
+  finished_at: order_by
+  title: order_by
+  todo_id: order_by
+  updated_at: order_by
+}
+
+"""primary key columns input for table: todos"""
+input todos_pk_columns_input {
+  todo_id: Int!
+}
+
+"""
+select columns of table "todos"
+"""
+enum todos_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  desc
+
+  """column name"""
+  finished_at
+
+  """column name"""
+  title
+
+  """column name"""
+  todo_id
+
+  """column name"""
+  updated_at
+}
+
+"""
+input type for updating data in table "todos"
+"""
+input todos_set_input {
+  created_at: timestamptz
+  desc: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+}
+
+"""aggregate stddev on columns"""
+type todos_stddev_fields {
+  todo_id: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type todos_stddev_pop_fields {
+  todo_id: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type todos_stddev_samp_fields {
+  todo_id: Float
+}
+
+"""aggregate sum on columns"""
+type todos_sum_fields {
+  todo_id: Int
+}
+
+"""
+update columns of table "todos"
+"""
+enum todos_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  desc
+
+  """column name"""
+  finished_at
+
+  """column name"""
+  title
+
+  """column name"""
+  todo_id
+
+  """column name"""
+  updated_at
+}
+
+"""aggregate var_pop on columns"""
+type todos_var_pop_fields {
+  todo_id: Float
+}
+
+"""aggregate var_samp on columns"""
+type todos_var_samp_fields {
+  todo_id: Float
+}
+
+"""aggregate variance on columns"""
+type todos_variance_fields {
+  todo_id: Float
+}
 
