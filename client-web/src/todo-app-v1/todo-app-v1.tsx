@@ -1,53 +1,40 @@
 import { DeleteTODORequest, Todo, CreateTODORequest, UpdateTODORequest } from './generated';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { callTodoApi } from './todo-http-api';
+import { useHttpTodoApi } from './todo-http-api';
 import { Button, Checkbox } from '@chakra-ui/react';
-import { array, date, ord } from 'fp-ts';
-
-export const TodoAppV1: React.FC<{ apiOrigin: string }> = (props) => {
-  const [state, setState] = useState<null | { mode: 'list'; items: Todo[] }>(null);
-
-  const reloadTodos = useCallback(async () => {
-    setState(null);
-    const items = await callTodoApi(props.apiOrigin, (api) => api.listTODO());
-    setState({ mode: 'list', items: items.todos ?? [] });
-  }, [props.apiOrigin]);
-
-  const onCreate = async (req: CreateTODORequest) => {
-    const created = await callTodoApi(props.apiOrigin, (api) => api.createTODO(req));
-    // setState((_state) => (_state?.mode === 'list' ? { mode: 'list', items: [..._state.items, created] } : null));
-    await reloadTodos();
-  };
-
-  const onUpdate = async (req: UpdateTODORequest) => {
-    const updated = await callTodoApi(props.apiOrigin, (api) => api.updateTODO(req));
-    await reloadTodos();
-  };
-
-  const onDelete = async (req: DeleteTODORequest) => {
-    await callTodoApi(props.apiOrigin, (api) => api.deleteTODO(req));
-    await reloadTodos();
-  };
+import { useTodoGqlApi } from './todo-gql-api';
+export const TodoAppV1: React.FC<{ apiOrigin: string; graphqlOrigin: string }> = (props) => {
+  const httpApi = useHttpTodoApi(props.apiOrigin, false);
+  const graphqlApi = useTodoGqlApi(props.graphqlOrigin);
 
   useEffect(() => {
-    setTimeout(reloadTodos);
-  }, [reloadTodos, props.apiOrigin]);
-
-  const sortedItems = useMemo(
-    () => state?.items.sort((a, b) => date.Ord.compare(a.updatedAt, b.updatedAt)).reverse() || [],
-    [state],
-  );
+    const s = graphqlApi.onSubscribeGql((updated) => {
+      console.log('graphql subscription onNext', updated);
+    });
+    return () => s.unsubscribe();
+  }, [graphqlApi]);
 
   return (
     <div>
-      <TodoDraft onCreate={onCreate} />
+      <TodoDraft onCreate={httpApi.onCreate} />
       <hr className="my-1" />
       <div className="text-center mb-1">
-        <Button isDisabled={!state} onClick={reloadTodos} backgroundColor="blue.500" color="white" width="md">
+        <Button
+          isDisabled={!httpApi.isLoading}
+          onClick={httpApi.onReload}
+          backgroundColor="blue.500"
+          color="white"
+          width="md"
+        >
           Reload
         </Button>
       </div>
-      <TodoList items={sortedItems} onUpdate={onUpdate} onDelete={onDelete} onReload={reloadTodos} />
+      <TodoList
+        items={httpApi.items}
+        onUpdate={httpApi.onUpdate}
+        onDelete={httpApi.onDelete}
+        onReload={httpApi.onReload}
+      />
     </div>
   );
 };
