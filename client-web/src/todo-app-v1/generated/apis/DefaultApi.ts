@@ -13,10 +13,19 @@
  */
 
 import * as runtime from '../runtime';
-import { BadRequest, NotFound, NotImplemented, ServerError, Todo, TodoCreateRequest, Unauthorized } from '../models';
+import {
+  BadRequest,
+  CreateTodoIntent,
+  NotFound,
+  NotImplemented,
+  ServerError,
+  Todo,
+  TodoList,
+  Unauthorized,
+} from '../models';
 
 export interface CreateTODORequest {
-  todoCreateRequest: TodoCreateRequest;
+  createTodoIntent: CreateTodoIntent;
 }
 
 export interface DeleteTODORequest {
@@ -43,10 +52,10 @@ export class DefaultApi extends runtime.BaseAPI {
     requestParameters: CreateTODORequest,
     initOverrides?: RequestInit,
   ): Promise<runtime.ApiResponse<Todo>> {
-    if (requestParameters.todoCreateRequest === null || requestParameters.todoCreateRequest === undefined) {
+    if (requestParameters.createTodoIntent === null || requestParameters.createTodoIntent === undefined) {
       throw new runtime.RequiredError(
-        'todoCreateRequest',
-        'Required parameter requestParameters.todoCreateRequest was null or undefined when calling createTODO.',
+        'createTodoIntent',
+        'Required parameter requestParameters.createTodoIntent was null or undefined when calling createTODO.',
       );
     }
 
@@ -62,7 +71,7 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: requestParameters.todoCreateRequest,
+        body: requestParameters.createTodoIntent,
       },
       initOverrides,
     );
@@ -119,7 +128,7 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * get list of TODOs
    */
-  async listTODORaw(initOverrides?: RequestInit): Promise<runtime.ApiResponse<Array<Todo>>> {
+  async listTODORaw(initOverrides?: RequestInit): Promise<runtime.ApiResponse<TodoList>> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -140,7 +149,7 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * get list of TODOs
    */
-  async listTODO(initOverrides?: RequestInit): Promise<Array<Todo>> {
+  async listTODO(initOverrides?: RequestInit): Promise<TodoList> {
     const response = await this.listTODORaw(initOverrides);
     return await response.value();
   }

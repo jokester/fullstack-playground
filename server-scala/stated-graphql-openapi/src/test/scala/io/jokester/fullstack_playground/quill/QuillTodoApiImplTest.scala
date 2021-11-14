@@ -13,7 +13,7 @@ class QuillTodoApiImplTest extends AnyFlatSpec with should.Matchers {
 
       val initial = testee.list()
 
-      val created = testee.create(TodoCreateRequest("title", "desc"))
+      val created = testee.create(CreateTodoIntent("title", "desc"))
 
     })
 

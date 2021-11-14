@@ -14,7 +14,7 @@ class QuillTodoApiImpl(
   import ctx._
   import ApiConvention._
 
-  override def create(req: TodoApi.TodoCreateRequest): ApiResult[TodoApi.Todo] = {
+  override def create(req: TodoApi.CreateTodoIntent): ApiResult[TodoApi.Todo] = {
     val created = ctx.run(quote {
       query[Todos]
         .insert(_.title -> lift(req.title), _.desc -> lift(req.title))

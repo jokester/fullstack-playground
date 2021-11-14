@@ -28,7 +28,11 @@ object StatelessOpenAPIMain extends App with LazyLogging {
       val rootRoute = pathPrefix("stateless-openapi") {
         todoRoute
       }
-      AkkaHttpServer.listen(rootRoute)
+      AkkaHttpServer.listen(
+        (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging) {
+          rootRoute
+        },
+      )
 
     case _ =>
       logger.error(s"Command Not Recognized: ${args}")

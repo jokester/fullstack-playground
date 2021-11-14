@@ -41,8 +41,13 @@ object TodoApi {
       updatedAt: Instant,
   )
 
-  case class TodoCreateRequest(title: String, desc: String)
-  case class TodoList(todos: Seq[Todo]) extends AnyVal
+  case class CreateTodoIntent(title: String, desc: String)
+
+  /**
+    * @note must not "extends AnyVal" or there will be mismatch between OpenAPI / Scala
+    * @fixme this does not make "todos" required in OpenAPI
+    */
+  case class TodoList(todos: Seq[Todo])
 
   object endpoints {
     val listTodo: Endpoint[Unit, ErrorInfo, TodoList, Any] = basePath.get
@@ -59,8 +64,8 @@ object TodoApi {
         .name("show TODO")
         .description("get TODO by id")
 
-    val createTodo: Endpoint[TodoCreateRequest, ErrorInfo, Todo, Any] = basePath.post
-      .in(jsonBody[TodoCreateRequest])
+    val createTodo: Endpoint[CreateTodoIntent, ErrorInfo, Todo, Any] = basePath.post
+      .in(jsonBody[CreateTodoIntent])
       .out(statusCode(StatusCode.Created))
       .out(jsonBody[Todo])
       .name("create TODO")
@@ -96,7 +101,7 @@ trait TodoApiImpl {
 
   type ApiResult[T] = Either[ErrorInfo, T]
 
-  def create(req: TodoCreateRequest): ApiResult[Todo]
+  def create(req: CreateTodoIntent): ApiResult[Todo]
 
   def list(): ApiResult[Seq[Todo]]
 

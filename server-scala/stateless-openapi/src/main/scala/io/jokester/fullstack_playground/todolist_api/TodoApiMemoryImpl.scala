@@ -16,7 +16,7 @@ class TodoApiMemoryImpl extends TodoApiImpl with LazyLogging {
 
   override def list(): Either[ErrorInfo, Seq[Todo]] = Right(_todos.get.values.toSeq)
 
-  override def create(req: TodoCreateRequest): Either[ErrorInfo, Todo] = {
+  override def create(req: CreateTodoIntent): Either[ErrorInfo, Todo] = {
     val newItem =
       Todo(
         id = _nextId.incrementAndGet(),

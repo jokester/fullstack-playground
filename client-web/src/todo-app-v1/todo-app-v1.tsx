@@ -8,7 +8,7 @@ export const TodoAppV1: React.FC<{ apiOrigin: string }> = (props) => {
   const onList = useCallback(async () => {
     setState(null);
     const items = await callTodoApi(props.apiOrigin, (api) => api.listTODO());
-    setState({ mode: 'list', items });
+    setState({ mode: 'list', items: items.todos ?? [] });
   }, [props.apiOrigin]);
 
   const onShow = async (todoId: number) => {
