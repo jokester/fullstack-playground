@@ -15,7 +15,31 @@ defaults:
     working-directory: server-scala
 
 jobs:
-  image:
+
+  test:
+    name: run ScalaTest
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: init test db
+        run: |
+          export PGHOST='postgres'
+          export PGPORT='5432'
+          export PGUSER='postgres'
+          export PGPASSWORD='postgres'
+          echo '\c' | psql postgres
+
+  build-image:
     name: Build and push docker image
     # github ubuntu image contains https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
     runs-on: ubuntu-20.04
