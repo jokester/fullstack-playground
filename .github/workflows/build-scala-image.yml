@@ -39,8 +39,7 @@ jobs:
       - name: Test
         run: |
           TEST_PG_URL='jdbc:postgresql://127.0.0.1:5432/playground_test' TEST_PG_USER='postgres' TEST_PG_PASSWORD='postgres' sbt clean test coverageAggregate # coverageReport
-      - name: Upload coverage
-        run: bash <(curl -s https://codecov.io/bash)
+      - uses: codecov/codecov-action@v2
 
   build-image:
     name: Build and push docker image
