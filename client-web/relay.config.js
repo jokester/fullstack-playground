@@ -10,7 +10,10 @@ module.exports = {
   schema,
   exclude: ['**/node_modules/**', '**/__mocks__/**', '**/generated/**', '**/.next/**', '**/test/**'],
   extensions: ['ts', 'tsx'],
-  artifactDirectory: `${clientWebSrc}/generated/graphql-relay`,
+  artifactDirectory: `${clientWebSrc}/graphql-relay/generated`,
   language: 'typescript',
   // persistOutput: `${clientWebSrc}/generated/some.json`,
+  customScalars: {
+    timestamptz: 'Date',
+  },
 };

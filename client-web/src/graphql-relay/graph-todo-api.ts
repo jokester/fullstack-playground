@@ -1,8 +1,8 @@
 import { graphql } from 'react-relay';
 
-export const exampleQueries = {
-  listTodos: graphql`
-    query exampleQueriesListTodosQuery {
+export const graphTodoApi = {
+  listTodo: graphql`
+    query graphTodoApiListTodoQuery {
       todos {
         todo_id
         title
