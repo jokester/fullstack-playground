@@ -9,6 +9,7 @@ ThisBuild / organization := "io.jokester.fullstack_playground"
 ThisBuild / organizationName := "gh/jokester/fullstack-playground"
 ThisBuild / scalaVersion := scala2Version
 ThisBuild / scalacOptions ++= Seq("-Xlint")
+ThisBuild / coverageEnabled := true
 
 lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
   .settings(

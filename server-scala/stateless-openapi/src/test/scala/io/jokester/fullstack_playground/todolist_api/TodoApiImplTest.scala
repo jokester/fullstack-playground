@@ -25,11 +25,29 @@ trait TodoApiImplTest extends should.Matchers with EitherValues {
 
     // U
     testee.update(-3, created).left.value should equal(NotFound(s"Todo(id=-3) not found"))
-    val updated =
+    val updated1 =
+      testee
+        .update(created.id, created.copy(title = "title1", desc = "desc1"))
+        .right
+        .value
+    val updated2 =
       testee
         .update(created.id, created.copy(title = "title2", desc = "desc2", finished = true))
         .right
         .value
+    val updated3 =
+      testee
+        .update(created.id, created.copy(title = "title3", desc = "desc3", finished = true))
+        .right
+        .value
+    val updated4 =
+      testee
+        .update(created.id, created.copy(title = "title4", desc = "desc4"))
+        .right
+        .value
+    val updated = updated4
+    testee.list().right.value should contain(updated)
+    testee.list().right.value should contain(updated)
     testee.list().right.value should contain(updated)
     testee.list().right.value should not.contain(created)
 
