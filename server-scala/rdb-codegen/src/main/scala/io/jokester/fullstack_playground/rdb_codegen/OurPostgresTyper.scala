@@ -18,13 +18,17 @@ class OurPostgresTyper(
   override def apply(jdbcTypeInfo: JdbcTypeInfo): Option[ClassTag[_]] = {
     logger.debug("jdbcTypeInfo: {}", jdbcTypeInfo)
     val typed = jdbcTypeInfo match {
-      case JdbcTypeInfo(jdbcType, size, Some("timestamptz")) if jdbcType == JDBCTypes.TIMESTAMP =>
+
+      /**
+        * @see https://jdbc.postgresql.org/documentation/head/8-date-time.html
+        */
+      case JdbcTypeInfo(JDBCTypes.TIMESTAMP, size, Some("timestamptz")) =>
         Some(classTag[OffsetDateTime])
-      case JdbcTypeInfo(jdbcType, size, Some("json")) if jdbcType == JDBCTypes.OTHER =>
+      case JdbcTypeInfo(JDBCTypes.OTHER, size, Some("json")) =>
         Some(classTag[String])
-      case JdbcTypeInfo(jdbcType, size, Some("jsonb")) if jdbcType == JDBCTypes.OTHER =>
+      case JdbcTypeInfo(JDBCTypes.OTHER, size, Some("jsonb")) =>
         Some(classTag[String])
-      case JdbcTypeInfo(jdbcType, size, Some("uuid")) if jdbcType == JDBCTypes.OTHER =>
+      case JdbcTypeInfo(JDBCTypes.OTHER, size, Some("uuid")) =>
         Some(classTag[UUID])
       case _ => super.apply(jdbcTypeInfo)
     }
