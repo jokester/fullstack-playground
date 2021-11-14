@@ -33,13 +33,9 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v2
-      - name: init test db
+      - name: Init test db
         run: |
-          export PGHOST='127.0.0.1'
-          export PGPORT='5432'
-          export PGUSER='postgres'
-          export PGPASSWORD='postgres'
-          echo '\c' | psql postgres
+          PGHOST='127.0.0.1' PGPORT='5432' PGUSER='postgres' PGPASSWORD='postgres' ../hasura/rebuild-test-db.sh
 
   build-image:
     name: Build and push docker image
