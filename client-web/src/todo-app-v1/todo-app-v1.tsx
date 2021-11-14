@@ -4,7 +4,7 @@ import { useHttpTodoApi } from './todo-http-api';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { useTodoGqlApi } from './todo-gql-api';
 export const TodoAppV1: React.FC<{ apiOrigin: string; graphqlOrigin: string }> = (props) => {
-  const httpApi = useHttpTodoApi(props.apiOrigin, false);
+  const httpApi = useHttpTodoApi(props.apiOrigin, true);
   const graphqlApi = useTodoGqlApi(props.graphqlOrigin);
 
   useEffect(() => {

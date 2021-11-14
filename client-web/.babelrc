@@ -6,7 +6,7 @@
     [
       "relay",
       {
-        "artifactDirectory": "src/generated/graphql-relay"
+        "artifactDirectory": "src/graphql-relay/generated"
       }
     ]
   ]
