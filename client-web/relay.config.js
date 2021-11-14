@@ -1,4 +1,5 @@
-const path = require('path')
+/* eslint-disable @typescript-eslint/no-var-requires */
+const path = require('path');
 
 const clientWebRoot = __dirname;
 const clientWebSrc = path.join(__dirname, './src');
