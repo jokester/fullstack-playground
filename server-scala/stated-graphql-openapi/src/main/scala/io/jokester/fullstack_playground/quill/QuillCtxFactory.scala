@@ -11,7 +11,7 @@ import javax.sql.DataSource
 object QuillCtxFactory {
 
   /**
-    * how
+    * how table/columns are escaped in SQL
     */
   object FixedPostgresNaming extends SnakeCase {
     override def table(s: String): String  = s"""\"${super.table(s)}\""""
@@ -59,6 +59,7 @@ object QuillCtxFactory {
   private def pooledDataSource(wrapped: DataSource): HikariDataSource = {
     val config = new HikariConfig()
     config.setDataSource(wrapped)
+    config.setConnectionInitSql("set time zone 'UTC'")
     new HikariDataSource(config)
   }
 

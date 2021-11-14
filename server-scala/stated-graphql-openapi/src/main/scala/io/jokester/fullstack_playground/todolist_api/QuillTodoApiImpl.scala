@@ -1,20 +1,21 @@
-package io.jokester.fullstack_playground.quill
+package io.jokester.fullstack_playground.todolist_api
 
 import cats.syntax.either._
-import io.jokester.fullstack_playground.todolist_api.{ApiConvention, TodoApi, TodoApiImpl}
-import io.jokester.fullstack_playground.quill.generated.public.{PublicExtensions, Todos}
-import io.getquill.{EntityQuery, PostgresDialect, PostgresJdbcContext, SnakeCase}
+import io.jokester.fullstack_playground.quill.generated.public.Todos
+import io.jokester.fullstack_playground.quill.{QuillCtxFactory, QuillDatetimeEncoding}
+import io.jokester.fullstack_playground.todolist_api.TodoApi.CreateTodoIntent
+import io.jokester.fullstack_playground.todolist_api.TodoApiImpl
 
-import java.time.{Clock, OffsetDateTime, OffsetTime}
+import java.time.{Clock, OffsetDateTime}
 
 class QuillTodoApiImpl(
-    private val ctx: QuillCtxFactory.OurCtx,
+    ctx: QuillCtxFactory.OurCtx,
 ) extends TodoApiImpl
     with QuillDatetimeEncoding {
+  import io.jokester.fullstack_playground.todolist_api.ApiConvention._
   import ctx._
-  import ApiConvention._
 
-  override def create(req: TodoApi.CreateTodoIntent): ApiResult[TodoApi.Todo] = {
+  override def create(req: CreateTodoIntent): ApiResult[TodoApi.Todo] = {
     val created = ctx.run(quote {
       query[Todos]
         .insert(_.title -> lift(req.title), _.desc -> lift(req.title))

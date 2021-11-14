@@ -1,7 +1,8 @@
 package io.jokester.fullstack_playground
 
 import com.typesafe.scalalogging.LazyLogging
-import io.jokester.fullstack_playground.quill.{QuillCtxFactory, QuillTodoApiImpl}
+import io.jokester.fullstack_playground.quill.QuillCtxFactory
+import io.jokester.fullstack_playground.todolist_api.QuillTodoApiImpl
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi
 
 import java.nio.file.{Files, Path}
