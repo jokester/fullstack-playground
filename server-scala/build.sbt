@@ -45,6 +45,13 @@ lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
 lazy val rdbCodegen = (project in file("rdb-codegen"))
   .settings(
     name := "rdb-codegen",
+    libraryDependencies ++= basicDeps ++ quillCodegenDeps,
+    // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
+  )
+
+lazy val quillReproduce = (project in file("quill-offsetdatetime-reproduce"))
+  .settings(
+    name := "quill-offsetdatetime-reproduce",
     libraryDependencies ++= basicDeps ++ quillDeps,
     // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
   )

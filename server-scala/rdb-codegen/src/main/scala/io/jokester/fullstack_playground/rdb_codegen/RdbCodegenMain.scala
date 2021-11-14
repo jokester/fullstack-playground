@@ -1,7 +1,6 @@
 package io.jokester.fullstack_playground.rdb_codegen
 
 import com.typesafe.scalalogging.LazyLogging
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import io.getquill.codegen.jdbc.{ComposeableTraitsJdbcCodegen, SimpleJdbcCodegen}
 import io.getquill.codegen.model._
 import org.postgresql.ds.PGSimpleDataSource
@@ -20,15 +19,6 @@ object RdbCodegenMain extends App with LazyLogging {
       "jdbc:postgresql://localhost:61432/playground?user=pguser&password=secret&ssl=false",
     )
     pgDataSource
-  }
-
-  /**
-    * @deprecated DO NOT USE not required or useful in codegen
-    */
-  lazy val pooledPgDataSource = {
-    val config = new HikariConfig()
-    config.setDataSource(simplePgDataSource)
-    new HikariDataSource(config)
   }
 
   lazy val simpleCodeGen =

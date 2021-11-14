@@ -38,10 +38,16 @@ object Dependencies {
   //      "com.softwaremill.sttp.client3" %% "core"            % Versions.sttp
 
   lazy val quillDeps: Seq[ModuleID] = Seq(
-    "com.zaxxer"     % "HikariCP"           % "5.0.0",
-    "org.postgresql" % "postgresql"         % Versions.postgresql,
-    "io.getquill"   %% "quill-jdbc"         % "3.10.0",
-    "io.getquill"   %% "quill-codegen-jdbc" % "3.10.0",
+    "com.zaxxer"     % "HikariCP"             % "5.0.0",
+    "org.postgresql" % "postgresql"           % Versions.postgresql,
+    "io.getquill"   %% "quill-jdbc"           % Versions.quill,
+    "io.getquill"   %% "quill-async-postgres" % Versions.quill,
+  )
+
+  lazy val quillCodegenDeps: Seq[ModuleID] = Seq(
+    "org.postgresql" % "postgresql" % Versions.postgresql,
+//    "io.getquill"   %% "quill-jdbc"           % Versions.quill,
+    "io.getquill" %% "quill-codegen-jdbc" % Versions.quill,
   )
 
   lazy val scalikeJdbcDeps: Seq[ModuleID] = Seq(
@@ -73,6 +79,7 @@ private object Versions {
 
   // rdbms
   val postgresql  = "42.3.1"
+  val quill       = "3.10.0"
   val scalikeJDBC = "3.5.0"
   val flyway      = "8.0.2"
 
