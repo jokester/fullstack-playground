@@ -23,28 +23,20 @@ trait QuillDatetimeEncoding2 extends LazyLogging {
   * low-level bindings
   */
 trait QuillDatetimeEncoding extends LazyLogging {
-  private val pgTimestampUtils = new TimestampUtils(true, () => TimeZone.getTimeZone("UTC"))
-  protected val _quillContext: QuillCtxFactory.OurCtx
-  import _quillContext.{encoder, Encoder, Decoder, decoder}
 
-  implicit lazy val offsetDatetimeDecoder: MappedEncoding[String, OffsetDateTime] = {
-    MappedEncoding[String, OffsetDateTime](pgTimestampUtils.toOffsetDateTime)
-  }
+  protected val ctx: QuillCtxFactory.OurCtx
 
-  implicit lazy val optionX: Encoder[Option[OffsetDateTime]] = encoder[Option[OffsetDateTime]](
-    Types.TIMESTAMP_WITH_TIMEZONE,
-    (index: Int, value: Option[OffsetDateTime], row: PreparedStatement) => {
-      logger.debug(s"offsetDatetimeEncoder: index=$index, value=$value")
-      //        row.setObject(index, pgTimestampUtils.toString(value), Types.TIMESTAMP)
-    },
-  )
-
-  implicit lazy val offsetDatetimeEncoder: Encoder[OffsetDateTime] =
-    encoder[OffsetDateTime](
+  /**
+    * implicit values must be of path-dependent type, not "OurCtx#decoder"
+    */
+  protected lazy implicit val offsetDateTimeDecoder: ctx.type#Decoder[OffsetDateTime] =
+    ctx.decoder((index, row, session) => row.getObject(index, classOf[OffsetDateTime]))
+  protected lazy implicit val offsetDateTimeEncoder: ctx.type#Encoder[OffsetDateTime] =
+    ctx.encoder(
       Types.TIMESTAMP_WITH_TIMEZONE,
-      (index: Int, value: OffsetDateTime, row: PreparedStatement) => {
-        logger.debug(s"offsetDatetimeEncoder: index=$index, value=$value")
-        //        row.setObject(index, pgTimestampUtils.toString(value), Types.TIMESTAMP)
+      (index, value, row) => {
+        row.setObject(index, value)
       },
     )
+
 }

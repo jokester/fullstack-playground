@@ -1,11 +1,10 @@
 package io.jokester.fullstack_playground.todolist_api
 
 import com.typesafe.scalalogging.LazyLogging
-import io.jokester.fullstack_playground.quill.QuillCtxFactory.OurCtx
 import io.jokester.fullstack_playground.quill.generated.public.Todos
 import io.jokester.fullstack_playground.quill.{
   QuillCtxFactory,
-  QuillDatetimeEncoding => QuillDatetimeEncoding,
+  QuillDatetimeEncoding,
   QuillWorkarounds,
 }
 import io.jokester.fullstack_playground.todolist_api.TodoApi.CreateTodoIntent
@@ -13,15 +12,13 @@ import io.jokester.fullstack_playground.todolist_api.TodoApi.CreateTodoIntent
 import java.time.{Clock, OffsetDateTime}
 
 class QuillTodoApiImpl(
-    ctx: QuillCtxFactory.OurCtx,
+    protected override val ctx: QuillCtxFactory.OurCtx,
 ) extends TodoApiImpl
     with QuillDatetimeEncoding
     with QuillWorkarounds
     with LazyLogging {
   import io.jokester.fullstack_playground.todolist_api.ApiConvention._
   import ctx._
-
-  protected override val _quillContext: OurCtx = ctx
 
   override def create(req: CreateTodoIntent): ApiResult[TodoApi.Todo] = {
     val created = ctx.run(quote {
