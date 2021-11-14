@@ -24,6 +24,8 @@ jobs:
         image: postgres:14
         env:
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -33,7 +35,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: init test db
         run: |
-          export PGHOST='postgres'
+          export PGHOST='127.0.0.1'
           export PGPORT='5432'
           export PGUSER='postgres'
           export PGPASSWORD='postgres'
