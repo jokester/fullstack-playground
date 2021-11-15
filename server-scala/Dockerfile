@@ -1,9 +1,11 @@
 FROM alpine:3.12
 COPY ./stateless-akka-http-current.txz /usr/src/
-COPY ./stateless-openapi-current.txz /usr/src/
+COPY ./stateless-openapi-current.txz   /usr/src/
+COPY ./stated-graphql-openapi-current.txz      /usr/src/
 RUN mkdir -pv /srv \
         && tar xvf /usr/src/stateless-akka-http-current.txz -C /srv/ \
-        && tar xvf /usr/src/stateless-openapi-current.txz -C /srv/
+        && tar xvf /usr/src/stateless-openapi-current.txz   -C /srv/ \
+        && tar xvf /usr/src/stated-graphql-openapi-current.txz      -C /srv/
 
 #################
 

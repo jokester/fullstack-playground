@@ -30,7 +30,7 @@ lazy val statelessOpenapi = (project in file("stateless-openapi"))
 
 lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
   .settings(
-    name := "server-openapi",
+    name := "stated-graphql-openapi",
     libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ quillDeps ++ scalikeJdbcDeps ++ testDeps ++ buildDeps,
     Universal / target := file("target/universal"),
   )
@@ -49,16 +49,21 @@ lazy val rdbCodegen = (project in file("rdb-codegen"))
     // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
   )
 
-lazy val quillReproduce = (project in file("quill-offsetdatetime-reproduce"))
-  .settings(
-    name := "quill-offsetdatetime-reproduce",
-    libraryDependencies ++= basicDeps ++ quillDeps,
-    // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
-  )
-
-def enableQuillLog(): Unit = {
+lazy val enableQuillLog = taskKey[Unit]("enable quill logs")
+enableQuillLog := {
+  System.err.println("enable quill log")
   sys.props.put("quill.macro.log", false.toString)
   sys.props.put("quill.binds.log", true.toString)
 }
+(statedGraphqlOpenapi / Compile / run) := ((statedGraphqlOpenapi / Compile / run) dependsOn enableQuillLog)
+  .evaluated
 
-val _ = enableQuillLog()
+{
+  lazy val packageAllTxz = taskKey[Unit]("package all txz in parallel")
+  packageAllTxz dependsOn (
+    statelessAkkaHttp / Universal / packageXzTarball,
+    statelessOpenapi / Universal / packageXzTarball,
+    statedGraphqlOpenapi / Universal / packageXzTarball,
+  )
+  packageAllTxz := {}
+}
