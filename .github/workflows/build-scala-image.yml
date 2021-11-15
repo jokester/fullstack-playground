@@ -51,8 +51,17 @@ jobs:
       # mostly taken from https://github.com/marketplace/actions/build-and-push-docker-images
       - uses: actions/checkout@v2
 
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Coursier cache
+        uses: coursier/cache-action@v6
+
       - name: Run sbt-native-packager
-        run: sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball
+        run: sbt packageAllTxz
 
       - uses: crazy-max/ghaction-docker-meta@v3
         id: docker_meta
@@ -80,3 +89,11 @@ jobs:
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
 
+      - name: Cleanup before cache
+        shell: bash
+        run: |
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+          find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt                              -name "*.lock"               -delete || true
