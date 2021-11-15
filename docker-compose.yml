@@ -27,7 +27,8 @@ services:
 
   hasura:
     image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
-    # image: spaster/alpine-sleep  # uncomment to disable hasura
+    # image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
+    # image: spaster/alpine-sleep  # override to disable hasura
     command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
       - graphql-engine
       - serve
@@ -35,8 +36,9 @@ services:
       - --schema-sync-poll-interval=60000
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
-      # start console with ./scripts/hasura-cli.sh for migration functionality
+      # start console with ./scripts/hasura-cli.sh
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      # volumes: [] # no volumes: persisted data should be created in console
     links:
       - pgsql
     ports:

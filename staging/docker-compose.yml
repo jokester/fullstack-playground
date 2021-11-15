@@ -15,11 +15,17 @@ services:
     restart: on-failure
 
   hasura:
-    # 
-    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
+    # image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
+    image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
+    # image: spaster/alpine-sleep  # override to disable hasura
+    command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
+      - graphql-engine
+      - serve
+      - --connections=20
+      - --schema-sync-poll-interval=60000
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
-      # start console with ./scripts/hasura-cli.sh for migration functionality
+      # start console with ./scripts/hasura-cli.sh
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
       # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
       HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
@@ -27,10 +33,26 @@ services:
     volumes:
       - ../hasura/migrations/:/srv/hasura/migrations:ro
       - ../hasura/metadata/:/srv/hasura/metadata:ro
-
     links:
       - pgsql
     ports:
       - 61081:8080
     restart: on-failure
 
+  server-scala:
+    image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
+      # start console with ./scripts/hasura-cli.sh for migration functionality
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
+      HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
+    command:
+      - /srv/stated-graphql-openapi-current/bin/stated-graphql-openapi
+
+    links:
+      - pgsql
+    ports:
+      - 61080:8080
+    restart: on-failure
