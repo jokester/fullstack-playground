@@ -60,10 +60,10 @@ enableQuillLog := {
 
 {
   lazy val packageAllTxz = taskKey[Unit]("package all txz in parallel")
-  packageAllTxz dependsOn (
-    statelessAkkaHttp / Universal / packageXzTarball,
-    statelessOpenapi / Universal / packageXzTarball,
-    statedGraphqlOpenapi / Universal / packageXzTarball,
-  )
-  packageAllTxz := {}
+  packageAllTxz dependsOn ()
+  packageAllTxz := {
+    (statelessAkkaHttp / Universal / packageXzTarball).value
+    (statelessOpenapi / Universal / packageXzTarball).value
+    (statedGraphqlOpenapi / Universal / packageXzTarball).value
+  }
 }
