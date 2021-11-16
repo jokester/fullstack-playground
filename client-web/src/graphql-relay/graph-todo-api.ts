@@ -13,4 +13,16 @@ export const graphTodoApi = {
       }
     }
   `,
+  subscribeTodo: graphql`
+    subscription graphTodoApiListTodoSubscription {
+      todos {
+        todo_id
+        title
+        desc
+        finished_at
+        created_at
+        updated_at
+      }
+    }
+  `,
 } as const;

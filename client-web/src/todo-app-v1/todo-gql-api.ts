@@ -1,9 +1,10 @@
-import { fetchQuery } from 'react-relay';
+import { fetchQuery, requestSubscription } from 'react-relay';
 import { graphTodoApi } from '../graphql-relay/graph-todo-api';
 import { createRelayEnv } from '../graphql-relay/relay-deps';
 import { graphTodoApiListTodoQuery } from '../graphql-relay/generated/graphTodoApiListTodoQuery.graphql';
-import { Todo } from './generated';
+import type { Todo } from './generated';
 import { useMemo } from 'react';
+import { graphTodoApiListTodoSubscription } from '../graphql-relay/generated/graphTodoApiListTodoSubscription.graphql';
 
 function convertGraphqlRes(grahqlRes: graphTodoApiListTodoQuery['response']['todos'][number]): Todo {
   return {
@@ -15,29 +16,36 @@ function convertGraphqlRes(grahqlRes: graphTodoApiListTodoQuery['response']['tod
   };
 }
 
-export function useTodoGqlApi(graphqlEndPoint: string) {
+export function useTodoGqlApi(graphqlEndPoint?: string) {
   const queryDeps = useMemo(() => {
-    const relayEnv = createRelayEnv(graphqlEndPoint);
-
-    const listQuery = fetchQuery<graphTodoApiListTodoQuery>(relayEnv, graphTodoApi.listTodo, {});
-    return {
-      relayEnv,
-      listQuery,
-    };
+    if (graphqlEndPoint) {
+      const relayEnv = createRelayEnv(graphqlEndPoint);
+      return {
+        relayEnv,
+      };
+    }
+    return null;
   }, [graphqlEndPoint]);
 
-  const onFetchGql = () =>
-    queryDeps.listQuery.toPromise().then((fetched) => (fetched?.todos ?? []).map(convertGraphqlRes));
+  return useMemo(() => {
+    const listQuery =
+      queryDeps?.relayEnv && fetchQuery<graphTodoApiListTodoQuery>(queryDeps.relayEnv, graphTodoApi.listTodo, {});
 
-  const onSubscribeGql = (onValue: (value: Todo[]) => void) =>
-    queryDeps.listQuery.subscribe({
-      next(graphqlValue) {
-        onValue(graphqlValue.todos.map(convertGraphqlRes));
-      },
-    });
+    const onFetchGql = () => listQuery?.toPromise().then((fetched) => (fetched?.todos ?? []).map(convertGraphqlRes));
 
-  return {
-    onFetchGql,
-    onSubscribeGql,
-  };
+    const onSubscribeGql = (onValue: (value: Todo[]) => void) =>
+      queryDeps?.relayEnv &&
+      requestSubscription<graphTodoApiListTodoSubscription>(queryDeps.relayEnv, {
+        subscription: graphTodoApi.subscribeTodo,
+        variables: {},
+        onNext: (graphqlValue) => {
+          onValue((graphqlValue?.todos || []).map(convertGraphqlRes));
+        },
+      });
+
+    return {
+      onFetchGql,
+      onSubscribeGql,
+    };
+  }, [queryDeps]);
 }

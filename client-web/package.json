@@ -35,6 +35,7 @@
     "relay-hooks": "^6.0",
     "relay-runtime": "^12.0.0",
     "rxjs": "^7.4.0",
+    "subscriptions-transport-ws": "^0.11.0",
     "tslib": "^2",
     "use-constant": "^1.1.0"
   },

@@ -1,17 +1,25 @@
 import { DeleteTODORequest, Todo, CreateTODORequest, UpdateTODORequest } from './generated';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHttpTodoApi } from './todo-http-api';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { useTodoGqlApi } from './todo-gql-api';
-export const TodoAppV1: React.FC<{ apiOrigin: string; graphqlOrigin: string }> = (props) => {
+export const TodoAppV1: React.FC<{ apiOrigin: string; graphqlOrigin?: string }> = (props) => {
   const httpApi = useHttpTodoApi(props.apiOrigin, true);
   const graphqlApi = useTodoGqlApi(props.graphqlOrigin);
 
   useEffect(() => {
+    console.log('subscribe from graphQL');
     const s = graphqlApi.onSubscribeGql((updated) => {
       console.log('graphql subscription onNext', updated);
+
+      graphqlApi.onFetchGql?.()?.then((todos) => {
+        console.log('graphql fetched', todos);
+      });
     });
-    return () => s.unsubscribe();
+    return () => {
+      console.log('unsubscribe from graphQL');
+      return s?.dispose();
+    };
   }, [graphqlApi]);
 
   return (

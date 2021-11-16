@@ -20,7 +20,6 @@ const nextConf = {
 
   env: {
     // becomes process.env.SOME_CONSTANT : boolean
-    SOME_CONSTANT: 'SOME_CONSTANT',
   },
 
   devIndicators: {
