@@ -13,21 +13,19 @@ object TodoApiAkkaBinding extends ApiConvention.LifterHelpers {
     val endpoints = TodoApi.endpoints
 
     val interpreter = AkkaHttpServerInterpreter()
-    val serverImplRoute = pathPrefix("todos") {
-      concat(
-        interpreter.toRoute(endpoints.listTodo) { req =>
-          liftResult(impl.list().map(TodoApi.TodoList))
-        },
-        interpreter.toRoute(endpoints.showTodo) { todoId =>
-          liftResult(impl.show(todoId))
-        },
-        interpreter.toRoute(endpoints.createTodo)(req => liftResult(impl.create(req))),
-        interpreter.toRoute(endpoints.deleteTodo) { todoId =>
-          liftResult(impl.remove(todoId).map(_ => ()))
-        },
-        interpreter.toRoute(endpoints.updateTodo)(req => liftResult(impl.update(req._1, req._2))),
-      )
-    }
+    val serverImplRoute = concat(
+      interpreter.toRoute(endpoints.listTodo) { req =>
+        liftResult(impl.list().map(TodoApi.TodoList))
+      },
+      interpreter.toRoute(endpoints.showTodo) { todoId =>
+        liftResult(impl.show(todoId))
+      },
+      interpreter.toRoute(endpoints.createTodo)(req => liftResult(impl.create(req))),
+      interpreter.toRoute(endpoints.deleteTodo) { todoId =>
+        liftResult(impl.remove(todoId).map(_ => ()))
+      },
+      interpreter.toRoute(endpoints.updateTodo)(req => liftResult(impl.update(req._1, req._2))),
+    )
 
     serverImplRoute
   }
