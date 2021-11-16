@@ -51,11 +51,11 @@ jobs:
       # mostly taken from https://github.com/marketplace/actions/build-and-push-docker-images
       - uses: actions/checkout@v2
 
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 11
+      # - name: Setup JDK
+      #   uses: actions/setup-java@v2
+      #   with:
+      #     distribution: temurin
+      #     java-version: 11
 
       - name: Coursier cache
         uses: coursier/cache-action@v6
