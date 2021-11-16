@@ -13,6 +13,13 @@ services:
     ports:
       - 61432:5432
     restart: on-failure
+    logging: &log_fluentd
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24224"
+        # REQUIRES docker 1.11
+        fluentd-async-connect: "true"
+        tag: container-{{.Name}}-{{.ID}}
 
   hasura:
     # image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
@@ -38,21 +45,20 @@ services:
     ports:
       - 61081:8080
     restart: on-failure
+    logging: *log_fluentd
 
-  server-scala:
-    image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3
+  server-scala-stated:
+    image: ghcr.io/jokester/fullstack-playground-server-scala:sha-a789070
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
-      # start console with ./scripts/hasura-cli.sh for migration functionality
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
-      # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
-      HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
-      HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
+      APP_DB_URL: ???
+      APP_DB_USER: ???
+      APP_DB_SECRET: ???
     command:
       - /srv/stated-graphql-openapi-current/bin/stated-graphql-openapi
-
+      - server
     links:
       - pgsql
     ports:
       - 61080:8080
     restart: on-failure
+    logging: *log_fluentd
