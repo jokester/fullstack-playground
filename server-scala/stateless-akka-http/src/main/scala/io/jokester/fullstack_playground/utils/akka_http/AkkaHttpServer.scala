@@ -49,12 +49,15 @@ object AkkaHttpServer extends LazyLogging {
 
     implicit val executionContext: ExecutionContextExecutor = untypedSystem.getDispatcher
 
+    val bindInterface = interface.getOrElse("0.0.0.0")
+    val bindPort      = port.getOrElse(8080)
+
     val bindingFuture = Http()
-      .newServerAt(interface = interface.getOrElse("0.0.0.0"), port = port.getOrElse(8080))
+      .newServerAt(interface = bindInterface, port = bindPort)
       .bind(rootRoute)
       .map(_.addToCoordinatedShutdown(10.seconds))
       .map(server => {
-        logger.debug(s"Server online at http://localhost:${port.getOrElse(8080)}/")
+        logger.debug(s"Server online at http://$bindInterface:$bindPort/")
         server
       })
 
@@ -64,7 +67,7 @@ object AkkaHttpServer extends LazyLogging {
       unbound    <- bound.unbind();
       terminated <- untypedSystem.terminate()
     ) yield {
-      logger.debug("ActorSystem terminiated: {}", terminated)
+      logger.debug("ActorSystem terminated: {}", terminated)
       ()
     }
   }
