@@ -20,7 +20,7 @@ export const defaultApiEndpoints = isDevBuild
       graphql: 'http://127.0.0.1:61080/v1/graphql',
     } as const)
   : ({
-      statelessOpenAPI: 'http://127.0.0.1:61081/stateless-openapi',
-      statedOpenAPI: 'http://127.0.0.1:61081/stated-openapi',
-      graphql: 'http://127.0.0.1:61080/v1/graphql',
+      statelessOpenAPI: 'https://scala-server-demo.ihate.work/stateless-openapi',
+      statedOpenAPI: 'https://scala-server-demo.ihate.work/stated-openapi',
+      graphql: 'https://scala-server-demo.ihate.work/v1/graphql',
     } as const);
