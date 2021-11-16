@@ -5,14 +5,16 @@ import { DefaultMeta } from '../../src/components/meta/default-meta';
 import { MessageSinkApi } from '../../src/message-sink/message-sink-api';
 import { useCounter, useLocalStorage } from 'react-use';
 import { MessageSinkHttpDemo, MessageSinkWsDemo } from '../../src/message-sink/message-sink';
+import { defaultApiEndpoints } from '../../src/config/build-env';
 
-// const DEFAULT_API_ORIGIN = 'http://127.0.0.1:8082/stateless-akka-http';
-const DEFAULT_API_ORIGIN = 'https://server-demo.jokester.io/stateless-akka-http';
+const DEFAULT_API_ORIGIN = defaultApiEndpoints.akkaMessageSink;
 
 const MessageSinkShowPage: React.FC = () => {
   const router = useRouter();
   const { sinkName } = router.query as { sinkName: string };
-  const [apiOrigin, saveApiOrigin] = useLocalStorage('message-api-demo', DEFAULT_API_ORIGIN, { raw: true });
+  // const [apiOrigin, saveApiOrigin] = useLocalStorage('message-api-demo', DEFAULT_API_ORIGIN, { raw: true });
+
+  const [apiOrigin, setApiOrigin] = useState<string>(DEFAULT_API_ORIGIN);
   const [api, setApi] = useState<null | MessageSinkApi>(null);
   const [epoch, epochControl] = useCounter(0);
 
@@ -45,7 +47,7 @@ const MessageSinkShowPage: React.FC = () => {
         <Button
           onClick={() => {
             const newOrigin = inputRef?.current?.value ?? '';
-            if (newOrigin) saveApiOrigin(newOrigin);
+            if (newOrigin) setApiOrigin(newOrigin);
           }}
         >
           set API Origin

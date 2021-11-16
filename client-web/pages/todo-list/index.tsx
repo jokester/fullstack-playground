@@ -10,7 +10,7 @@ const TodoListAppPage: React.FC = () => {
   const gqlOrigin = (typeof params?.gql === 'string' && params.gql) || defaultApiEndpoints.graphql;
   return (
     <div>
-      <DefaultMeta title="todo list" />
+      <DefaultMeta title="Todo List" />
       <div className="max-w-screen-sm mx-auto my-4 px-2 md:px-0">
         <h1 className="text-center">Todo List</h1>
         <div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { MessageSinkPicker } from '../../src/message-sink/message-sink';
 import { useRouter } from 'next/router';
 import { Heading } from '@chakra-ui/react';

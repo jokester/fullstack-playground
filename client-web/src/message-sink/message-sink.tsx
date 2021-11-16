@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { Box, Button, Input } from '@chakra-ui/react';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { MessageSinkApi } from './message-sink-api';
