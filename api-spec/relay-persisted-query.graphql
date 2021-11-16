@@ -1,0 +1,10 @@
+query graphTodoApiListTodoQuery {
+  todos {
+    todo_id
+    title
+    desc
+    finished_at
+    created_at
+    updated_at
+  }
+}

@@ -1,6 +1,3 @@
-server:
-	sbt "run runServer"
-
 openapi:
 	sbt "statelessOpenapi/run writeApiSpec ../api-spec/todo-api.yaml"
 
@@ -11,7 +8,17 @@ models:
 	sbt scalikejdbcGenAllForce scalafmtAll
 
 bin:
-	sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball
+	sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball statedGraphqlOpenapi/packageXzTarball
 
-image: bin
+quillCodegen:
+	rm -rf stated-graphql-openapi/src/main/scala/io/jokester/fullstack_playground/quill/generated/
+	sbt rdbCodegen/run
+
+test:
+	sbt clean coverageOn test coverageAggregate
+
+packageTxz:
+	sbt packageAllTxz
+
+image: packageTxz
 	docker build --tag=fullplay-playground-scala-servers --file=./Dockerfile ./target/universal/

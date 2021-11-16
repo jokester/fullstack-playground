@@ -16,6 +16,25 @@ export interface BadRequest {
 /**
  *
  * @export
+ * @interface CreateTodoIntent
+ */
+export interface CreateTodoIntent {
+  /**
+   *
+   * @type {string}
+   * @memberof CreateTodoIntent
+   */
+  title: string;
+  /**
+   *
+   * @type {string}
+   * @memberof CreateTodoIntent
+   */
+  desc: string;
+}
+/**
+ *
+ * @export
  * @interface NotFound
  */
 export interface NotFound {
@@ -92,21 +111,15 @@ export interface Todo {
 /**
  *
  * @export
- * @interface TodoCreateRequest
+ * @interface TodoList
  */
-export interface TodoCreateRequest {
+export interface TodoList {
   /**
    *
-   * @type {string}
-   * @memberof TodoCreateRequest
+   * @type {Array<Todo>}
+   * @memberof TodoList
    */
-  title: string;
-  /**
-   *
-   * @type {string}
-   * @memberof TodoCreateRequest
-   */
-  desc: string;
+  todos?: Array<Todo>;
 }
 /**
  *

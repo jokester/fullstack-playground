@@ -27,7 +27,11 @@ object AkkaHttpServer extends LazyLogging {
     * Listen with an ad-hoc `ActorSystem`
     * and block until keypress
     */
-  def listen(rootRoute: Route, interface: Option[String] = None, port: Option[Int] = None): Unit = {
+  def listen(
+      rootRoute: Route,
+      interface: Option[String] = None,
+      port: Option[Int] = None,
+  ): Future[Unit] = {
     val typedSystem: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "adhoc-system")
     listenWithSystem(rootRoute, interface, port)(untypedSystem = typedSystem.classicSystem)
   }
@@ -40,26 +44,31 @@ object AkkaHttpServer extends LazyLogging {
       rootRoute: Route,
       interface: Option[String] = None,
       port: Option[Int] = None,
-  )(implicit untypedSystem: UntypedActorSystem): Unit = {
+  )(implicit untypedSystem: UntypedActorSystem): Future[Unit] = {
     import scala.concurrent.duration._
 
     implicit val executionContext: ExecutionContextExecutor = untypedSystem.getDispatcher
 
+    val bindInterface = interface.getOrElse("0.0.0.0")
+    val bindPort      = port.getOrElse(8080)
+
     val bindingFuture = Http()
-      .newServerAt(interface = interface.getOrElse("0.0.0.0"), port = port.getOrElse(8080))
+      .newServerAt(interface = bindInterface, port = bindPort)
       .bind(rootRoute)
       .map(_.addToCoordinatedShutdown(10.seconds))
       .map(server => {
-        logger.debug(s"Server online at http://localhost:${port.getOrElse(8080)}/")
+        logger.debug(s"Server online at http://$bindInterface:$bindPort/")
         server
       })
 
     for (
-      bound   <- bindingFuture;
-      stop    <- waitKeyboardInterrupt();
-      unbound <- bound.unbind()
-    ) {
-      untypedSystem.terminate()
+      bound      <- bindingFuture;
+      stop       <- waitKeyboardInterrupt();
+      unbound    <- bound.unbind();
+      terminated <- untypedSystem.terminate()
+    ) yield {
+      logger.debug("ActorSystem terminated: {}", terminated)
+      ()
     }
   }
 

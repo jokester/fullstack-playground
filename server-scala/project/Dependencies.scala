@@ -4,7 +4,8 @@ object Dependencies {
   lazy val basicDeps: Seq[ModuleID] = Seq(
     // logging
     "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.4",
-    "ch.qos.logback"              % "logback-classic" % "1.2.6", // this provides SLJ4J backend
+    "org.slf4j"                   % "slf4j-api"       % "1.7.32",
+    "ch.qos.logback"              % "logback-classic" % "1.3.0-alpha10", // this provides SLF4J backend
     // config
     "com.typesafe" % "config" % "1.4.1",
   )
@@ -36,12 +37,24 @@ object Dependencies {
   ).map(_ % Versions.tapir) :+ ("com.pauldijou" %% "jwt-circe" % "5.0.0")
   //      "com.softwaremill.sttp.client3" %% "core"            % Versions.sttp
 
-  lazy val rdbDeps: Seq[ModuleID] = Seq(
+  lazy val quillDeps: Seq[ModuleID] = Seq(
+    "com.zaxxer"     % "HikariCP"             % "5.0.0",
+    "org.postgresql" % "postgresql"           % Versions.postgresql,
+    "io.getquill"   %% "quill-jdbc"           % Versions.quill,
+    "io.getquill"   %% "quill-async-postgres" % Versions.quill,
+  )
+
+  lazy val quillCodegenDeps: Seq[ModuleID] = Seq(
+    "org.postgresql" % "postgresql" % Versions.postgresql,
+//    "io.getquill"   %% "quill-jdbc"           % Versions.quill,
+    "io.getquill" %% "quill-codegen-jdbc" % Versions.quill,
+  )
+
+  lazy val scalikeJdbcDeps: Seq[ModuleID] = Seq(
     // pgsql / hikariCP
     "org.postgresql" % "postgresql" % Versions.postgresql,
     //      "com.zaxxer"     % "HikariCP"   % "4.0.1", // this resolves to bad version
     "org.scalikejdbc" %% "scalikejdbc" % Versions.scalikeJDBC,
-    "org.flywaydb"     % "flyway-core" % Versions.flyway,
   )
 
   lazy val testDeps: Seq[ModuleID] = Seq(
@@ -65,12 +78,13 @@ private object Versions {
   val upickle   = "1.2.2"
 
   // rdbms
-  val postgresql  = "42.2.24"
+  val postgresql  = "42.3.1"
+  val quill       = "3.10.0"
   val scalikeJDBC = "3.5.0"
-  val flyway      = "8.0.1"
+  val flyway      = "8.0.2"
 
   // testing
-  val scalaTest               = "3.2.2"
+  val scalaTest               = "3.2.10"
   val scalaTestPlusScalaCheck = "3.2.2.0"
 
 }

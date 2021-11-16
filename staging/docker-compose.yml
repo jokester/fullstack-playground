@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+  pgsql:
+    # https://hub.docker.com/_/postgres
+    image: postgres:12.8
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: playground
+    volumes:
+      - ./data-pgsql:/var/lib/postgresql/data
+    ports:
+      - 61432:5432
+    restart: on-failure
+    logging: &log_fluentd
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24224"
+        # REQUIRES docker 1.11
+        fluentd-async-connect: "true"
+        tag: container-{{.Name}}-{{.ID}}
+
+  hasura:
+    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
+    # image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
+    # image: spaster/alpine-sleep  # override to disable hasura
+    command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
+      - graphql-engine
+      - serve
+      - --connections=20
+      - --schema-sync-poll-interval=60000
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
+      # start console with ./scripts/hasura-cli.sh
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
+      HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
+    volumes:
+      - ../hasura/migrations/:/srv/hasura/migrations:ro
+      - ../hasura/metadata/:/srv/hasura/metadata:ro
+    links:
+      - pgsql
+    ports:
+      - 61080:8080
+    restart: on-failure
+    logging: *log_fluentd
+
+  server-scala-stated:
+    image: ghcr.io/jokester/fullstack-playground-server-scala:TODO
+    environment:
+      APP_DB_URL: ???
+      APP_DB_USER: ???
+      APP_DB_SECRET: ???
+    command:
+      - /srv/stated-graphql-openapi-current/bin/stated-graphql-openapi
+      - server
+    links:
+      - pgsql
+    ports:
+      - 61081:8080
+    restart: on-failure
+    logging: *log_fluentd
+
+  server-scala-stateless-akka:
+    image: ghcr.io/jokester/fullstack-playground-server-scala:TODO
+    command:
+      - /srv/stateless-akka-http-current/bin/stateless-akka-http
+    ports:
+      - 61082:8080
+    restart: on-failure
+    logging: *log_fluentd

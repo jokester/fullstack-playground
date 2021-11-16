@@ -15,17 +15,53 @@ defaults:
     working-directory: server-scala
 
 jobs:
-  image:
+
+  scala-test:
+    name: run ScalaTest
+    runs-on: ubuntu-20.04
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Init test db
+        run: |
+          PGHOST='127.0.0.1' PGPORT='5432' PGUSER='postgres' PGPASSWORD='postgres' ../hasura/rebuild-test-db.sh
+      - name: Test
+        run: |
+          TEST_PG_URL='jdbc:postgresql://127.0.0.1:5432/playground_test' TEST_PG_USER='postgres' TEST_PG_PASSWORD='postgres' sbt clean coverageOn test coverageAggregate # coverageReport
+      - uses: codecov/codecov-action@v2
+
+  build-image:
     name: Build and push docker image
     # github ubuntu image contains https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
     runs-on: ubuntu-20.04
+    needs: scala-test
 
     steps:
       # mostly taken from https://github.com/marketplace/actions/build-and-push-docker-images
       - uses: actions/checkout@v2
 
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Coursier cache
+        uses: coursier/cache-action@v6
+
       - name: Run sbt-native-packager
-        run: sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball
+        run: sbt packageAllTxz
 
       - uses: crazy-max/ghaction-docker-meta@v3
         id: docker_meta
@@ -53,3 +89,11 @@ jobs:
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
 
+      - name: Cleanup before cache
+        shell: bash
+        run: |
+          rm -rf "$HOME/.ivy2/local" || true
+          find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+          find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+          find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+          find $HOME/.sbt                              -name "*.lock"               -delete || true

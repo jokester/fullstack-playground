@@ -1,37 +1,24 @@
 # fullstack-playground
 ---
 
-Demo / Playground of different tech stacks I use.
+Playground of different tech stacks
 
-## SubProjects
+## Sub Projects
 
-- [client-web/](client-web): demo web client for all servers
+- [client-web/](client-web): demo web client
+    - [demo](https://client-demo.jokester.io/)
+
 - [server-scala/stateless-akka-http/](server-scala/stateless-akka-http/)
-    - simplest http/websocket server. build on akka-http
-    - [client demo: message-sink](https://client-demo.jokester.io/message-sink)
-- (WIP) [server-scala/stateless-openapi/](server-scala/stateless-openapi/)
-    - http API server with OpenAPI [tapir](https://github.com/softwaremill/tapir)
-- (WIP) [server-scala/stateless-openapi/](server-scala/stateless-openapi/): akka-http server in Scala. no external dependicies.
-    - requires PostgreSQL / HasuraDB
-<!-- 
-- [server-scala/stated-graphql-openapi/](server-scala/stated-graphql-openapi/): akka-http OpenAPI + GraphQL server in Scala
-- PostgreSQL database (persistent storage)
-- Hasura (GraphQL resolver + DB migration manager)
+    - stateless http/websocket server. build on akka-http
+    - [demo: message-sink](https://client-demo.jokester.io/message-sink)
 
-## HOWTOs
+- [server-scala/stateless-openapi/](server-scala/stateless-openapi/)
+    - stateless OpenAPI server with [tapir](https://github.com/softwaremill/tapir)
 
-### Start servers (dev)
+- [server-scala/stateless-openapi/](server-scala/stateless-openapi/)
+    - [demo: todo-list](https://client-demo.jokester.io/todo-list)
+    - stated OpenAPI server with [tapir](https://github.com/softwaremill/tapir)
+    - DB layer: [quill](https://github.com/getquill/quill) / PostgreSQL
+    - GraphQL query server [hasura](https://hasura.io)
+    - see [staging](staging/) for deployed exampled
 
-```
-cd 
-
-```
-
-### Start servers (prod)
-
-### Build OpenAPI / GraphQL client code
-
-
-
-
--->
