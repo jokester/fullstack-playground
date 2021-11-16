@@ -1,6 +1,3 @@
-server:
-	sbt "run runServer"
-
 openapi:
 	sbt "statelessOpenapi/run writeApiSpec ../api-spec/todo-api.yaml"
 
@@ -12,6 +9,9 @@ models:
 
 bin:
 	sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball statedGraphqlOpenapi/packageXzTarball
+
+test:
+	sbt clean coverageOn test coverageAggregate
 
 packageTxz:
 	sbt packageAllTxz

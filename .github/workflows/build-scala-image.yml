@@ -38,7 +38,7 @@ jobs:
           PGHOST='127.0.0.1' PGPORT='5432' PGUSER='postgres' PGPASSWORD='postgres' ../hasura/rebuild-test-db.sh
       - name: Test
         run: |
-          TEST_PG_URL='jdbc:postgresql://127.0.0.1:5432/playground_test' TEST_PG_USER='postgres' TEST_PG_PASSWORD='postgres' sbt clean test coverageAggregate # coverageReport
+          TEST_PG_URL='jdbc:postgresql://127.0.0.1:5432/playground_test' TEST_PG_USER='postgres' TEST_PG_PASSWORD='postgres' sbt clean coverageOn test coverageAggregate # coverageReport
       - uses: codecov/codecov-action@v2
 
   build-image:
@@ -51,11 +51,11 @@ jobs:
       # mostly taken from https://github.com/marketplace/actions/build-and-push-docker-images
       - uses: actions/checkout@v2
 
-      # - name: Setup JDK
-      #   uses: actions/setup-java@v2
-      #   with:
-      #     distribution: temurin
-      #     java-version: 11
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
 
       - name: Coursier cache
         uses: coursier/cache-action@v6
