@@ -9,10 +9,11 @@ RUN mkdir -pv /srv \
 
 #################
 
-# https://github.com/corretto/corretto-docker
-# NOTE: alpine variant doesnt have arm64 image
-# NOTE: debian variant not published yet
-FROM amazoncorretto:11
+# https://github.com/corretto/corretto-docker // NOTE: alpine variant doesnt have arm64 image
+# FROM amazoncorretto:11
+
+# https://github.com/docker-library/openjdk
+FROM openjdk:11-jdk-slim-bullseye
 COPY --from=0 /srv /srv
 # default entrypoint ["bash"] is not overriden
 # just execute like command: [ "/PATH/BASH_SCRIPT" ]

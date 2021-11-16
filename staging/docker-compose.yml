@@ -22,8 +22,8 @@ services:
         tag: container-{{.Name}}-{{.ID}}
 
   hasura:
-    # image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
-    image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
+    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
+    # image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
     # image: spaster/alpine-sleep  # override to disable hasura
     command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
       - graphql-engine
@@ -43,12 +43,12 @@ services:
     links:
       - pgsql
     ports:
-      - 61081:8080
+      - 61080:8080
     restart: on-failure
     logging: *log_fluentd
 
   server-scala-stated:
-    image: ghcr.io/jokester/fullstack-playground-server-scala:sha-a789070
+    image: ghcr.io/jokester/fullstack-playground-server-scala:TODO
     environment:
       APP_DB_URL: ???
       APP_DB_USER: ???
@@ -59,6 +59,15 @@ services:
     links:
       - pgsql
     ports:
-      - 61080:8080
+      - 61081:8080
+    restart: on-failure
+    logging: *log_fluentd
+
+  server-scala-stateless-akka:
+    image: ghcr.io/jokester/fullstack-playground-server-scala:TODO
+    command:
+      - /srv/stateless-akka-http-current/bin/stateless-akka-http
+    ports:
+      - 61082:8080
     restart: on-failure
     logging: *log_fluentd
