@@ -10,6 +10,10 @@ models:
 bin:
 	sbt statelessAkkaHttp/packageXzTarball statelessOpenapi/packageXzTarball statedGraphqlOpenapi/packageXzTarball
 
+quillCodegen:
+	rm -rf stated-graphql-openapi/src/main/scala/io/jokester/fullstack_playground/quill/generated/
+	sbt rdbCodegen/run
+
 test:
 	sbt clean coverageOn test coverageAggregate
 

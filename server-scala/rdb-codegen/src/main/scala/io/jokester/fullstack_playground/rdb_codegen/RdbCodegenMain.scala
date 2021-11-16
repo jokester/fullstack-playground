@@ -53,6 +53,12 @@ object RdbCodegenMain extends App with LazyLogging {
       }
 
       /**
+        * whether to generate code for `tc`
+        */
+      override def filter(tc: RawSchema[JdbcTableMeta, JdbcColumnMeta]): Boolean =
+        super.filter(tc) && !tc.table.tableSchem.exists(_.matches("hdb_catalog"))
+
+      /**
         * how JDBC columns are mapped to JVM types
         */
       override def typer: Typer = new OurPostgresTyper(unrecognizedTypeStrategy, numericPreference)
