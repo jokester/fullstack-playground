@@ -1,0 +1,4 @@
+{
+  "3c602f81efce2852ad91d3f48afa9505": "subscription graphTodoApiListTodoSubscription {\n  todos {\n    todo_id\n    title\n    desc\n    finished_at\n    created_at\n    updated_at\n  }\n}\n",
+  "8893981886a5ab571c62118acb65d467": "query graphTodoApiListTodoQuery {\n  todos {\n    todo_id\n    title\n    desc\n    finished_at\n    created_at\n    updated_at\n  }\n}\n"
+}

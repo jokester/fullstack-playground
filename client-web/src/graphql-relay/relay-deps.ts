@@ -1,4 +1,3 @@
-import { Never } from '@jokester/ts-commonutil/lib/concurrency/timing';
 import { Environment, Network, Observable, RecordSource, Store } from 'relay-runtime';
 import { SubscriptionClient, Observable as WsObservable } from 'subscriptions-transport-ws';
 import { inServer } from '../config/build-env';

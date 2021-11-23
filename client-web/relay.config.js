@@ -13,7 +13,9 @@ module.exports = {
   extensions: ['ts', 'tsx'],
   artifactDirectory: `${clientWebSrc}/graphql-relay/generated`,
   language: 'typescript',
-  // persistOutput: `${clientWebSrc}/generated/some.json`,
+  // NOT using persistOutput:
+  // we don't have a queryId-aware server, and only use persistOutput to save-as query texts
+  // persistOutput,
   customScalars: {
     timestamptz: 'Date',
   },
