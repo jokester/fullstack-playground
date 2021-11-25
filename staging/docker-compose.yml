@@ -37,6 +37,7 @@ services:
       # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
       HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
       HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
+      HASURA_GRAPHQL_ADMIN_SECRET: 'TODO-extremely-secret-secret'
       HASURA_GRAPHQL_ENABLE_ALLOWLIST: 'true'
     volumes:
       - ../hasura/migrations/:/srv/hasura/migrations:ro
