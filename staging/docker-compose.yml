@@ -39,6 +39,7 @@ services:
       HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
       HASURA_GRAPHQL_ADMIN_SECRET: 'TODO-extremely-secret-secret'
       HASURA_GRAPHQL_ENABLE_ALLOWLIST: 'true'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
     volumes:
       - ../hasura/migrations/:/srv/hasura/migrations:ro
       - ../hasura/metadata/:/srv/hasura/metadata:ro
