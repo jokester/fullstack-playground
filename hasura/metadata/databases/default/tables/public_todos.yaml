@@ -1,3 +1,14 @@
 table:
   name: todos
   schema: public
+select_permissions:
+- permission:
+    columns:
+    - todo_id
+    - title
+    - desc
+    - finished_at
+    - created_at
+    - updated_at
+    filter: {}
+  role: guest

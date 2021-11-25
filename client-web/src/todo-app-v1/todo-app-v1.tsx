@@ -22,6 +22,12 @@ export const TodoAppV1: React.FC<{ apiOrigin: string; graphqlOrigin?: string }> 
     };
   }, [graphqlApi]);
 
+  useEffect(() => {
+    graphqlApi.onFetchGql()?.then((fetched) => {
+      console.log('fetched from graphQL', fetched);
+    });
+  }, [graphqlApi]);
+
   return (
     <div>
       <TodoDraft onCreate={httpApi.onCreate} />
