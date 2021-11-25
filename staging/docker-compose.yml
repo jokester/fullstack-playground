@@ -37,6 +37,8 @@ services:
       # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
       HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
       HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
+      HASURA_GRAPHQL_ADMIN_SECRET: 'TODO-extremely-secret-secret'
+      HASURA_GRAPHQL_ENABLE_ALLOWLIST: 'true'
     volumes:
       - ../hasura/migrations/:/srv/hasura/migrations:ro
       - ../hasura/metadata/:/srv/hasura/metadata:ro
@@ -48,11 +50,11 @@ services:
     logging: *log_fluentd
 
   server-scala-stated:
-    image: ghcr.io/jokester/fullstack-playground-server-scala:TODO
+    image: ghcr.io/jokester/fullstack-playground-server-scala:sha-015e0ea
     environment:
-      APP_DB_URL: ???
-      APP_DB_USER: ???
-      APP_DB_SECRET: ???
+      APP_DB_URL: jdbc:postgresql://pgsql:5432/playground
+      APP_DB_USER: pguser
+      APP_DB_PASSWORD: secret
     command:
       - /srv/stated-graphql-openapi-current/bin/stated-graphql-openapi
       - server
@@ -64,7 +66,7 @@ services:
     logging: *log_fluentd
 
   server-scala-stateless-akka:
-    image: ghcr.io/jokester/fullstack-playground-server-scala:TODO
+    image: ghcr.io/jokester/fullstack-playground-server-scala:sha-015e0ea
     command:
       - /srv/stateless-akka-http-current/bin/stateless-akka-http
     ports:
