@@ -38,7 +38,7 @@ services:
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
       # start console with ./scripts/hasura-cli.sh
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
-      # volumes: [] # no volumes: persisted data should be created in console and source-managed
+    # volumes: [] # no volumes: persisted data should be created in console and source-managed
     links:
       - pgsql
     ports:
