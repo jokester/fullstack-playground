@@ -34,6 +34,7 @@ class MessageSinkHandler(val sinkManagerActor: ActorRef[SinkManagerActor.Command
       concat(getSinkRoute, postSinkRoute, waitSinkRoute, subscribeSinkRoute)
     }
 
+  // GET /aaa
   private def getSinkRoute: Route = {
     (get & path(Segment)) { sinkName =>
       sinkByName(sinkName) { sinkActor =>

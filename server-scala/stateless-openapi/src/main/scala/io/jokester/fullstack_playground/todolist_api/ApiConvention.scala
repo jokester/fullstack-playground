@@ -11,10 +11,13 @@ import scala.concurrent.Future
 object ApiConvention {
   sealed trait ErrorInfo
 
-  case class Unauthorized(message: String)   extends ErrorInfo
-  case class NotFound(message: String)       extends ErrorInfo
+  // http 400
   case class BadRequest(message: String)     extends ErrorInfo
-  case class NotImplemented(message: String) extends ErrorInfo
+  // http 401
+  case class Unauthorized(message: String)   extends ErrorInfo
+  // http 404
+  case class NotFound(message: String)       extends ErrorInfo
+  // http 500
   case class ServerError(message: String)    extends ErrorInfo
 
   val defaultErrorOutputMapping: EndpointOutput[ErrorInfo] =
@@ -25,10 +28,6 @@ object ApiConvention {
       ),
       oneOfMapping(StatusCode.NotFound, jsonBody[NotFound].description("not found")),
       oneOfMapping(StatusCode.BadRequest, jsonBody[BadRequest].description("caller's bad")),
-      oneOfMapping(
-        StatusCode.NotImplemented,
-        jsonBody[NotImplemented].description("not implemented"),
-      ),
       oneOfDefaultMapping(jsonBody[ServerError]),
     )
 

@@ -1,24 +1,25 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
-import io.circe.{Decoder, Encoder}
+import akka.NotUsed
 import io.circe.generic.auto._
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import sttp.model.StatusCode
+import io.circe.{Decoder, Encoder}
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
 import sttp.tapir.{auth, _}
 
 import java.time.OffsetDateTime
-import scala.language.implicitConversions
 
 object UserTodoApi {
+
+  import io.jokester.fullstack_playground.todolist_api.ApiConvention._
 
   // entities
   case class User(userId: Int, profile: UserProfile)
   object UserProfile {
-    implicit val jsonEncoder: Encoder[UserProfile] = deriveEncoder[UserProfile]
-    implicit val jsonDecoder: Decoder[UserProfile] = deriveDecoder[UserProfile]
+    val jsonEncoder: Encoder[UserProfile] = deriveEncoder[UserProfile]
+    val jsonDecoder: Decoder[UserProfile] = deriveDecoder[UserProfile]
   }
   case class UserProfile(nickname: Option[String], avatarUrl: Option[String])
   case class TodoItem(
@@ -28,16 +29,6 @@ object UserTodoApi {
       description: String,
       finishedAt: Option[OffsetDateTime],
   )
-
-  // error body
-  sealed trait ErrorInfo                     extends Throwable
-  case class BadRequest(error: String)       extends ErrorInfo
-  case class NotFound(error: String)         extends ErrorInfo
-  case class Unauthorized(error: String)     extends ErrorInfo
-  case class Unauthenticated(error: String)  extends ErrorInfo
-  case class InternalError()                 extends ErrorInfo
-  case class Unknown(code: Int, msg: String) extends ErrorInfo
-  case object NoContent                      extends ErrorInfo
 
   // auth header
   case class AccessToken(value: String)
@@ -68,24 +59,22 @@ object UserTodoApi {
 
   object endpoints {
 
-    private def basePath: Endpoint[Unit, ErrorInfo, Unit, Any] =
+    private def basePath: Endpoint[Unit, ErrorInfo, Unit, NotUsed] =
       endpoint
         .in("user_todo_api")
-        .errorOut(
-          oneOf[ErrorInfo](
-            statusMapping(StatusCode.NotFound, jsonBody[NotFound]),
-            statusMapping(StatusCode.Unauthorized, jsonBody[Unauthenticated]),
-            statusMapping(StatusCode.Forbidden, jsonBody[Unauthorized]),
-          ),
-        )
+        .errorOut(defaultErrorOutputMapping)
 
     private def authedBasePath =
       basePath
         .in(
-          auth.bearer[String]().map[AccessToken](f = AccessToken)(_.value),
+          auth
+            .bearer[String]()
+            .map[AccessToken](
+              Mapping.from(f = AccessToken)(_.value),
+            ),
         )
 
-    val createUser =
+    val createUser: Endpoint[CreateUserRequest, ErrorInfo, CreateUserResponse, NotUsed] =
       basePath.post.in("users").in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
 
     val login =
@@ -118,7 +107,7 @@ object UserTodoApi {
       .in(jsonBody[CreateTodoResponse])
       .out(jsonBody[CreateTodoResponse])
 
-    val deleteTodo =
+    val deleteTodo: Endpoint[(AccessToken, Int, Int), ErrorInfo, Unit, Any] =
       authedBasePath.delete.in("users" / path[Int]("userId") / "todos" / path[Int]("todoId"))
 
     val listTodo = authedBasePath.get
