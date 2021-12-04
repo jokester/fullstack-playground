@@ -10,8 +10,9 @@ import scala.util.{Success, Try}
 
 object OpenAPIAuthConvention {
   import OpenAPIConvention._
-  protected case class AccessTokenPayload(userId: Int, tokenType: String)
-  protected case class RefreshTokenPayload(userId: Int, tokenType: String)
+  case class BearerToken(value: String)
+  case class AccessTokenPayload(userId: Int, tokenType: String)
+  case class RefreshTokenPayload(userId: Int, tokenType: String)
 
   trait JwtHelper {
 

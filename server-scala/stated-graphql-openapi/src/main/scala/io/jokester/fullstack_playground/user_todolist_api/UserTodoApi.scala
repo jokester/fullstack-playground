@@ -1,6 +1,5 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
-import akka.NotUsed
 import io.circe.generic.auto._
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
@@ -10,11 +9,11 @@ import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{auth, _}
 
 import java.time.OffsetDateTime
-import scala.concurrent.Future
 
 object UserTodoApi extends UserAuth with UserApi with TodoApi {
 
   import io.jokester.http_api.OpenAPIConvention._
+  import io.jokester.http_api.OpenAPIAuthConvention._
 
   object endpoints {
 
@@ -31,8 +30,8 @@ object UserTodoApi extends UserAuth with UserApi with TodoApi {
         .in(
           auth
             .bearer[String]()
-            .map[AccessToken](
-              Mapping.from(f = AccessToken)(_.value),
+            .map[BearerToken](
+              Mapping.from(f = BearerToken)(_.value),
             ),
         )
 
@@ -48,9 +47,9 @@ object UserTodoApi extends UserAuth with UserApi with TodoApi {
     val refreshToken = basePath.post
       .in("auth" / "refresh_token")
       .in(
-        auth.bearer[String]().map[RefreshToken](f = RefreshToken)(_.value),
+        auth.bearer[String]().map[BearerToken](f = BearerToken)(_.value),
       )
-      .out(jsonBody[LoginResponse])
+      .out(jsonBody[UserAccount])
 
     val updateUserProfile =
       authedBasePath.put
@@ -75,7 +74,7 @@ object UserTodoApi extends UserAuth with UserApi with TodoApi {
     val listTodo =
       authedBasePath.get
         .in("users" / path[Int]("userId") / "todos")
-        .out(jsonBody[ListTodoResponse])
+        .out(jsonBody[TodoList])
   }
 
   val endpointList = Seq(
@@ -94,13 +93,6 @@ object UserTodoApi extends UserAuth with UserApi with TodoApi {
 
 trait UserApi {
 
-  // auth header
-  case class AccessToken(value: String)
-  case class RefreshToken(value: String)
-  // jwt payload
-  case class AccessTokenPayload(userId: Int)
-  case class RefreshTokenPayload(userId: Int)
-
   // entities
   case class UserAccount(userId: Int, profile: UserProfile)
   case class UserProfile(nickname: Option[String], avatarUrl: Option[String])
@@ -116,12 +108,6 @@ trait UserApi {
   case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
   case class CreateUserResponse(userId: Int, userProfile: UserProfile)
   case class LoginRequest(email: String, password: String)
-  case class LoginResponse(
-      userId: Int,
-      userProfile: UserProfile,
-      refreshToken: RefreshToken,
-      accessToken: AccessToken,
-  )
 }
 
 trait UserAuth {
@@ -143,6 +129,4 @@ trait TodoApi { self: UserApi =>
   type CreateTodoResponse = TodoItem
   type UpdateTodoRequest  = TodoItem
   type UpdateTodoResponse = TodoItem
-  case class ListTodoResponse(todos: Seq[TodoItem])
-
 }

@@ -21,7 +21,7 @@ class TodoApiQuillImpl(
     with Lifters {
   import ctx._
 
-  override def create(req: CreateTodoIntent): ApiResult[TodoApi.Todo] = {
+  override def create(req: CreateTodoIntent): Failable[TodoApi.Todo] = {
     val created = ctx.run(quote {
       query[Todos]
         .insert(_.title -> lift(req.title), _.desc -> lift(req.desc))
@@ -30,14 +30,14 @@ class TodoApiQuillImpl(
     liftSuccess(mapFromDB(created))
   }
 
-  override def list(): ApiResult[TodoList] =
+  override def list(): Failable[TodoList] =
     liftSuccess {
       val q = quote { query[Todos] }
       val r = ctx.run(q).map(mapFromDB)
-      r
+      TodoList(r)
     }
 
-  override def show(todoId: Int): ApiResult[TodoApi.Todo] = {
+  override def show(todoId: Int): Failable[TodoApi.Todo] = {
     val found = run(quote {
       query[Todos].filter(_.todoId == lift(todoId))
     })
@@ -47,7 +47,7 @@ class TodoApiQuillImpl(
     }
   }
 
-  override def update(todoId: Int, patch: TodoApi.Todo): ApiResult[TodoApi.Todo] = {
+  override def update(todoId: Int, patch: TodoApi.Todo): Failable[TodoApi.Todo] = {
     transaction {
 
       val existed: Option[Todos] = run(findById(todoId)).headOption
@@ -84,7 +84,7 @@ class TodoApiQuillImpl(
 
   }
 
-  override def remove(todoId: Int): ApiResult[TodoApi.Todo] = {
+  override def remove(todoId: Int): Failable[TodoApi.Todo] = {
 
     try {
 

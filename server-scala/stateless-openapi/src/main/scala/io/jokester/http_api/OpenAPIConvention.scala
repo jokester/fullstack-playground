@@ -57,23 +57,23 @@ object OpenAPIConvention {
 
     implicit def toFuture: ApiResult[A] = asFuture
 
-    def map[B](t: A => B)(implicit ec: ExecutionContext) = {
-      asFuture.map(either => either.map(t))
+    def map[B](t: A => B)(implicit ec: ExecutionContext): Failable[B] = {
+      Failable(asFuture.map(either => either.map(t)))
     }
-    def flatMap[B](t: A => Failable[B])(implicit ec: ExecutionContext): ApiResult[B] = {
-      asFuture.flatMap({
+    def flatMap[B](t: A => Failable[B])(implicit ec: ExecutionContext): Failable[B] = {
+      Failable(asFuture.flatMap({
         case Right(value) => t(value).asFuture
         case Left(l)      => Future.successful(l.asLeft)
-      })
+      }))
     }
-
   }
 
   trait Lifters {
+//    type Failable[T] = ApiResult[T]
 
     def liftResult[T](t: ApiResultSync[T]): Failable[T] = Failable(Future.successful(t))
     def liftSuccess[T](t: T): Failable[T]               = Failable(Future.successful(Right(t)))
-    def liftError(r: ApiError): Failable[Nothing]       = Failable(Future.successful(Left(r)))
+    def liftError[A](r: ApiError): Failable[A]          = Failable(Future.successful(Left(r)))
 
     def mapInner[T, A](i: ApiResult[T], f: T => A)(implicit ec: ExecutionContext): ApiResult[A] = {
       i.map(resultSync => resultSync.map(f))
