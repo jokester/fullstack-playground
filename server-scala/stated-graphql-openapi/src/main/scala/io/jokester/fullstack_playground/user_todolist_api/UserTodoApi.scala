@@ -4,67 +4,29 @@ import akka.NotUsed
 import io.circe.generic.auto._
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 import io.circe.{Decoder, Encoder}
+import io.jokester.http_api.OpenAPIBuilder
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
-import sttp.tapir.openapi.OpenAPI
 import sttp.tapir.{auth, _}
 
 import java.time.OffsetDateTime
+import scala.concurrent.Future
 
-object UserTodoApi {
+object UserTodoApi extends UserAuth with UserApi with TodoApi {
 
-  import io.jokester.fullstack_playground.todolist_api.ApiConvention._
-
-  // entities
-  case class User(userId: Int, profile: UserProfile)
-  object UserProfile {
-    val jsonEncoder: Encoder[UserProfile] = deriveEncoder[UserProfile]
-    val jsonDecoder: Decoder[UserProfile] = deriveDecoder[UserProfile]
-  }
-  case class UserProfile(nickname: Option[String], avatarUrl: Option[String])
-  case class TodoItem(
-      todoId: Int,
-      userId: Int,
-      title: String,
-      description: String,
-      finishedAt: Option[OffsetDateTime],
-  )
-
-  // auth header
-  case class AccessToken(value: String)
-  case class RefreshToken(value: String)
-
-  // jwt payload
-  case class AccessTokenPayload(userId: Int)
-  case class RefreshTokenPayload(userId: Int)
-
-  case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
-  case class CreateUserResponse(userId: Int, userProfile: UserProfile)
-
-  case class LoginRequest(email: String, password: String)
-  case class LoginResponse(
-      userId: Int,
-      userProfile: UserProfile,
-      refreshToken: RefreshToken,
-      accessToken: AccessToken,
-  )
-
-  case class AuthedUser(jwtToken: String, userId: Int)
-
-  case class CreateTodoRequest(title: String, description: String)
-  type CreateTodoResponse = TodoItem
-  type UpdateTodoRequest  = TodoItem
-  type UpdateTodoResponse = TodoItem
-  case class ListTodoResponse(todos: Seq[TodoItem])
+  import io.jokester.http_api.OpenAPIConvention._
 
   object endpoints {
 
-    private def basePath: Endpoint[Unit, ErrorInfo, Unit, NotUsed] =
+    private val basePath =
       endpoint
         .in("user_todo_api")
         .errorOut(defaultErrorOutputMapping)
 
-    private def authedBasePath =
+    /**
+      *
+      */
+    private val authedBasePath =
       basePath
         .in(
           auth
@@ -74,14 +36,14 @@ object UserTodoApi {
             ),
         )
 
-    val createUser: Endpoint[CreateUserRequest, ErrorInfo, CreateUserResponse, NotUsed] =
+    val createUser =
       basePath.post.in("users").in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
 
     val login =
       basePath.post
         .in("auth" / "login")
         .in(jsonBody[LoginRequest])
-        .out(jsonBody[LoginResponse])
+        .out(jsonBody[UserAccount])
 
     val refreshToken = basePath.post
       .in("auth" / "refresh_token")
@@ -94,7 +56,7 @@ object UserTodoApi {
       authedBasePath.put
         .in("users" / path[Int]("userId") / "profile")
         .in(jsonBody[UserProfile])
-        .out(jsonBody[UserProfile])
+        .out(jsonBody[UserAccount])
 
     val createTodo =
       authedBasePath.post
@@ -107,12 +69,13 @@ object UserTodoApi {
       .in(jsonBody[CreateTodoResponse])
       .out(jsonBody[CreateTodoResponse])
 
-    val deleteTodo: Endpoint[(AccessToken, Int, Int), ErrorInfo, Unit, Any] =
+    val deleteTodo =
       authedBasePath.delete.in("users" / path[Int]("userId") / "todos" / path[Int]("todoId"))
 
-    val listTodo = authedBasePath.get
-      .in("users" / path[Int]("userId") / "todos")
-      .out(jsonBody[ListTodoResponse])
+    val listTodo =
+      authedBasePath.get
+        .in("users" / path[Int]("userId") / "todos")
+        .out(jsonBody[ListTodoResponse])
   }
 
   val endpointList = Seq(
@@ -126,13 +89,60 @@ object UserTodoApi {
     endpoints.listTodo,
   )
 
-  def asOpenAPI: OpenAPI = {
-    import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
-    OpenAPIDocsInterpreter().toOpenAPI(endpointList, "User Todos", "1.0")
+  def asOpenAPIYaml: String = OpenAPIBuilder.buildOpenApiYaml(endpointList, "user-todo", "0.1")
+}
+
+trait UserApi {
+
+  // auth header
+  case class AccessToken(value: String)
+  case class RefreshToken(value: String)
+  // jwt payload
+  case class AccessTokenPayload(userId: Int)
+  case class RefreshTokenPayload(userId: Int)
+
+  // entities
+  case class UserAccount(userId: Int, profile: UserProfile)
+  case class UserProfile(nickname: Option[String], avatarUrl: Option[String])
+  object UserProfile {
+
+    /**
+      * FIXME: can we remove this?
+      */
+    val jsonEncoder: Encoder[UserProfile] = deriveEncoder[UserProfile]
+    val jsonDecoder: Decoder[UserProfile] = deriveDecoder[UserProfile]
   }
 
-  def asOpenAPIYaml: String = {
-    import sttp.tapir.openapi.circe.yaml._
-    asOpenAPI.toYaml
-  }
+  case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
+  case class CreateUserResponse(userId: Int, userProfile: UserProfile)
+  case class LoginRequest(email: String, password: String)
+  case class LoginResponse(
+      userId: Int,
+      userProfile: UserProfile,
+      refreshToken: RefreshToken,
+      accessToken: AccessToken,
+  )
+}
+
+trait UserAuth {
+  case class UserId(value: Int)
+}
+
+trait TodoApi { self: UserApi =>
+
+  case class TodoItem(
+      todoId: Int,
+      userId: Int,
+      title: String,
+      description: String,
+      finishedAt: Option[OffsetDateTime],
+  )
+  case class TodoList(items: Seq[TodoItem])
+
+  case class CreateTodoRequest(title: String, description: String)
+  type CreateTodoResponse = TodoItem
+  type UpdateTodoRequest  = TodoItem
+  type UpdateTodoResponse = TodoItem
+  case class ListTodoResponse(todos: Seq[TodoItem])
+
 }

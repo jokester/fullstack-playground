@@ -36,6 +36,17 @@ object AkkaHttpServer extends LazyLogging {
     listenWithSystem(rootRoute, interface, port)(untypedSystem = typedSystem.classicSystem)
   }
 
+  def listenWithNewSystem(
+      routeBuilder: ActorSystem[Nothing] => Route,
+      interface: Option[String] = None,
+      port: Option[Int] = None,
+  ): Future[Unit] = {
+
+    val typedSystem: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "adhoc-system")
+    val rootRoute                         = routeBuilder(typedSystem)
+    listenWithSystem(rootRoute, interface, port)(untypedSystem = typedSystem.classicSystem)
+  }
+
   /**
     * Listen with provided `ActorSystem`
     * and block until keypress

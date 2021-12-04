@@ -1,4 +1,4 @@
-package io.jokester.fullstack_playground.db.util
+package io.jokester.fullstack_playground.scalikejdbc
 
 import io.circe.{Decoder, Encoder, Json}
 import org.postgresql.util.PGobject

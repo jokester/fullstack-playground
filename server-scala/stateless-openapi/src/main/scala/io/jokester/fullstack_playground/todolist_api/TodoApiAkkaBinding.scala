@@ -2,29 +2,39 @@ package io.jokester.fullstack_playground.todolist_api
 
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.{concat, pathPrefix}
+import io.jokester.http_api.OpenAPIConvention
+
+import scala.concurrent.ExecutionContext
 
 /**
   *
   */
-object TodoApiAkkaBinding extends ApiConvention.LifterHelpers {
+object TodoApiAkkaBinding extends OpenAPIConvention.Lifters {
 
-  def buildTodoApiRoute(impl: TodoApiImpl): Route = {
+  def buildTodoApiRoute(impl: TodoApiService)(implicit ec: ExecutionContext): Route = {
     import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
     val endpoints = TodoApi.endpoints
 
     val interpreter = AkkaHttpServerInterpreter()
     val serverImplRoute = concat(
       interpreter.toRoute(endpoints.listTodo) { req =>
-        liftResult(impl.list().map(TodoApi.TodoList))
+        impl.list()
       },
       interpreter.toRoute(endpoints.showTodo) { todoId =>
-        liftResult(impl.show(todoId))
+        impl.show(todoId)
       },
-      interpreter.toRoute(endpoints.createTodo)(req => liftResult(impl.create(req))),
+      interpreter.toRoute(endpoints.createTodo) { req =>
+        impl.create(req)
+      },
       interpreter.toRoute(endpoints.deleteTodo) { todoId =>
-        liftResult(impl.remove(todoId).map(_ => ()))
+        mapInner(
+          impl.remove(todoId),
+          (whatever: Any) => (),
+        )
       },
-      interpreter.toRoute(endpoints.updateTodo)(req => liftResult(impl.update(req._1, req._2))),
+      interpreter.toRoute(endpoints.updateTodo) { req =>
+        impl.update(req._1, req._2)
+      },
     )
 
     serverImplRoute

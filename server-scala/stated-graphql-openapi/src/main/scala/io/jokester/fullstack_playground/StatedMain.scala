@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives.concat
 import com.typesafe.scalalogging.LazyLogging
 import io.jokester.fullstack_playground.quill.QuillCtxFactory
 import io.jokester.fullstack_playground.todolist_api.{
-  QuillTodoApiImpl,
+  TodoApiQuillImpl,
   TodoApiAkkaBinding,
   TodoApiMemoryImpl,
 }
@@ -13,6 +13,7 @@ import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi
 import io.jokester.fullstack_playground.utils.akka_http.AkkaHttpServer
 
 import java.nio.file.{Files, Path}
+import scala.concurrent.ExecutionContext
 
 object StatedMain extends App with LazyLogging {
 
@@ -23,22 +24,23 @@ object StatedMain extends App with LazyLogging {
 
     case Array("server") =>
       val ctx        = QuillCtxFactory.createContext("database.default")
-      val quillImpl  = new QuillTodoApiImpl(ctx)
+      val quillImpl  = new TodoApiQuillImpl(ctx)
       val memoryImpl = new TodoApiMemoryImpl()
-      val rootRoute = concat(
-        pathPrefix("stated-openapi") {
-          TodoApiAkkaBinding.buildTodoApiRoute(quillImpl)
-        },
-        pathPrefix("stateless-openapi") {
-          TodoApiAkkaBinding.buildTodoApiRoute(memoryImpl)
-        },
-      )
       AkkaHttpServer
-        .listen(
+        .listenWithNewSystem(actorSystem => {
+          implicit val ec: ExecutionContext = actorSystem.executionContext
+          val rootRoute = concat(
+            pathPrefix("stated-openapi") {
+              TodoApiAkkaBinding.buildTodoApiRoute(quillImpl)
+            },
+            pathPrefix("stateless-openapi") {
+              TodoApiAkkaBinding.buildTodoApiRoute(memoryImpl)
+            },
+          )
           (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging) {
             rootRoute
-          },
-        )
+          }
+        })
         .andThen(_ => {
           logger.info("QuillCtx closing")
           ctx.close()

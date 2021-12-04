@@ -1,24 +1,21 @@
 package io.jokester.fullstack_playground.user_todolist_api
+import io.jokester.http_api.OpenAPIConvention.{ApiResult, Failable}
 
-trait UserTodoService[Result[_]] {
+/**
+  * Auth-agnostic part
+  */
+trait UserTodoService {
   import UserTodoApi._
 
-  type ApiResult[T] = Result[Either[ErrorInfo, T]]
+  // user / auth
+  def createUser(req: CreateUserRequest): Failable[CreateUserResponse]
+  def updateProfile(userId: UserId, newProfile: UserProfile): Failable[UserAccount]
+  def showUser(userId: UserId): Failable[UserAccount]
+  def loginUser(req: LoginRequest): Failable[UserAccount]
 
-  // signup
-  def createUser(req: CreateUserRequest): ApiResult[CreateUserResponse]
-
-  // auth
-  def loginUser(req: LoginRequest): ApiResult[LoginResponse]
-  def validateSession(accessToken: AccessToken): ApiResult[AuthedUser]
-  def refreshAccessToken(refreshToken: RefreshToken): ApiResult[LoginResponse]
-
-  // user
-  def updateProfile(authed: AuthedUser, newProfile: UserProfile): ApiResult[UserProfile]
-
-  // todo
-  def createTodo(authed: AuthedUser, req: CreateTodoRequest): ApiResult[CreateTodoResponse]
-  def updateTodo(authed: AuthedUser, req: UpdateTodoRequest): ApiResult[UpdateTodoResponse]
-  def deleteTodo(authed: AuthedUser, todoId: Int): ApiResult[TodoItem]
-  def listTodo(authed: AuthedUser): ApiResult[Seq[TodoItem]]
+  // todos: CRUD
+  def createTodo(userId: UserId, req: CreateTodoRequest): Failable[CreateTodoResponse]
+  def listTodo(userId: UserId): Failable[TodoList]
+  def updateTodo(userId: UserId, req: TodoItem): Failable[TodoItem]
+  def deleteTodo(userId: UserId, todoId: Int): Failable[TodoItem]
 }

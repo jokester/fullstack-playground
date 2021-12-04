@@ -5,7 +5,7 @@ import com.typesafe.scalalogging.LazyLogging
 import io.jokester.fullstack_playground.todolist_api.{
   TodoApi,
   TodoApiAkkaBinding,
-  TodoApiImpl,
+  TodoApiService,
   TodoApiMemoryImpl,
 }
 import io.jokester.fullstack_playground.utils.akka_http.AkkaHttpServer
@@ -20,19 +20,22 @@ object StatelessOpenAPIMain extends App with LazyLogging {
       Files.writeString(Path.of(outputFilename), TodoApi.asOpenAPIYaml)
 
     case Array("server") =>
-      /**
-        * CRUD
-        */
-      val todoRoute = TodoApiAkkaBinding.buildTodoApiRoute(new TodoApiMemoryImpl())
+      AkkaHttpServer.listenWithNewSystem(routeBuilder = { actorSystem =>
+        implicit val ec = actorSystem.executionContext
 
-      val rootRoute = pathPrefix("stateless-openapi") {
-        todoRoute
-      }
-      AkkaHttpServer.listen(
+        /**
+          * CRUD
+          */
+        val todoRoute = TodoApiAkkaBinding.buildTodoApiRoute(new TodoApiMemoryImpl())
+
+        val rootRoute = pathPrefix("stateless-openapi") {
+          todoRoute
+        }
+
         (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging) {
           rootRoute
-        },
-      )
+        }
+      })
 
     case _ =>
       logger.error(s"Command Not Recognized: ${args}")

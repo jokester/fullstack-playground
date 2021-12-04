@@ -6,9 +6,9 @@ import matchers._
 trait TodoApiImplTest extends should.Matchers with EitherValues {
   self: AnyFlatSpec =>
   import io.jokester.fullstack_playground.todolist_api.TodoApi._
-  import io.jokester.fullstack_playground.todolist_api.ApiConvention._
+  import io.jokester.http_api.OpenAPIConvention._
 
-  def testee: TodoApiImpl
+  def testee: TodoApiService
 
   "testee" should "CRUD" in {
     // C

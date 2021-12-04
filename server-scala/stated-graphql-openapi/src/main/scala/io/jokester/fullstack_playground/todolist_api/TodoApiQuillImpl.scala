@@ -7,17 +7,18 @@ import io.jokester.fullstack_playground.quill.{
   QuillDatetimeEncoding,
   QuillWorkarounds,
 }
-import io.jokester.fullstack_playground.todolist_api.TodoApi.CreateTodoIntent
+import io.jokester.fullstack_playground.todolist_api.TodoApi.{CreateTodoIntent, TodoList}
+import io.jokester.http_api.OpenAPIConvention._
 
 import java.time.{Clock, OffsetDateTime}
 
-class QuillTodoApiImpl(
+class TodoApiQuillImpl(
     protected override val ctx: QuillCtxFactory.OurCtx,
-) extends TodoApiImpl
+) extends TodoApiService
     with QuillDatetimeEncoding
     with QuillWorkarounds
-    with LazyLogging {
-  import io.jokester.fullstack_playground.todolist_api.ApiConvention._
+    with LazyLogging
+    with Lifters {
   import ctx._
 
   override def create(req: CreateTodoIntent): ApiResult[TodoApi.Todo] = {
@@ -26,22 +27,23 @@ class QuillTodoApiImpl(
         .insert(_.title -> lift(req.title), _.desc -> lift(req.desc))
         .returning(row => row)
     })
-    resultRight(mapFromDB(created))
+    liftSuccess(mapFromDB(created))
   }
 
-  override def list(): ApiResult[Seq[TodoApi.Todo]] = {
-    val q = quote { query[Todos] }
-    val r = ctx.run(q).map(mapFromDB)
-    resultRight(r)
-  }
+  override def list(): ApiResult[TodoList] =
+    liftSuccess {
+      val q = quote { query[Todos] }
+      val r = ctx.run(q).map(mapFromDB)
+      r
+    }
 
   override def show(todoId: Int): ApiResult[TodoApi.Todo] = {
     val found = run(quote {
       query[Todos].filter(_.todoId == lift(todoId))
     })
     found.headOption.map(mapFromDB) match {
-      case Some(got) => resultRight(got)
-      case _         => resultLeft(NotFound(s"Todo(id=$todoId) not found"))
+      case Some(got) => liftSuccess(got)
+      case _         => liftError(NotFound(s"Todo(id=$todoId) not found"))
     }
   }
 
@@ -74,8 +76,8 @@ class QuillTodoApiImpl(
               )
               .returning(row => row)
           }
-          resultRight(updated).map(mapFromDB)
-        case _ => resultLeft(NotFound(s"Todo(id=$todoId) not found"))
+          liftSuccess(mapFromDB(updated))
+        case _ => liftError(NotFound(s"Todo(id=$todoId) not found"))
 
       }
     }
@@ -92,12 +94,12 @@ class QuillTodoApiImpl(
       val removed = run { findById(todoId).delete.returning(row => row) }
       logger.debug("remove returned {}", removed)
 
-      resultRight(removed).map(mapFromDB)
+      liftSuccess(mapFromDB(removed))
 
     } catch {
       case e: Throwable =>
         logger.error("remove failed", e)
-        handleRemovedRowNotUnique(e, resultLeft(NotFound(s"Todo(id=$todoId) not found")))
+        handleRemovedRowNotUnique(e, liftError(NotFound(s"Todo(id=$todoId) not found")))
     }
   }
 
@@ -113,9 +115,6 @@ class QuillTodoApiImpl(
     )
   }
 
-  private def resultRight[T](orig: T): ApiResult[T] = Right[ApiConvention.ErrorInfo, T](orig)
-  private def resultLeft(e: ErrorInfo): ApiResult[Nothing] =
-    Left[ApiConvention.ErrorInfo, Nothing](e)
   private val clock = Clock.systemUTC()
   private def now   = OffsetDateTime.now(clock)
 

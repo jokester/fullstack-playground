@@ -1,6 +1,5 @@
 package io.jokester.fullstack_playground.todolist_api
 
-import cats.Id
 import io.circe.generic.auto._
 import sttp.model.StatusCode
 import sttp.tapir._
@@ -9,10 +8,10 @@ import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.openapi.OpenAPI
 
 import java.time.Instant
-import scala.concurrent.Future
+import io.jokester.http_api.OpenAPIConvention._
+import io.jokester.http_api.OpenAPIBuilder
 
 object TodoApi {
-  import ApiConvention._
 
   def endpointList =
     Seq(
@@ -23,15 +22,14 @@ object TodoApi {
       endpoints.deleteTodo,
     )
 
-  def asOpenAPIYaml: String = {
-    import sttp.tapir.openapi.circe.yaml._
-    asOpenAPI.toYaml
-  }
+  def asOpenAPIYaml: String =
+    OpenAPIBuilder.buildOpenApiYaml(
+      endpointList,
+      "TodoAPI",
+      "1.0",
+    )
 
-  def asOpenAPI: OpenAPI = {
-    import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
-    OpenAPIDocsInterpreter().toOpenAPI(endpointList, "TodoAPI", "1.0")
-  }
+  def asOpenAPI: OpenAPI = OpenAPIBuilder.buildOpenApi(endpointList, "TodoAPI", "1.0")
 
   case class Todo(
       id: Int,
@@ -50,13 +48,13 @@ object TodoApi {
   case class TodoList(todos: Seq[Todo])
 
   object endpoints {
-    val listTodo: Endpoint[Unit, ErrorInfo, TodoList, Any] = basePath.get
+    val listTodo: Endpoint[Unit, ApiError, TodoList, Any] = basePath.get
       .out(statusCode(StatusCode.Ok))
       .out(jsonBody[TodoList])
       .name("list TODO")
       .description("get list of TODOs")
 
-    val showTodo: Endpoint[Int, ErrorInfo, Todo, Any] =
+    val showTodo: Endpoint[Int, ApiError, Todo, Any] =
       basePath.get
         .in(path[Int]("todoId"))
         .out(statusCode(StatusCode.Ok))
@@ -64,14 +62,14 @@ object TodoApi {
         .name("show TODO")
         .description("get TODO by id")
 
-    val createTodo: Endpoint[CreateTodoIntent, ErrorInfo, Todo, Any] = basePath.post
+    val createTodo: Endpoint[CreateTodoIntent, ApiError, Todo, Any] = basePath.post
       .in(jsonBody[CreateTodoIntent])
       .out(statusCode(StatusCode.Created))
       .out(jsonBody[Todo])
       .name("create TODO")
       .description("create TODO item")
 
-    val updateTodo: Endpoint[(Int, Todo), ErrorInfo, Todo, Any] =
+    val updateTodo: Endpoint[(Int, Todo), ApiError, Todo, Any] =
       basePath.patch
         .in(path[Int]("todoId"))
         .in(jsonBody[Todo])
@@ -80,7 +78,7 @@ object TodoApi {
         .name("update TODO")
         .description("update todoItem")
 
-    val deleteTodo: Endpoint[Int, ErrorInfo, Unit, Any] =
+    val deleteTodo: Endpoint[Int, ApiError, Unit, Any] =
       basePath.delete
         .in(path[Int]("todoId"))
         .out(statusCode(StatusCode.Ok))
@@ -93,21 +91,4 @@ object TodoApi {
         .errorOut(defaultErrorOutputMapping)
   }
 
-}
-
-trait TodoApiImpl {
-  import ApiConvention._
-  import TodoApi._
-
-  type ApiResult[T] = Either[ErrorInfo, T]
-
-  def create(req: CreateTodoIntent): ApiResult[Todo]
-
-  def list(): ApiResult[Seq[Todo]]
-
-  def show(todoId: Int): ApiResult[Todo]
-
-  def update(todoId: Int, patch: Todo): ApiResult[Todo]
-
-  def remove(todoId: Int): ApiResult[Todo]
 }
