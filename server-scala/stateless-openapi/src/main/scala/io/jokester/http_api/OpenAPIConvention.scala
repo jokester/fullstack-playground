@@ -53,8 +53,6 @@ object OpenAPIConvention {
 
   case class Failable[A](asFuture: ApiResult[A]) extends AnyVal {
 
-    implicit def toFuture: ApiResult[A] = asFuture
-
     def map[B](t: A => B)(implicit ec: ExecutionContext): Failable[B] = {
       Failable(asFuture.map(either => either.map(t)))
     }
@@ -64,6 +62,10 @@ object OpenAPIConvention {
         case Left(l)      => Future.successful(l.asLeft)
       }))
     }
+  }
+
+  object Failable {
+    implicit def toFuture[A](f: Failable[A]): ApiResult[A] = f.asFuture
   }
 
   trait Lifters {
