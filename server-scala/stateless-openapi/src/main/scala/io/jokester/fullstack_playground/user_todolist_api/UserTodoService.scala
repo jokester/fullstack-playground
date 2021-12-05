@@ -11,7 +11,7 @@ import UserTodoApi._
 trait UserTodoService {
 
   // user / auth
-  def createUser(req: CreateUserRequest): Failable[CreateUserResponse]
+  def createUser(req: CreateUserRequest): Failable[UserAccount]
   def updateProfile(userId: UserId, newProfile: UserProfile): Failable[UserAccount]
   def showUser(userId: UserId): Failable[UserAccount]
   def loginUser(req: LoginRequest): Failable[UserAccount]

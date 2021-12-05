@@ -27,7 +27,7 @@ trait UserTodoServiceTest
       ),
     )
 
-    newUser1.right.value shouldBe a[AuthSuccess]
+    newUser1.right.value shouldBe a[UserAccount]
 
   }
 

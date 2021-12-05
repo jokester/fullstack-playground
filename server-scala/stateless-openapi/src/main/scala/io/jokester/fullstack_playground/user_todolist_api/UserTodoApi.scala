@@ -12,6 +12,9 @@ import sttp.tapir.{auth, _}
 
 import java.time.OffsetDateTime
 
+/**
+  * TODO: validation
+  */
 object UserTodoApi extends UserApi with TodoApi {
 
   case class AuthSuccess(
@@ -42,8 +45,11 @@ object UserTodoApi extends UserApi with TodoApi {
         )
 
     val createUser
-        : Endpoint[UserTodoApi.CreateUserRequest, ApiError, UserTodoApi.CreateUserResponse, Any] =
-      basePath.post.in("users").in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
+        : Endpoint[UserTodoApi.CreateUserRequest, ApiError, UserTodoApi.UserAccount, Any] =
+      basePath.post
+        .in("users")
+        .in(jsonBody[CreateUserRequest])
+        .out(jsonBody[UserAccount])
 
     val login: Endpoint[UserTodoApi.LoginRequest, ApiError, AuthSuccess, Any] =
       basePath.post
@@ -128,7 +134,6 @@ trait UserApi {
   }
 
   case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
-  case class CreateUserResponse(userId: Int, userProfile: UserProfile)
   case class LoginRequest(email: String, password: String)
 }
 

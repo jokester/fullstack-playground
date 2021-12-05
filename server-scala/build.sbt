@@ -22,7 +22,7 @@ lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
 lazy val statelessOpenapi = (project in file("stateless-openapi"))
   .settings(
     name := "stateless-openapi",
-    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ testDeps ++ utilDeps,
     Universal / target := file("target/universal"),
   )
   .enablePlugins(JavaAppPackaging)

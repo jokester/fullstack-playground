@@ -27,6 +27,10 @@ object Dependencies {
     "io.circe" %% "circe-parser",
   ).map(_ % Versions.circe)
 
+  lazy val utilDeps: Seq[ModuleID] = Seq(
+    "org.springframework.security" % "spring-security-crypto" % Versions.spring,
+  )
+
   lazy val tapirDeps: Seq[ModuleID] = Seq(
     // tapir as server
     "com.softwaremill.sttp.tapir" %% "tapir-core",
@@ -82,6 +86,9 @@ private object Versions {
   val quill       = "3.10.0"
   val scalikeJDBC = "3.5.0"
   val flyway      = "8.0.2"
+
+  // utils
+  val spring = "5.6.0"
 
   // testing
   val scalaTest               = "3.2.10"
