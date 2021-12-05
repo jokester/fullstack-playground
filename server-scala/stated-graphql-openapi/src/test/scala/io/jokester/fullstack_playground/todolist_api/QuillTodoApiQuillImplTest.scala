@@ -6,7 +6,7 @@ import org.scalatest.flatspec._
 
 class QuillTodoApiQuillImplTest extends AnyFlatSpec with TodoApiImplTest with BeforeAndAfterAll {
 
-  private val testCtx = TestQuillCtxFactory.createTestContext
+  private val testCtx = TestQuillCtxFactory.createTestPublicContext
   override val testee = new TodoApiQuillImpl(testCtx)
 
   override protected def afterAll(): Unit = {

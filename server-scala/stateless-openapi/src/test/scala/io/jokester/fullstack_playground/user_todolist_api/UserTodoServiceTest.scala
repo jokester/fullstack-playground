@@ -8,8 +8,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import UserTodoApi._
 
-trait UserTodoServiceTest {
-  self: AnyFlatSpec with should.Matchers with EitherValues with ScalaFutures with FailableValues =>
+trait UserTodoServiceTest
+    extends should.Matchers
+    with EitherValues
+    with ScalaFutures
+    with FailableValues {
+  self: AnyFlatSpec =>
 
   def testee: UserTodoService
 
