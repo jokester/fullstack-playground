@@ -3,7 +3,7 @@ package io.jokester.fullstack_playground
 import akka.http.scaladsl.server.Directives.pathPrefix
 import akka.http.scaladsl.server.Directives.concat
 import com.typesafe.scalalogging.LazyLogging
-import io.jokester.fullstack_playground.quill.QuillCtxFactory
+import io.jokester.fullstack_playground.quill.QuillContextFactory
 import io.jokester.fullstack_playground.todolist_api.{
   TodoApiQuillImpl,
   TodoApiAkkaBinding,
@@ -23,7 +23,7 @@ object StatedMain extends App with LazyLogging {
       Files.writeString(Path.of(yamlPath), UserTodoApi.asOpenAPIYaml)
 
     case Array("server") =>
-      val ctx        = QuillCtxFactory.createContext("database.default")
+      val ctx        = QuillContextFactory.createPublicContext("database.default")
       val quillImpl  = new TodoApiQuillImpl(ctx)
       val memoryImpl = new TodoApiMemoryImpl()
       AkkaHttpServer

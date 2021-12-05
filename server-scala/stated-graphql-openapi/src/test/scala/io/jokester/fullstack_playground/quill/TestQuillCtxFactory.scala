@@ -1,11 +1,12 @@
 package io.jokester.fullstack_playground.quill
 
 object TestQuillCtxFactory {
-  def createTestContext: QuillCtxFactory.OurCtx = QuillCtxFactory.createContext("database.test")
+  def createTestContext: QuillContextFactory.PublicCtx =
+    QuillContextFactory.createPublicContext("database.test")
 
   def withTestContext(
       testCase: (
-          QuillCtxFactory.OurCtx,
+          QuillContextFactory.PublicCtx,
       ) => Unit,
   ): Unit = {
     val created = createTestContext
