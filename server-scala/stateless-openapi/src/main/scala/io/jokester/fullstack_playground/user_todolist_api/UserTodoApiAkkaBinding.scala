@@ -2,7 +2,6 @@ package io.jokester.fullstack_playground.user_todolist_api
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import cats.syntax.either._
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi._
 import io.jokester.http_api.OpenAPIAuthConvention._
 import io.jokester.http_api.OpenAPIConvention._

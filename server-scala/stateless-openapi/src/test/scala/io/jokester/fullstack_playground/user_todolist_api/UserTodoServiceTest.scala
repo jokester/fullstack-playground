@@ -1,13 +1,12 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
+import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi.AuthSuccess
 import io.jokester.http_api.FailableValues
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import UserTodoApi._
-
-import scala.language.postfixOps
 
 trait UserTodoServiceTest {
   self: AnyFlatSpec with should.Matchers with EitherValues with ScalaFutures with FailableValues =>

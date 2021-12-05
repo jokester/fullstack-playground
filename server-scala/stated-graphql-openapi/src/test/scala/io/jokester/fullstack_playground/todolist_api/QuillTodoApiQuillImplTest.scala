@@ -4,7 +4,7 @@ import io.jokester.fullstack_playground.quill.TestQuillCtxFactory
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec._
 
-class QuillTodoApiImplTest extends AnyFlatSpec with TodoApiImplTest with BeforeAndAfterAll {
+class QuillTodoApiQuillImplTest extends AnyFlatSpec with TodoApiImplTest with BeforeAndAfterAll {
 
   private val testCtx = TestQuillCtxFactory.createTestContext
   override val testee = new TodoApiQuillImpl(testCtx)
