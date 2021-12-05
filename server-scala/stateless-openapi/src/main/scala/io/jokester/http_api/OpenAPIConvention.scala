@@ -48,8 +48,6 @@ object OpenAPIConvention {
       oneOfDefaultMapping(jsonBody[ServerError].description("server's bad in general")),
     )
 
-  case class ApiR[T](value: Future[Either[ApiError, T]]) {}
-
   type ApiResultSync[T] = Either[ApiError, T]
   type ApiResult[T]     = Future[Either[ApiError, T]]
 
