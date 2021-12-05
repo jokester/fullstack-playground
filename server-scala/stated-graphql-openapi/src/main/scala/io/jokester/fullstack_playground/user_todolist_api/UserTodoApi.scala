@@ -9,15 +9,21 @@ import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.{auth, _}
 
 import java.time.OffsetDateTime
+import io.jokester.http_api.OpenAPIAuthConvention._
+import io.jokester.http_api.OpenAPIConvention._
 
-object UserTodoApi extends UserAuth with UserApi with TodoApi {
+object UserTodoApi extends UserApi with TodoApi {
 
-  import io.jokester.http_api.OpenAPIConvention._
-  import io.jokester.http_api.OpenAPIAuthConvention._
+  case class AuthSuccess(
+      userId: Int,
+      profile: UserProfile,
+      accessToken: String,
+      refreshToken: String,
+  )
 
   object endpoints {
 
-    private val basePath =
+    private val basePath: Endpoint[Unit, ApiError, Unit, Any] =
       endpoint
         .in("user_todo_api")
         .errorOut(defaultErrorOutputMapping)
@@ -30,48 +36,64 @@ object UserTodoApi extends UserAuth with UserApi with TodoApi {
         .in(
           auth
             .bearer[String]()
-            .map[BearerToken](
-              Mapping.from(f = BearerToken)(_.value),
+            .map[TaintedToken](
+              Mapping.from(f = TaintedToken)(_.value),
             ),
         )
 
-    val createUser =
+    val createUser
+        : Endpoint[UserTodoApi.CreateUserRequest, ApiError, UserTodoApi.CreateUserResponse, Any] =
       basePath.post.in("users").in(jsonBody[CreateUserRequest]).out(jsonBody[CreateUserResponse])
 
-    val login =
+    val login: Endpoint[UserTodoApi.LoginRequest, ApiError, AuthSuccess, Any] =
       basePath.post
         .in("auth" / "login")
         .in(jsonBody[LoginRequest])
-        .out(jsonBody[UserAccount])
+        .out(jsonBody[AuthSuccess])
 
-    val refreshToken = basePath.post
+    val refreshToken: Endpoint[TaintedToken, ApiError, AuthSuccess, Any] = basePath.post
       .in("auth" / "refresh_token")
       .in(
-        auth.bearer[String]().map[BearerToken](f = BearerToken)(_.value),
+        auth.bearer[String]().map[TaintedToken](f = TaintedToken)(_.value),
       )
-      .out(jsonBody[UserAccount])
+      .out(jsonBody[AuthSuccess])
 
-    val updateUserProfile =
+    val updateUserProfile: Endpoint[
+      (TaintedToken, Int, UserTodoApi.UserProfile),
+      ApiError,
+      UserTodoApi.UserAccount,
+      Any,
+    ] =
       authedBasePath.put
         .in("users" / path[Int]("userId") / "profile")
         .in(jsonBody[UserProfile])
         .out(jsonBody[UserAccount])
 
-    val createTodo =
+    val createTodo: Endpoint[
+      (TaintedToken, Int, UserTodoApi.CreateTodoRequest),
+      ApiError,
+      UserTodoApi.CreateTodoResponse,
+      Any,
+    ] =
       authedBasePath.post
         .in("users" / path[Int]("userId") / "todos")
         .in(jsonBody[CreateTodoRequest])
         .out(jsonBody[CreateTodoResponse])
 
-    val updateTodo = authedBasePath.patch
+    val updateTodo: Endpoint[
+      (TaintedToken, Int, Int, UserTodoApi.CreateTodoResponse),
+      ApiError,
+      UserTodoApi.CreateTodoResponse,
+      Any,
+    ] = authedBasePath.patch
       .in("users" / path[Int]("userId") / "todos" / path[Int]("todoId"))
       .in(jsonBody[CreateTodoResponse])
       .out(jsonBody[CreateTodoResponse])
 
-    val deleteTodo =
+    val deleteTodo: Endpoint[(TaintedToken, Int, Int), ApiError, Unit, Any] =
       authedBasePath.delete.in("users" / path[Int]("userId") / "todos" / path[Int]("todoId"))
 
-    val listTodo =
+    val listTodo: Endpoint[(TaintedToken, Int), ApiError, UserTodoApi.TodoList, Any] =
       authedBasePath.get
         .in("users" / path[Int]("userId") / "todos")
         .out(jsonBody[TodoList])
@@ -108,10 +130,6 @@ trait UserApi {
   case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
   case class CreateUserResponse(userId: Int, userProfile: UserProfile)
   case class LoginRequest(email: String, password: String)
-}
-
-trait UserAuth {
-  case class UserId(value: Int)
 }
 
 trait TodoApi { self: UserApi =>

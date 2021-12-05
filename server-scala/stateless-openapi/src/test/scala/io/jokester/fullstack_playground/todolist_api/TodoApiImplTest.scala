@@ -5,6 +5,8 @@ import org.scalatest._
 import flatspec._
 import matchers._
 import org.scalatest.concurrent.ScalaFutures
+import io.jokester.fullstack_playground.todolist_api.TodoApi._
+import io.jokester.http_api.OpenAPIConvention._
 
 trait TodoApiImplTest
     extends should.Matchers
@@ -12,8 +14,6 @@ trait TodoApiImplTest
     with ScalaFutures
     with FailableValues {
   self: AnyFlatSpec =>
-  import io.jokester.fullstack_playground.todolist_api.TodoApi._
-  import io.jokester.http_api.OpenAPIConvention._
 
   def testee: TodoApiService
   "testee" should "CRUD" in { // C

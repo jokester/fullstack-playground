@@ -1,16 +1,15 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
-import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import cats.syntax.either._
-import sttp.model.headers.CookieValueWithMeta
-
-import scala.concurrent.{ExecutionContext, Future}
-import io.jokester.http_api.OpenAPIConvention._
+import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi._
 import io.jokester.http_api.OpenAPIAuthConvention._
-import UserTodoApi._
+import io.jokester.http_api.OpenAPIConvention._
+import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
+import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
 object UserTodoApiAkkaBinding {
@@ -31,57 +30,63 @@ private class RouteBuilder(impl: UserTodoService, override val jwtSecret: String
     with Lifters {
   private val interpreter = AkkaHttpServerInterpreter()
 
-  private def validateUser(
-      accessToken: BearerToken,
-      expectedUserId: Int,
-  ): Failable[UserId] =
-    liftResult {
-      validateAccessToken(accessToken.value).flatMap {
-        case AccessTokenPayload(userId, _) if userId == expectedUserId =>
-          UserId(userId).asRight
-        case _ => Unauthorized("userId mismatch").asLeft
-      }
-    }
-
   def buildRoute: Route = {
 
     concat(
       interpreter.toRoute(endpoints.createUser)(req => impl.createUser(req)),
-      interpreter.toRoute(endpoints.login)(req => (impl.loginUser(req))),
-//      interpreter.toRoute(endpoints.refreshToken)(req => (impl.refreshAccessToken(req))),
+      interpreter.toRoute(endpoints.login)(req =>
+        for (authedAccount <- impl.loginUser(req))
+          yield AuthSuccess(
+            userId = authedAccount.userId,
+            profile = authedAccount.profile,
+            accessToken = signAccessToken(authedAccount.userId),
+            refreshToken = signRefreshToken(authedAccount.userId),
+          ),
+      ),
+      interpreter.toRoute(endpoints.refreshToken)(req => {
+        for (
+          userId        <- validateRefreshToken(req);
+          authedAccount <- impl.showUser(userId)
+        )
+          yield AuthSuccess(
+            userId = authedAccount.userId,
+            profile = authedAccount.profile,
+            accessToken = signAccessToken(authedAccount.userId),
+            refreshToken = signRefreshToken(authedAccount.userId),
+          )
+      }),
       interpreter.toRoute(endpoints.updateUserProfile)(params => {
         val (accessToken, userId, newProfile) = params
 
         for (
-          user <- validateUser(accessToken, userId); updated <- impl.updateProfile(user, newProfile)
+          user    <- validateAccessToken(accessToken, userId);
+          updated <- impl.updateProfile(user, newProfile)
         ) yield updated
       }),
       interpreter.toRoute(endpoints.createTodo)(params => {
         val (accessToken, userId, req) = params
-        val created =
-          for (
-            user    <- validateUser(accessToken, userId);
-            created <- impl.createTodo(user, req)
-          ) yield created
-        created.asFuture
+        for (
+          user    <- validateAccessToken(accessToken, userId);
+          created <- impl.createTodo(user, req)
+        ) yield created
       }),
       interpreter.toRoute(endpoints.updateTodo)(params => {
         val (accessToken, userId, todoId, newTodo) = params
         for (
-          user    <- validateUser(accessToken, userId);
+          user    <- validateAccessToken(accessToken, userId);
           created <- impl.updateTodo(user, newTodo)
         ) yield created
       }),
       interpreter.toRoute(endpoints.deleteTodo)(params => {
         val (accessToken, userId, todoId) = params
         for (
-          user    <- validateUser(accessToken, userId);
+          user    <- validateAccessToken(accessToken, userId);
           created <- impl.deleteTodo(user, todoId)
         ) yield ()
       }),
       interpreter.toRoute(endpoints.listTodo)(params => {
         val (accessToken, userId) = params
-        for (user <- validateUser(accessToken, userId); list <- impl.listTodo(user))
+        for (user <- validateAccessToken(accessToken, userId); list <- impl.listTodo(user))
           yield list
       }),
     )

@@ -1,11 +1,12 @@
 package io.jokester.fullstack_playground.user_todolist_api
-import io.jokester.http_api.OpenAPIConvention.{ApiResult, Failable}
+import io.jokester.http_api.OpenAPIConvention._
+import io.jokester.http_api.OpenAPIAuthConvention._
+import UserTodoApi._
 
 /**
   * Auth-agnostic part
   */
 trait UserTodoService {
-  import UserTodoApi._
 
   // user / auth
   def createUser(req: CreateUserRequest): Failable[CreateUserResponse]

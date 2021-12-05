@@ -10,11 +10,25 @@ import scala.util.{Success, Try}
 
 object OpenAPIAuthConvention {
   import OpenAPIConvention._
-  case class BearerToken(value: String)
+
+  /**
+    * token from request
+    */
+  case class TaintedToken(value: String) extends AnyVal
+
+  /**
+    * validated userId
+    */
+  case class UserId(value: Int)
+
+  /**
+    * payload to encode into JWT
+    */
   case class AccessTokenPayload(userId: Int, tokenType: String)
   case class RefreshTokenPayload(userId: Int, tokenType: String)
 
   trait JwtHelper {
+    self: Lifters =>
 
     def jwtSecret: String
 
@@ -26,16 +40,24 @@ object OpenAPIAuthConvention {
         expireIn = 3600 * 24 * 7,
       )
 
-    def validateAccessToken(token: String): ApiResultSync[AccessTokenPayload] =
-      decodeValidPayload[AccessTokenPayload](token) match {
-        case Success(value) if value.tokenType == "accessToken" => Right(value)
-        case _                                                  => Left(Unauthorized("invalid jwt token"))
+    def validateAccessToken(
+        token: TaintedToken,
+        expectedUserId: Int,
+    ): Failable[UserId] =
+      decodeValidPayload[AccessTokenPayload](token.value) match {
+        case Success(value) if value.tokenType == "accessToken" && value.userId == expectedUserId =>
+          liftSuccess(UserId(value.userId))
+        case Success(value) => liftError(Unauthorized("accessToken unmatched"))
+        case _              => liftError(Unauthorized("invalid jwt token"))
       }
 
-    def validateRefreshToken(token: String): ApiResultSync[RefreshTokenPayload] =
-      decodeValidPayload[RefreshTokenPayload](token) match {
-        case Success(value) if value.tokenType == "refreshToken" => Right(value)
-        case _                                                   => Left(Unauthorized("invalid jwt token"))
+    def validateRefreshToken(
+        token: TaintedToken,
+    ): Failable[UserId] =
+      decodeValidPayload[RefreshTokenPayload](token.value) match {
+        case Success(value) if (value.tokenType == "refreshToken") =>
+          liftSuccess(UserId(value.userId))
+        case _ => liftError(Unauthorized("invalid jwt token"))
       }
 
     private def now: Long = Instant.now().getEpochSecond
