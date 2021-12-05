@@ -51,10 +51,11 @@ trait TodoApiImplTest
         .right
         .value
     val updated = updated4
-    testee.list().right.value.todos should not.contain(updated1)
-    testee.list().right.value.todos should contain(updated)
-    testee.list().right.value.todos should contain(updated)
     testee.list().right.value.todos should not.contain(created)
+    testee.list().right.value.todos should not.contain(updated1)
+    testee.list().right.value.todos should not.contain(updated2)
+    testee.list().right.value.todos should not.contain(updated3)
+    testee.list().right.value.todos should contain(updated4)
 
     // D
     testee.remove(created.id).right.value should equal(updated)
