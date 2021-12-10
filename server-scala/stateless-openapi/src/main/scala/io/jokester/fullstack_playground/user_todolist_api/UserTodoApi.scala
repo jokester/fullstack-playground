@@ -1,8 +1,6 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
 import io.circe.generic.auto._
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.{Decoder, Encoder}
 import io.jokester.http_api.OpenAPIAuthConvention._
 import io.jokester.http_api.OpenAPIBuilder
 import io.jokester.http_api.OpenAPIConvention._
@@ -124,14 +122,6 @@ trait UserApi {
   // entities
   case class UserAccount(userId: Int, profile: UserProfile)
   case class UserProfile(nickname: Option[String], avatarUrl: Option[String])
-  object UserProfile {
-
-    /**
-      * FIXME: can we remove this?
-      */
-    val jsonEncoder: Encoder[UserProfile] = deriveEncoder[UserProfile]
-    val jsonDecoder: Decoder[UserProfile] = deriveDecoder[UserProfile]
-  }
 
   case class CreateUserRequest(email: String, initialPass: String, profile: UserProfile)
   case class LoginRequest(email: String, password: String)

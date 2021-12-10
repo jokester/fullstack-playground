@@ -40,7 +40,7 @@ lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
 lazy val rdbCodegen = (project in file("rdb-codegen"))
   .settings(
     name := "rdb-codegen",
-    libraryDependencies ++= basicDeps ++ quillCodegenDeps,
+    libraryDependencies ++= basicDeps ++ quillCodegenDeps ++ circeDeps,
   )
 
 lazy val legacyScalikeJdbc = (project in file("stated-scalikejdbc"))

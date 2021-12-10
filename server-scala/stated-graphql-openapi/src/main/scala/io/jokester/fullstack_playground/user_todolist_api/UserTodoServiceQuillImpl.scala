@@ -1,20 +1,29 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
+import io.circe.generic.auto._
+import io.circe.syntax._
 import io.jokester.fullstack_playground.quill.generated.userTodo.{
-  Users => UserRow,
   UserTodos => UserTodoRow,
+  Users => UserRow,
 }
-import io.jokester.fullstack_playground.quill.{QuillContextFactory, QuillDatetimeEncoding}
+import io.jokester.fullstack_playground.quill.{
+  QuillCirceJsonEncoding,
+  QuillContextFactory,
+  QuillDatetimeEncoding,
+}
 import io.jokester.http_api.{OpenAPIAuthConvention, OpenAPIConvention}
-import io.jokester.http_api.OpenAPIConvention.Failable
+import io.jokester.http_api.OpenAPIConvention.{BadRequest, Failable}
 import io.jokester.utils.security.BCryptHelpers
 import UserTodoApi._
+import com.typesafe.scalalogging.LazyLogging
 
 class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.UserTodoCtx)
     extends UserTodoService
     with QuillDatetimeEncoding[QuillContextFactory.UserTodoCtx]
+    with QuillCirceJsonEncoding[QuillContextFactory.UserTodoCtx]
     with BCryptHelpers
-    with OpenAPIConvention.Lifters {
+    with OpenAPIConvention.Lifters
+    with LazyLogging {
   import ctx._
   import UserTodoSchema._
   override def createUser(
@@ -25,7 +34,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
         .insert(
           _.email        -> lift(req.email.toLowerCase),
           _.passwordHash -> lift(createPasswordHash(req.initialPass)),
-          _.profile      -> "{}",
+          _.profile      -> lift(req.profile.asJson),
         )
         .returning(row => row)
     })
@@ -44,7 +53,16 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
 
   override def loginUser(
       req: UserTodoApi.LoginRequest,
-  ): OpenAPIConvention.Failable[UserTodoApi.UserAccount] = ???
+  ): OpenAPIConvention.Failable[UserTodoApi.UserAccount] = {
+    val loaded = run(quote {
+      UsersDao.query.filter(row => row.email == lift(req.email))
+    })
+    loaded.headOption
+      .filter(f => validatePassword(req.password, f.passwordHash))
+      .map(transform)
+      .map(liftSuccess)
+      .getOrElse(liftError(BadRequest("invalid cred")))
+  }
 
   override def createTodo(
       userId: OpenAPIAuthConvention.UserId,
@@ -66,9 +84,10 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   ): OpenAPIConvention.Failable[UserTodoApi.TodoItem] = ???
 
   private def transform(row: UserRow): UserAccount = {
+    val profileJson = row.profile.as[UserProfile]
     UserAccount(
       userId = row.userId.toInt,
-      profile = UserProfile(None, None),
+      profile = profileJson.getOrElse(UserProfile(None, None)),
     )
 
   }
