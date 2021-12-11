@@ -97,9 +97,8 @@ class TodoApiQuillImpl(
       liftSuccess(mapFromDB(removed))
 
     } catch {
-      case e: Throwable =>
-//        logger.error("remove failed", e)
-        handleRemovedRowNotUnique(e, liftError(NotFound(s"Todo(id=$todoId) not found")))
+      case RowNotFoundViolation(_) =>
+        liftError(NotFound(s"Todo(id=$todoId) not found"))
     }
   }
 
