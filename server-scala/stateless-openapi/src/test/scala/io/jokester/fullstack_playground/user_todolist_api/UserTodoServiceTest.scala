@@ -161,13 +161,23 @@ trait UserTodoServiceTest
           .userId,
       )
 
-      val updateFail = testee.updateTodo(uid2, created1)
-      updateFail.left.value should equal(BadRequest("not found"))
+      val updateWhenUserMismatch = testee.updateTodo(uid2, created1)
+      updateWhenUserMismatch.left.value should equal(BadRequest("not found"))
     }
 
     {
       val deleted = testee.deleteTodo(uid1, created1.todoId)
       deleted.right.value should equal(updated)
+    }
+
+    {
+      val l = testee.listTodo(uid1).right.value
+      l.items should equal(Seq.empty)
+    }
+
+    {
+      val removeWhenAbsent = testee.deleteTodo(uid1, created1.todoId)
+      removeWhenAbsent.left.value should equal(BadRequest("not found"))
     }
 
   }
