@@ -19,13 +19,15 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http"          % Versions.akkaHttp,
     "ch.megard"         %% "akka-http-cors"     % "1.1.2",
     "de.heikoseeberger" %% "akka-http-circe"    % "1.38.2",
-  )
+  ).map(_.cross(CrossVersion.for3Use2_13))
+
   lazy val circeDeps: Seq[ModuleID] = Seq(
     // circe
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser",
   ).map(_ % Versions.circe)
+    .map(_.cross(CrossVersion.for3Use2_13))
 
   lazy val tapirDeps: Seq[ModuleID] = Seq(
     // tapir as server
