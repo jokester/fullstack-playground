@@ -49,6 +49,9 @@ services:
       - 61080:8080
     restart: on-failure
     logging: *log_fluentd
+    depends_on:
+      pgsql:
+        condition: service_started
 
   server-scala-stated:
     image: ghcr.io/jokester/fullstack-playground-server-scala:sha-015e0ea

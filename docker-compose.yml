@@ -46,4 +46,6 @@ services:
     ports:
       - 61080:8080
     restart: on-failure
-
+    depends_on:
+      pgsql:
+        condition: service_started
