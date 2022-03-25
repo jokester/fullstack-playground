@@ -23,7 +23,11 @@ services:
       - log_duration=on
       - -c
       - log_error_verbosity=default # terse / default / debug
-
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 1s
+      timeout: 30s
+      retries: 10
 
   hasura:
     image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
@@ -48,4 +52,4 @@ services:
     restart: on-failure
     depends_on:
       pgsql:
-        condition: service_started
+        condition: service_healthy
