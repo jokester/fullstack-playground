@@ -81,6 +81,37 @@ input String_comparison_exp {
   _similar: String
 }
 
+scalar jsonb
+
+"""
+Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'.
+"""
+input jsonb_comparison_exp {
+  """is the column contained in the given json value"""
+  _contained_in: jsonb
+
+  """does the column contain the given json value at the top level"""
+  _contains: jsonb
+  _eq: jsonb
+  _gt: jsonb
+  _gte: jsonb
+
+  """does the string exist as a top-level key in the column"""
+  _has_key: String
+
+  """do all of these strings exist as top-level keys in the column"""
+  _has_keys_all: [String!]
+
+  """do any of these strings exist as top-level keys in the column"""
+  _has_keys_any: [String!]
+  _in: [jsonb!]
+  _is_null: Boolean
+  _lt: jsonb
+  _lte: jsonb
+  _neq: jsonb
+  _nin: [jsonb!]
+}
+
 """mutation root"""
 type mutation_root {
   """
@@ -97,13 +128,39 @@ type mutation_root {
   delete_todos_by_pk(todo_id: Int!): todos
 
   """
+  delete data from the table: "user_todo.user_todos"
+  """
+  delete_user_todo_user_todos(
+    """filter the rows which have to be deleted"""
+    where: user_todo_user_todos_bool_exp!
+  ): user_todo_user_todos_mutation_response
+
+  """
+  delete single row from the table: "user_todo.user_todos"
+  """
+  delete_user_todo_user_todos_by_pk(todo_id: Int!): user_todo_user_todos
+
+  """
+  delete data from the table: "user_todo.users"
+  """
+  delete_user_todo_users(
+    """filter the rows which have to be deleted"""
+    where: user_todo_users_bool_exp!
+  ): user_todo_users_mutation_response
+
+  """
+  delete single row from the table: "user_todo.users"
+  """
+  delete_user_todo_users_by_pk(user_id: Int!): user_todo_users
+
+  """
   insert data into the table: "todos"
   """
   insert_todos(
     """the rows to be inserted"""
     objects: [todos_insert_input!]!
 
-    """on conflict condition"""
+    """upsert condition"""
     on_conflict: todos_on_conflict
   ): todos_mutation_response
 
@@ -114,9 +171,53 @@ type mutation_root {
     """the row to be inserted"""
     object: todos_insert_input!
 
-    """on conflict condition"""
+    """upsert condition"""
     on_conflict: todos_on_conflict
   ): todos
+
+  """
+  insert data into the table: "user_todo.user_todos"
+  """
+  insert_user_todo_user_todos(
+    """the rows to be inserted"""
+    objects: [user_todo_user_todos_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: user_todo_user_todos_on_conflict
+  ): user_todo_user_todos_mutation_response
+
+  """
+  insert a single row into the table: "user_todo.user_todos"
+  """
+  insert_user_todo_user_todos_one(
+    """the row to be inserted"""
+    object: user_todo_user_todos_insert_input!
+
+    """upsert condition"""
+    on_conflict: user_todo_user_todos_on_conflict
+  ): user_todo_user_todos
+
+  """
+  insert data into the table: "user_todo.users"
+  """
+  insert_user_todo_users(
+    """the rows to be inserted"""
+    objects: [user_todo_users_insert_input!]!
+
+    """upsert condition"""
+    on_conflict: user_todo_users_on_conflict
+  ): user_todo_users_mutation_response
+
+  """
+  insert a single row into the table: "user_todo.users"
+  """
+  insert_user_todo_users_one(
+    """the row to be inserted"""
+    object: user_todo_users_insert_input!
+
+    """upsert condition"""
+    on_conflict: user_todo_users_on_conflict
+  ): user_todo_users
 
   """
   update data of the table: "todos"
@@ -143,6 +244,100 @@ type mutation_root {
     _set: todos_set_input
     pk_columns: todos_pk_columns_input!
   ): todos
+
+  """
+  update data of the table: "user_todo.user_todos"
+  """
+  update_user_todo_user_todos(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_todo_user_todos_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_todo_user_todos_set_input
+
+    """filter the rows which have to be updated"""
+    where: user_todo_user_todos_bool_exp!
+  ): user_todo_user_todos_mutation_response
+
+  """
+  update single row of the table: "user_todo.user_todos"
+  """
+  update_user_todo_user_todos_by_pk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_todo_user_todos_inc_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_todo_user_todos_set_input
+    pk_columns: user_todo_user_todos_pk_columns_input!
+  ): user_todo_user_todos
+
+  """
+  update data of the table: "user_todo.users"
+  """
+  update_user_todo_users(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: user_todo_users_append_input
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _delete_at_path: user_todo_users_delete_at_path_input
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _delete_elem: user_todo_users_delete_elem_input
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _delete_key: user_todo_users_delete_key_input
+
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_todo_users_inc_input
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: user_todo_users_prepend_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_todo_users_set_input
+
+    """filter the rows which have to be updated"""
+    where: user_todo_users_bool_exp!
+  ): user_todo_users_mutation_response
+
+  """
+  update single row of the table: "user_todo.users"
+  """
+  update_user_todo_users_by_pk(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: user_todo_users_append_input
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _delete_at_path: user_todo_users_delete_at_path_input
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _delete_elem: user_todo_users_delete_elem_input
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _delete_key: user_todo_users_delete_key_input
+
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: user_todo_users_inc_input
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: user_todo_users_prepend_input
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: user_todo_users_set_input
+    pk_columns: user_todo_users_pk_columns_input!
+  ): user_todo_users
 }
 
 """column ordering options"""
@@ -209,6 +404,94 @@ type query_root {
 
   """fetch data from the table: "todos" using primary key columns"""
   todos_by_pk(todo_id: Int!): todos
+
+  """
+  fetch data from the table: "user_todo.user_todos"
+  """
+  user_todo_user_todos(
+    """distinct select on columns"""
+    distinct_on: [user_todo_user_todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_user_todos_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_user_todos_bool_exp
+  ): [user_todo_user_todos!]!
+
+  """
+  fetch aggregated fields from the table: "user_todo.user_todos"
+  """
+  user_todo_user_todos_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_todo_user_todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_user_todos_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_user_todos_bool_exp
+  ): user_todo_user_todos_aggregate!
+
+  """
+  fetch data from the table: "user_todo.user_todos" using primary key columns
+  """
+  user_todo_user_todos_by_pk(todo_id: Int!): user_todo_user_todos
+
+  """
+  fetch data from the table: "user_todo.users"
+  """
+  user_todo_users(
+    """distinct select on columns"""
+    distinct_on: [user_todo_users_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_users_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_users_bool_exp
+  ): [user_todo_users!]!
+
+  """
+  fetch aggregated fields from the table: "user_todo.users"
+  """
+  user_todo_users_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_todo_users_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_users_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_users_bool_exp
+  ): user_todo_users_aggregate!
+
+  """fetch data from the table: "user_todo.users" using primary key columns"""
+  user_todo_users_by_pk(user_id: Int!): user_todo_users
 }
 
 type subscription_root {
@@ -254,6 +537,94 @@ type subscription_root {
 
   """fetch data from the table: "todos" using primary key columns"""
   todos_by_pk(todo_id: Int!): todos
+
+  """
+  fetch data from the table: "user_todo.user_todos"
+  """
+  user_todo_user_todos(
+    """distinct select on columns"""
+    distinct_on: [user_todo_user_todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_user_todos_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_user_todos_bool_exp
+  ): [user_todo_user_todos!]!
+
+  """
+  fetch aggregated fields from the table: "user_todo.user_todos"
+  """
+  user_todo_user_todos_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_todo_user_todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_user_todos_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_user_todos_bool_exp
+  ): user_todo_user_todos_aggregate!
+
+  """
+  fetch data from the table: "user_todo.user_todos" using primary key columns
+  """
+  user_todo_user_todos_by_pk(todo_id: Int!): user_todo_user_todos
+
+  """
+  fetch data from the table: "user_todo.users"
+  """
+  user_todo_users(
+    """distinct select on columns"""
+    distinct_on: [user_todo_users_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_users_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_users_bool_exp
+  ): [user_todo_users!]!
+
+  """
+  fetch aggregated fields from the table: "user_todo.users"
+  """
+  user_todo_users_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_todo_users_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_users_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_users_bool_exp
+  ): user_todo_users_aggregate!
+
+  """fetch data from the table: "user_todo.users" using primary key columns"""
+  user_todo_users_by_pk(user_id: Int!): user_todo_users
 }
 
 scalar timestamptz
@@ -389,7 +760,7 @@ type todos_mutation_response {
 }
 
 """
-on conflict condition type for table "todos"
+on_conflict condition type for table "todos"
 """
 input todos_on_conflict {
   constraint: todos_constraint!
@@ -503,5 +874,698 @@ type todos_var_samp_fields {
 """aggregate variance on columns"""
 type todos_variance_fields {
   todo_id: Float
+}
+
+"""
+columns and relationships of "user_todo.user_todos"
+"""
+type user_todo_user_todos {
+  created_at: timestamptz!
+  description: String!
+  finished_at: timestamptz
+  title: String!
+  todo_id: Int!
+  updated_at: timestamptz!
+
+  """An object relationship"""
+  user: user_todo_users!
+  user_id: Int!
+}
+
+"""
+aggregated selection of "user_todo.user_todos"
+"""
+type user_todo_user_todos_aggregate {
+  aggregate: user_todo_user_todos_aggregate_fields
+  nodes: [user_todo_user_todos!]!
+}
+
+"""
+aggregate fields of "user_todo.user_todos"
+"""
+type user_todo_user_todos_aggregate_fields {
+  avg: user_todo_user_todos_avg_fields
+  count(columns: [user_todo_user_todos_select_column!], distinct: Boolean): Int!
+  max: user_todo_user_todos_max_fields
+  min: user_todo_user_todos_min_fields
+  stddev: user_todo_user_todos_stddev_fields
+  stddev_pop: user_todo_user_todos_stddev_pop_fields
+  stddev_samp: user_todo_user_todos_stddev_samp_fields
+  sum: user_todo_user_todos_sum_fields
+  var_pop: user_todo_user_todos_var_pop_fields
+  var_samp: user_todo_user_todos_var_samp_fields
+  variance: user_todo_user_todos_variance_fields
+}
+
+"""
+order by aggregate values of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_aggregate_order_by {
+  avg: user_todo_user_todos_avg_order_by
+  count: order_by
+  max: user_todo_user_todos_max_order_by
+  min: user_todo_user_todos_min_order_by
+  stddev: user_todo_user_todos_stddev_order_by
+  stddev_pop: user_todo_user_todos_stddev_pop_order_by
+  stddev_samp: user_todo_user_todos_stddev_samp_order_by
+  sum: user_todo_user_todos_sum_order_by
+  var_pop: user_todo_user_todos_var_pop_order_by
+  var_samp: user_todo_user_todos_var_samp_order_by
+  variance: user_todo_user_todos_variance_order_by
+}
+
+"""
+input type for inserting array relation for remote table "user_todo.user_todos"
+"""
+input user_todo_user_todos_arr_rel_insert_input {
+  data: [user_todo_user_todos_insert_input!]!
+
+  """upsert condition"""
+  on_conflict: user_todo_user_todos_on_conflict
+}
+
+"""aggregate avg on columns"""
+type user_todo_user_todos_avg_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by avg() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_avg_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "user_todo.user_todos". All fields are combined with a logical 'AND'.
+"""
+input user_todo_user_todos_bool_exp {
+  _and: [user_todo_user_todos_bool_exp!]
+  _not: user_todo_user_todos_bool_exp
+  _or: [user_todo_user_todos_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  description: String_comparison_exp
+  finished_at: timestamptz_comparison_exp
+  title: String_comparison_exp
+  todo_id: Int_comparison_exp
+  updated_at: timestamptz_comparison_exp
+  user: user_todo_users_bool_exp
+  user_id: Int_comparison_exp
+}
+
+"""
+unique or primary key constraints on table "user_todo.user_todos"
+"""
+enum user_todo_user_todos_constraint {
+  """unique or primary key constraint"""
+  user_todos_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "user_todo.user_todos"
+"""
+input user_todo_user_todos_inc_input {
+  todo_id: Int
+  user_id: Int
+}
+
+"""
+input type for inserting data into table "user_todo.user_todos"
+"""
+input user_todo_user_todos_insert_input {
+  created_at: timestamptz
+  description: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+  user: user_todo_users_obj_rel_insert_input
+  user_id: Int
+}
+
+"""aggregate max on columns"""
+type user_todo_user_todos_max_fields {
+  created_at: timestamptz
+  description: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+  user_id: Int
+}
+
+"""
+order by max() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_max_order_by {
+  created_at: order_by
+  description: order_by
+  finished_at: order_by
+  title: order_by
+  todo_id: order_by
+  updated_at: order_by
+  user_id: order_by
+}
+
+"""aggregate min on columns"""
+type user_todo_user_todos_min_fields {
+  created_at: timestamptz
+  description: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+  user_id: Int
+}
+
+"""
+order by min() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_min_order_by {
+  created_at: order_by
+  description: order_by
+  finished_at: order_by
+  title: order_by
+  todo_id: order_by
+  updated_at: order_by
+  user_id: order_by
+}
+
+"""
+response of any mutation on the table "user_todo.user_todos"
+"""
+type user_todo_user_todos_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [user_todo_user_todos!]!
+}
+
+"""
+on_conflict condition type for table "user_todo.user_todos"
+"""
+input user_todo_user_todos_on_conflict {
+  constraint: user_todo_user_todos_constraint!
+  update_columns: [user_todo_user_todos_update_column!]! = []
+  where: user_todo_user_todos_bool_exp
+}
+
+"""Ordering options when selecting data from "user_todo.user_todos"."""
+input user_todo_user_todos_order_by {
+  created_at: order_by
+  description: order_by
+  finished_at: order_by
+  title: order_by
+  todo_id: order_by
+  updated_at: order_by
+  user: user_todo_users_order_by
+  user_id: order_by
+}
+
+"""primary key columns input for table: user_todo_user_todos"""
+input user_todo_user_todos_pk_columns_input {
+  todo_id: Int!
+}
+
+"""
+select columns of table "user_todo.user_todos"
+"""
+enum user_todo_user_todos_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  description
+
+  """column name"""
+  finished_at
+
+  """column name"""
+  title
+
+  """column name"""
+  todo_id
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "user_todo.user_todos"
+"""
+input user_todo_user_todos_set_input {
+  created_at: timestamptz
+  description: String
+  finished_at: timestamptz
+  title: String
+  todo_id: Int
+  updated_at: timestamptz
+  user_id: Int
+}
+
+"""aggregate stddev on columns"""
+type user_todo_user_todos_stddev_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by stddev() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_stddev_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""aggregate stddev_pop on columns"""
+type user_todo_user_todos_stddev_pop_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by stddev_pop() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_stddev_pop_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""aggregate stddev_samp on columns"""
+type user_todo_user_todos_stddev_samp_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by stddev_samp() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_stddev_samp_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""aggregate sum on columns"""
+type user_todo_user_todos_sum_fields {
+  todo_id: Int
+  user_id: Int
+}
+
+"""
+order by sum() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_sum_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""
+update columns of table "user_todo.user_todos"
+"""
+enum user_todo_user_todos_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  description
+
+  """column name"""
+  finished_at
+
+  """column name"""
+  title
+
+  """column name"""
+  todo_id
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  user_id
+}
+
+"""aggregate var_pop on columns"""
+type user_todo_user_todos_var_pop_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by var_pop() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_var_pop_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""aggregate var_samp on columns"""
+type user_todo_user_todos_var_samp_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by var_samp() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_var_samp_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""aggregate variance on columns"""
+type user_todo_user_todos_variance_fields {
+  todo_id: Float
+  user_id: Float
+}
+
+"""
+order by variance() on columns of table "user_todo.user_todos"
+"""
+input user_todo_user_todos_variance_order_by {
+  todo_id: order_by
+  user_id: order_by
+}
+
+"""
+columns and relationships of "user_todo.users"
+"""
+type user_todo_users {
+  created_at: timestamptz!
+  email: String!
+  password_hash: String!
+  profile(
+    """JSON select path"""
+    path: String
+  ): jsonb!
+  updated_at: timestamptz!
+  user_id: Int!
+
+  """An array relationship"""
+  user_todos(
+    """distinct select on columns"""
+    distinct_on: [user_todo_user_todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_user_todos_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_user_todos_bool_exp
+  ): [user_todo_user_todos!]!
+
+  """An aggregate relationship"""
+  user_todos_aggregate(
+    """distinct select on columns"""
+    distinct_on: [user_todo_user_todos_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [user_todo_user_todos_order_by!]
+
+    """filter the rows returned"""
+    where: user_todo_user_todos_bool_exp
+  ): user_todo_user_todos_aggregate!
+}
+
+"""
+aggregated selection of "user_todo.users"
+"""
+type user_todo_users_aggregate {
+  aggregate: user_todo_users_aggregate_fields
+  nodes: [user_todo_users!]!
+}
+
+"""
+aggregate fields of "user_todo.users"
+"""
+type user_todo_users_aggregate_fields {
+  avg: user_todo_users_avg_fields
+  count(columns: [user_todo_users_select_column!], distinct: Boolean): Int!
+  max: user_todo_users_max_fields
+  min: user_todo_users_min_fields
+  stddev: user_todo_users_stddev_fields
+  stddev_pop: user_todo_users_stddev_pop_fields
+  stddev_samp: user_todo_users_stddev_samp_fields
+  sum: user_todo_users_sum_fields
+  var_pop: user_todo_users_var_pop_fields
+  var_samp: user_todo_users_var_samp_fields
+  variance: user_todo_users_variance_fields
+}
+
+"""append existing jsonb value of filtered columns with new jsonb value"""
+input user_todo_users_append_input {
+  profile: jsonb
+}
+
+"""aggregate avg on columns"""
+type user_todo_users_avg_fields {
+  user_id: Float
+}
+
+"""
+Boolean expression to filter rows from the table "user_todo.users". All fields are combined with a logical 'AND'.
+"""
+input user_todo_users_bool_exp {
+  _and: [user_todo_users_bool_exp!]
+  _not: user_todo_users_bool_exp
+  _or: [user_todo_users_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  email: String_comparison_exp
+  password_hash: String_comparison_exp
+  profile: jsonb_comparison_exp
+  updated_at: timestamptz_comparison_exp
+  user_id: Int_comparison_exp
+  user_todos: user_todo_user_todos_bool_exp
+}
+
+"""
+unique or primary key constraints on table "user_todo.users"
+"""
+enum user_todo_users_constraint {
+  """unique or primary key constraint"""
+  users_email_key
+
+  """unique or primary key constraint"""
+  users_pkey
+}
+
+"""
+delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+"""
+input user_todo_users_delete_at_path_input {
+  profile: [String!]
+}
+
+"""
+delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+"""
+input user_todo_users_delete_elem_input {
+  profile: Int
+}
+
+"""
+delete key/value pair or string element. key/value pairs are matched based on their key value
+"""
+input user_todo_users_delete_key_input {
+  profile: String
+}
+
+"""
+input type for incrementing numeric columns in table "user_todo.users"
+"""
+input user_todo_users_inc_input {
+  user_id: Int
+}
+
+"""
+input type for inserting data into table "user_todo.users"
+"""
+input user_todo_users_insert_input {
+  created_at: timestamptz
+  email: String
+  password_hash: String
+  profile: jsonb
+  updated_at: timestamptz
+  user_id: Int
+  user_todos: user_todo_user_todos_arr_rel_insert_input
+}
+
+"""aggregate max on columns"""
+type user_todo_users_max_fields {
+  created_at: timestamptz
+  email: String
+  password_hash: String
+  updated_at: timestamptz
+  user_id: Int
+}
+
+"""aggregate min on columns"""
+type user_todo_users_min_fields {
+  created_at: timestamptz
+  email: String
+  password_hash: String
+  updated_at: timestamptz
+  user_id: Int
+}
+
+"""
+response of any mutation on the table "user_todo.users"
+"""
+type user_todo_users_mutation_response {
+  """number of rows affected by the mutation"""
+  affected_rows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [user_todo_users!]!
+}
+
+"""
+input type for inserting object relation for remote table "user_todo.users"
+"""
+input user_todo_users_obj_rel_insert_input {
+  data: user_todo_users_insert_input!
+
+  """upsert condition"""
+  on_conflict: user_todo_users_on_conflict
+}
+
+"""
+on_conflict condition type for table "user_todo.users"
+"""
+input user_todo_users_on_conflict {
+  constraint: user_todo_users_constraint!
+  update_columns: [user_todo_users_update_column!]! = []
+  where: user_todo_users_bool_exp
+}
+
+"""Ordering options when selecting data from "user_todo.users"."""
+input user_todo_users_order_by {
+  created_at: order_by
+  email: order_by
+  password_hash: order_by
+  profile: order_by
+  updated_at: order_by
+  user_id: order_by
+  user_todos_aggregate: user_todo_user_todos_aggregate_order_by
+}
+
+"""primary key columns input for table: user_todo_users"""
+input user_todo_users_pk_columns_input {
+  user_id: Int!
+}
+
+"""prepend existing jsonb value of filtered columns with new jsonb value"""
+input user_todo_users_prepend_input {
+  profile: jsonb
+}
+
+"""
+select columns of table "user_todo.users"
+"""
+enum user_todo_users_select_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  email
+
+  """column name"""
+  password_hash
+
+  """column name"""
+  profile
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  user_id
+}
+
+"""
+input type for updating data in table "user_todo.users"
+"""
+input user_todo_users_set_input {
+  created_at: timestamptz
+  email: String
+  password_hash: String
+  profile: jsonb
+  updated_at: timestamptz
+  user_id: Int
+}
+
+"""aggregate stddev on columns"""
+type user_todo_users_stddev_fields {
+  user_id: Float
+}
+
+"""aggregate stddev_pop on columns"""
+type user_todo_users_stddev_pop_fields {
+  user_id: Float
+}
+
+"""aggregate stddev_samp on columns"""
+type user_todo_users_stddev_samp_fields {
+  user_id: Float
+}
+
+"""aggregate sum on columns"""
+type user_todo_users_sum_fields {
+  user_id: Int
+}
+
+"""
+update columns of table "user_todo.users"
+"""
+enum user_todo_users_update_column {
+  """column name"""
+  created_at
+
+  """column name"""
+  email
+
+  """column name"""
+  password_hash
+
+  """column name"""
+  profile
+
+  """column name"""
+  updated_at
+
+  """column name"""
+  user_id
+}
+
+"""aggregate var_pop on columns"""
+type user_todo_users_var_pop_fields {
+  user_id: Float
+}
+
+"""aggregate var_samp on columns"""
+type user_todo_users_var_samp_fields {
+  user_id: Float
+}
+
+"""aggregate variance on columns"""
+type user_todo_users_variance_fields {
+  user_id: Float
 }
 
