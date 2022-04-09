@@ -13,6 +13,11 @@ services:
     ports:
       - 61432:5432
     restart: on-failure
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 1s
+      timeout: 30s
+      retries: 10
     logging: &log_fluentd
       driver: fluentd
       options:
@@ -22,8 +27,7 @@ services:
         tag: container-{{.Name}}-{{.ID}}
 
   hasura:
-    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
-    # image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
+    image: hasura/graphql-engine:v2.4.0.cli-migrations-v3
     # image: spaster/alpine-sleep  # override to disable hasura
     command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
       - graphql-engine
@@ -51,7 +55,7 @@ services:
     logging: *log_fluentd
     depends_on:
       pgsql:
-        condition: service_started
+        condition: service_healthy
 
   server-scala-stated:
     image: ghcr.io/jokester/fullstack-playground-server-scala:sha-015e0ea

@@ -30,8 +30,7 @@ services:
       retries: 10
 
   hasura:
-    image: hasura/graphql-engine:v2.0.10.cli-migrations-v3
-    # image: fedormelexin/graphql-engine-arm64:v2.0.10.cli-migrations-v3 # for ARM64
+    image: hasura/graphql-engine:v2.4.0.cli-migrations-v3
     # image: spaster/alpine-sleep  # override to disable hasura
     command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
       - graphql-engine
