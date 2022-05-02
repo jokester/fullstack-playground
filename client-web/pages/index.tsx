@@ -24,6 +24,12 @@ const IndexPage: React.FC = () => {
             TodoList
           </LinkA>
         </p>
+        <p>
+          Demo app: &nbsp;
+          <LinkA href="/todo-v2" className="underline">
+            User Todo List
+          </LinkA>
+        </p>
       </div>
     </div>
   );
