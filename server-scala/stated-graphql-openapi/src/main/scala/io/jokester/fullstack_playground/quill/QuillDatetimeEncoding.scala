@@ -15,7 +15,7 @@ trait QuillDatetimeEncoding2 extends LazyLogging {
   private val pgTimestampUtils = new TimestampUtils(true, () => TimeZone.getTimeZone("UTC"))
   protected val _quillContext: QuillContextFactory.PublicCtx
   implicit val offsetDatetimeDecoder: MappedEncoding[String, OffsetDateTime] = {
-    MappedEncoding[String, OffsetDateTime](pgTimestampUtils.toOffsetDateTime)
+    MappedEncoding[String, OffsetDateTime](str => pgTimestampUtils.toOffsetDateTime(str, true))
   }
   implicit val offsetDatetimeEncoder: MappedEncoding[OffsetDateTime, Object] = {
     MappedEncoding[OffsetDateTime, Object](pgTimestampUtils.toString)
