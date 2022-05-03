@@ -9,7 +9,7 @@ import io.jokester.fullstack_playground.todolist_api.{
   TodoApiAkkaBinding,
   TodoApiMemoryImpl,
 }
-import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi
+import io.jokester.fullstack_playground.user_todolist_api.{UserTodoApi, UserTodoServiceQuillImpl, UserTodoApiAkkaBinding}
 import io.jokester.fullstack_playground.utils.akka_http.AkkaHttpServer
 
 import java.nio.file.{Files, Path}
@@ -26,19 +26,29 @@ object StatedMain extends App with LazyLogging {
       val ctx        = QuillContextFactory.createPublicContext("database.default")
       val quillImpl  = new TodoApiQuillImpl(ctx)
       val memoryImpl = new TodoApiMemoryImpl()
+
+      val ctx2        = QuillContextFactory.createUserTodoContext("database.default")
+      val quillImpl2 = new UserTodoServiceQuillImpl(ctx2)
       AkkaHttpServer
         .listenWithNewSystem(actorSystem => {
           implicit val ec: ExecutionContext = actorSystem.executionContext
-          val rootRoute = concat(
-            pathPrefix("stated-openapi") {
+          val todoApiRoute = concat(
+            pathPrefix("stated-openapi/todo") {
               TodoApiAkkaBinding.buildTodoApiRoute(quillImpl)
             },
-            pathPrefix("stateless-openapi") {
+            pathPrefix("stateless-openapi/todo") {
               TodoApiAkkaBinding.buildTodoApiRoute(memoryImpl)
             },
           )
+
+          val userTodoApiRoute = concat(
+            pathPrefix("stated-openapi/user_todo") {
+              UserTodoApiAkkaBinding.buildRoute(quillImpl2)
+            }
+          )
+
           (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging) {
-            rootRoute
+            concat( todoApiRoute, userTodoApiRoute )
           }
         })
         .andThen(_ => {
