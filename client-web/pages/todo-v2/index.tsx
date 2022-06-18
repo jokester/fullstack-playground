@@ -1,9 +1,10 @@
 import React from 'react';
 import { Tabs, TabList, TabPanels, Tab, TabPanel, Heading } from '@chakra-ui/react';
 import { UserTodoApp } from '../../src/todo-app-v2/user-todo-app';
-import { inServer } from '../../src/config/build-env';
+import { useInServer } from '../../src/utils/hooks/use-in-server';
 
 const TodoListPage: React.FC = () => {
+  const inServer = useInServer();
   return (
     <div>
       <Heading className="mx-auto">

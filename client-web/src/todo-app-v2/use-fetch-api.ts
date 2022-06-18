@@ -6,7 +6,9 @@ import { useEffect, useState } from 'react';
 
 const apiP: Promise<DefaultApi> = inServer
   ? Never
-  : import('./generated').then((_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080` })));
+  : import('./generated').then(
+      (_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080/stated-openapi` })),
+    );
 
 function readAuth(): null | LoginResponse {
   if (inServer) return null;

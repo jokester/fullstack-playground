@@ -5,6 +5,9 @@ declare const process: {
 };
 
 export const inBrowser = typeof window !== 'undefined';
+/**
+ * @deprecated prefer {@name useInServer} to prevent SSR mismatches
+ */
 export const inServer = !inBrowser;
 
 export const isDevBuild = Boolean(process.env.NEXT_DEV);

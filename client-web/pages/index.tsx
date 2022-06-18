@@ -7,7 +7,7 @@ const IndexPage: React.FC = () => {
     <div>
       <div className="max-w-screen-sm mx-auto py-4 space-y-2">
         <p>
-          Demo Client for{' '}
+          Demo Client for
           <LinkA href="https://github.com/jokester/fullstack-playground">
             <span className="underline">https://github.com/jokester/fullstack-playground</span> <FaIcon icon="github" />
           </LinkA>
