@@ -38,16 +38,19 @@ object StatedMain extends App with LazyLogging {
         .listenWithNewSystem(actorSystem => {
           implicit val ec: ExecutionContext = actorSystem.executionContext
           val todoApiRoute = concat(
-            pathPrefix("stated-openapi/todo") {
+            pathPrefix("stated-openapi") {
+              // under "todos" prefix
               TodoApiAkkaBinding.buildTodoApiRoute(quillImpl)
             },
-            pathPrefix("stateless-openapi/todo") {
+            pathPrefix("stateless-openapi") {
+              // under "todos" prefix
               TodoApiAkkaBinding.buildTodoApiRoute(memoryImpl)
             },
           )
 
           val userTodoApiRoute = concat(
-            pathPrefix("stated-openapi/user_todo") {
+            pathPrefix("stated-openapi") {
+              // under "user_todos" prefix
               UserTodoApiAkkaBinding.buildRoute(userTodoSvc)
             },
           )
