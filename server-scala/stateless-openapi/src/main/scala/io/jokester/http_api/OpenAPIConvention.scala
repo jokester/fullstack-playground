@@ -9,6 +9,7 @@ import sttp.tapir._
 import cats.syntax.either._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 object OpenAPIConvention {
   sealed trait ApiError extends Throwable

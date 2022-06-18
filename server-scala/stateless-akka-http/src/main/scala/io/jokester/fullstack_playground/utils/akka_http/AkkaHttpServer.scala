@@ -4,13 +4,8 @@ import akka.actor.typed.ActorSystem
 import akka.actor.{ActorSystem => UntypedActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse}
-import akka.http.scaladsl.server.Directives.{
-  extractActorSystem,
-  extractLog,
-  extractRequest,
-  logResult,
-}
+import akka.http.scaladsl.model.{HttpEntity, HttpMethods, HttpResponse, StatusCodes}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.LoggingMagnet
 import akka.http.scaladsl.server.{Directive0, Route, RouteResult}
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
@@ -68,7 +63,7 @@ object AkkaHttpServer extends LazyLogging {
       .bind(rootRoute)
       .map(_.addToCoordinatedShutdown(10.seconds))
       .map(server => {
-        logger.debug(s"Server online at http://$bindInterface:$bindPort/")
+        logger.info(s"Server online at http://$bindInterface:$bindPort/")
         server
       })
 
@@ -78,7 +73,7 @@ object AkkaHttpServer extends LazyLogging {
       unbound    <- bound.unbind();
       terminated <- untypedSystem.terminate()
     ) yield {
-      logger.debug("ActorSystem terminated: {}", terminated)
+      logger.info("ActorSystem terminated: {}", terminated)
       ()
     }
   }
@@ -119,6 +114,15 @@ object AkkaHttpServer extends LazyLogging {
           ),
       ),
     )
+  }
+
+  def fallback404Route: Route = {
+    (get | options | post | delete | put | patch) {
+      (extractRequest & extractLog)((req, logger) => {
+        logger.info("unhandled 404 route {} {}", req.method.value, req.uri.path)
+        complete(HttpResponse(status = StatusCodes.NotFound, entity = HttpEntity("not found")))
+      })
+    }
   }
 
   def waitKeyboardInterrupt()(implicit executionContext: ExecutionContext): Future[Unit] =

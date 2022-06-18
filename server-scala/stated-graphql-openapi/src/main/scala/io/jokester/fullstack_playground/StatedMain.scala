@@ -1,15 +1,18 @@
 package io.jokester.fullstack_playground
 
-import akka.http.scaladsl.server.Directives.pathPrefix
-import akka.http.scaladsl.server.Directives.concat
+import akka.http.scaladsl.server.Directives._
 import com.typesafe.scalalogging.LazyLogging
 import io.jokester.fullstack_playground.quill.QuillContextFactory
 import io.jokester.fullstack_playground.todolist_api.{
-  TodoApiQuillImpl,
   TodoApiAkkaBinding,
   TodoApiMemoryImpl,
+  TodoApiQuillImpl,
 }
-import io.jokester.fullstack_playground.user_todolist_api.{UserTodoApi, UserTodoServiceQuillImpl, UserTodoApiAkkaBinding}
+import io.jokester.fullstack_playground.user_todolist_api.{
+  UserTodoApi,
+  UserTodoApiAkkaBinding,
+  UserTodoServiceQuillImpl,
+}
 import io.jokester.fullstack_playground.utils.akka_http.AkkaHttpServer
 
 import java.nio.file.{Files, Path}
@@ -23,12 +26,14 @@ object StatedMain extends App with LazyLogging {
       Files.writeString(Path.of(yamlPath), UserTodoApi.asOpenAPIYaml)
 
     case Array("server") =>
-      val ctx        = QuillContextFactory.createPublicContext("database.default")
-      val quillImpl  = new TodoApiQuillImpl(ctx)
+      val publicCtx = QuillContextFactory.createPublicContext("database.default")
+
+      val userTodoCtx = QuillContextFactory.createUserTodoContext("database.default")
+      val userTodoSvc = new UserTodoServiceQuillImpl(userTodoCtx)
+
+      val quillImpl  = new TodoApiQuillImpl(publicCtx)
       val memoryImpl = new TodoApiMemoryImpl()
 
-      val ctx2        = QuillContextFactory.createUserTodoContext("database.default")
-      val quillImpl2 = new UserTodoServiceQuillImpl(ctx2)
       AkkaHttpServer
         .listenWithNewSystem(actorSystem => {
           implicit val ec: ExecutionContext = actorSystem.executionContext
@@ -43,18 +48,19 @@ object StatedMain extends App with LazyLogging {
 
           val userTodoApiRoute = concat(
             pathPrefix("stated-openapi/user_todo") {
-              UserTodoApiAkkaBinding.buildRoute(quillImpl2)
-            }
+              UserTodoApiAkkaBinding.buildRoute(userTodoSvc)
+            },
           )
 
           (AkkaHttpServer.withCors & AkkaHttpServer.withRequestLogging) {
-            concat( todoApiRoute, userTodoApiRoute )
+            concat(todoApiRoute, userTodoApiRoute, AkkaHttpServer.fallback404Route)
           }
         })
         .andThen(_ => {
-          logger.info("QuillCtx closing")
-          ctx.close()
-          logger.info("QuillCtx closed")
+          logger.info("closing DB conn")
+          publicCtx.close()
+          userTodoCtx.close()
+          logger.info("closed DB conn")
         })(scala.concurrent.ExecutionContext.global)
 
     case _ =>
