@@ -3,7 +3,8 @@ import sbt._
 object Dependencies {
   lazy val basicDeps: Seq[ModuleID] = Seq(
     // logging
-    "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.4",
+    "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.5",
+    "org.slf4j"                   % "jcl-over-slf4j"  % "1.7.36",
     "org.slf4j"                   % "slf4j-api"       % "1.7.36",
     "ch.qos.logback"              % "logback-classic" % "1.3.0-alpha10", // this provides SLF4J backend
      "commons-logging" % "commons-logging" % "1.2",
