@@ -2,5 +2,14 @@
 apis/DefaultApi.ts
 apis/index.ts
 index.ts
+models/BadRequest.ts
+models/CreateTodoIntent.ts
+models/Forbidden.ts
+models/NotFound.ts
+models/NotImplemented.ts
+models/ServerError.ts
+models/Todo.ts
+models/TodoList.ts
+models/Unauthorized.ts
 models/index.ts
 runtime.ts
