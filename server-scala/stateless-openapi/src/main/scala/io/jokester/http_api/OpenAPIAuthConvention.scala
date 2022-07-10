@@ -3,9 +3,11 @@ package io.jokester.http_api
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.syntax._
+import cats.syntax.either._
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 
 import java.time.Instant
+import scala.concurrent.Future
 import scala.util.{Success, Try}
 
 object OpenAPIAuthConvention {
@@ -24,41 +26,64 @@ object OpenAPIAuthConvention {
   /**
     * payload to encode into JWT
     */
-  case class AccessTokenPayload(userId: Int, tokenType: String)
+  final case class BearerTokenPayload(userId: Int, tokenType: String) {
+    def assertTokenType(expected: String): Failable[BearerTokenPayload] = {
+      if (tokenType == expected) this.asRight
+      else OpenAPIConvention.BadRequest("invalid token type").asLeft
+    }
+    def assertUserId(expectedUserId: Int): Failable[UserId] =
+      if (userId == expectedUserId) UserId(userId).asRight
+      else OpenAPIConvention.BadRequest("invalid userId").asLeft
+  }
   case class RefreshTokenPayload(userId: Int, tokenType: String)
 
   trait JwtHelper {
-    self: Lifters =>
+
+    def decodeAccessToken(t: TaintedToken): Failable[BearerTokenPayload] = {
+      decodeBearerToken(t)
+        .filterOrElse(_.tokenType == "accessToken", BadRequest("invalid token type"))
+    }
+
+    def decodeBearerToken(t: TaintedToken): Failable[BearerTokenPayload] =
+      decodeValidPayload[BearerTokenPayload](t.value) match {
+        case Success(value)
+            if value.tokenType == "accessToken" || value.tokenType == "refreshToken" =>
+          value.asRight
+        case _ => Unauthorized("Invalid jwt token").asLeft
+      }
 
     def jwtSecret: String
 
     def signAccessToken(userId: Int): String =
-      signToken(AccessTokenPayload(userId = userId, tokenType = "accessToken"), expireIn = 600)
+      signToken(BearerTokenPayload(userId, tokenType = "accessToken"), expireIn = 600)
     def signRefreshToken(userId: Int): String =
       signToken(
-        RefreshTokenPayload(userId = userId, tokenType = "refreshToken"),
+        BearerTokenPayload(userId = userId, tokenType = "refreshToken"),
         expireIn = 3600 * 24 * 7,
       )
 
     def validateAccessToken(
+        tokenPayload: BearerTokenPayload,
+        expectedUserId: Int,
+        expectedTokenType: String = "accessToken",
+    ): Failable[UserId] = {
+      tokenPayload
+        .assertTokenType(expectedTokenType)
+        .flatMap(_.assertUserId(expectedUserId))
+    }
+
+    /**
+      * @deprecated
+      */
+    def validateAccessToken(
         token: TaintedToken,
         expectedUserId: Int,
-    ): Failable[UserId] =
-      decodeValidPayload[AccessTokenPayload](token.value) match {
-        case Success(value) if value.tokenType == "accessToken" && value.userId == expectedUserId =>
-          liftSuccess(UserId(value.userId))
-        case Success(value) => liftError(Unauthorized("accessToken unmatched"))
-        case _              => liftError(Unauthorized("invalid jwt token"))
-      }
-
-    def validateRefreshToken(
-        token: TaintedToken,
-    ): Failable[UserId] =
-      decodeValidPayload[RefreshTokenPayload](token.value) match {
-        case Success(value) if (value.tokenType == "refreshToken") =>
-          liftSuccess(UserId(value.userId))
-        case _ => liftError(Unauthorized("invalid jwt token"))
-      }
+    ): Failable[UserId] = {
+      for (
+        t <- decodeBearerToken(token);
+        u <- validateAccessToken(t, expectedUserId)
+      ) yield u
+    }
 
     private def now: Long = Instant.now().getEpochSecond
 

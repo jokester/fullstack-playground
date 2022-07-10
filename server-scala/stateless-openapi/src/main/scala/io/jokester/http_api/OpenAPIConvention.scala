@@ -29,55 +29,29 @@ object OpenAPIConvention {
 
   val defaultErrorOutputMapping: EndpointOutput[ApiError] =
     oneOf[ApiError](
-      oneOfMapping(
+      oneOfVariant(
         StatusCode.Unauthorized,
         jsonBody[Unauthorized].description("login required"),
       ),
-      oneOfMapping(StatusCode.NotFound, jsonBody[NotFound].description("resource not found")),
-      oneOfMapping(
+      oneOfVariant(StatusCode.NotFound, jsonBody[NotFound].description("resource not found")),
+      oneOfVariant(
         StatusCode.Forbidden,
         jsonBody[Forbidden].description("user identity known but action not permitted"),
       ),
-      oneOfMapping(
+      oneOfVariant(
         StatusCode.BadRequest,
         jsonBody[BadRequest].description("client's bad in general"),
       ),
-      oneOfMapping(
+      oneOfVariant(
         StatusCode.NotImplemented,
         jsonBody[NotImplemented].description("not implemented"),
       ),
-      oneOfDefaultMapping(jsonBody[ServerError].description("server's bad in general")),
+      oneOfVariant(jsonBody[ServerError].description("server's bad in general")),
     )
 
   type ApiResultSync[T] = Either[ApiError, T]
   type ApiResult[T]     = Future[Either[ApiError, T]]
 
-  case class Failable[A](asFuture: ApiResult[A]) extends AnyVal {
-
-    def map[B](t: A => B)(implicit ec: ExecutionContext): Failable[B] = {
-      Failable(asFuture.map(either => either.map(t)))
-    }
-    def flatMap[B](t: A => Failable[B])(implicit ec: ExecutionContext): Failable[B] = {
-      Failable(asFuture.flatMap({
-        case Right(value) => t(value).asFuture
-        case Left(l)      => Future.successful(l.asLeft)
-      }))
-    }
-  }
-
-  object Failable {
-    implicit def toFuture[A](f: Failable[A]): ApiResult[A] = f.asFuture
-  }
-
-  trait Lifters {
-//    type Failable[T] = ApiResult[T]
-
-    def liftResult[T](t: ApiResultSync[T]): Failable[T] = Failable(Future.successful(t))
-    def liftSuccess[T](t: T): Failable[T]               = Failable(Future.successful(Right(t)))
-    def liftError[A](r: ApiError): Failable[A]          = Failable(Future.successful(Left(r)))
-
-    def mapInner[T, A](i: ApiResult[T], f: T => A)(implicit ec: ExecutionContext): ApiResult[A] = {
-      i.map(resultSync => resultSync.map(f))
-    }
-  }
+  type Failable[A] = Either[ApiError, A]
+  type FailableP[A] = Future[Either[ApiError, A]]
 }

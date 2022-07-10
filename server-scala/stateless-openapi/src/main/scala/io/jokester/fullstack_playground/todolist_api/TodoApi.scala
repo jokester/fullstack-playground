@@ -48,13 +48,13 @@ object TodoApi {
   case class TodoList(todos: Seq[Todo])
 
   object endpoints {
-    val listTodo: Endpoint[Unit, ApiError, TodoList, Any] = basePath.get
+    val listTodo: PublicEndpoint[Unit, ApiError, TodoList, Any] = basePath.get
       .out(statusCode(StatusCode.Ok))
       .out(jsonBody[TodoList])
       .name("list TODO")
       .description("get list of TODOs")
 
-    val showTodo: Endpoint[Int, ApiError, Todo, Any] =
+    val showTodo: Endpoint[Unit, Int, ApiError, Todo, Any] =
       basePath.get
         .in(path[Int]("todoId"))
         .out(statusCode(StatusCode.Ok))
@@ -62,14 +62,14 @@ object TodoApi {
         .name("show TODO")
         .description("get TODO by id")
 
-    val createTodo: Endpoint[CreateTodoIntent, ApiError, Todo, Any] = basePath.post
+    val createTodo: Endpoint[Unit, CreateTodoIntent, ApiError, Todo, Any] = basePath.post
       .in(jsonBody[CreateTodoIntent])
       .out(statusCode(StatusCode.Created))
       .out(jsonBody[Todo])
       .name("create TODO")
       .description("create TODO item")
 
-    val updateTodo: Endpoint[(Int, Todo), ApiError, Todo, Any] =
+    val updateTodo: Endpoint[Unit, (Int, Todo), ApiError, Todo, Any] =
       basePath.patch
         .in(path[Int]("todoId"))
         .in(jsonBody[Todo])
@@ -78,7 +78,7 @@ object TodoApi {
         .name("update TODO")
         .description("update todoItem")
 
-    val deleteTodo: Endpoint[Int, ApiError, Unit, Any] =
+    val deleteTodo: Endpoint[Unit, Int, ApiError, Unit, Any] =
       basePath.delete
         .in(path[Int]("todoId"))
         .out(statusCode(StatusCode.Ok))

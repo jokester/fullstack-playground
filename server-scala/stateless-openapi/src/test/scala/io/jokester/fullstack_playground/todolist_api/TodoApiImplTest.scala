@@ -18,7 +18,7 @@ trait TodoApiImplTest
   def testee: TodoApiService
   "testee" should "CRUD" in { // C
     val list1   = testee.list().right.value.todos
-    val created = testee.create(CreateTodoIntent("title", "desc")).asFuture.futureValue.right.value
+    val created = testee.create(CreateTodoIntent("title", "desc")).value
     list1 should not.contain(created)
 
     val list2 = testee.list().right.value.todos

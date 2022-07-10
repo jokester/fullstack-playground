@@ -2,13 +2,17 @@ package io.jokester.fullstack_playground.user_todolist_api
 
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi.CreateTodoResponse
 import io.jokester.http_api.OpenAPIAuthConvention.UserId
-import io.jokester.http_api.OpenAPIConvention.Failable
 import UserTodoApi._
+import io.jokester.http_api.OpenAPIConvention
+
+import scala.concurrent.Future
 
 /**
   * Auth-agnostic part
   */
 trait UserTodoService {
+  type Failable[A] = Either[OpenAPIConvention.ApiError, A]
+  type FailableP[A] = Future[Failable[A]]
 
   // user / auth
   def createUser(req: CreateUserRequest): Failable[UserAccount]

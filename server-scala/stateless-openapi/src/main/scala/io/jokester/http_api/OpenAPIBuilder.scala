@@ -5,7 +5,7 @@ import sttp.tapir.openapi.OpenAPI
 
 object OpenAPIBuilder {
   def buildOpenApi(
-      endpoints: Seq[Endpoint[_, _, _, _]],
+      endpoints: Seq[Endpoint[_, _, _, _, _]],
       title: String,
       version: String,
   ): OpenAPI = {
@@ -14,7 +14,7 @@ object OpenAPIBuilder {
   }
 
   def buildOpenApiYaml(
-      endpoints: Seq[Endpoint[_, _, _, _]],
+      endpoints: Seq[Endpoint[_, _, _, _, _]],
       title: String,
       version: String,
   ): String = {

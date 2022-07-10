@@ -8,8 +8,8 @@ import io.jokester.http_api.OpenAPIConvention._
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
-import scala.concurrent.ExecutionContext
-import scala.language.implicitConversions
+import scala.concurrent.{ExecutionContext, Future}
+import scala.language.{existentials, implicitConversions}
 
 object UserTodoApiAkkaBinding {
 
@@ -25,70 +25,131 @@ object UserTodoApiAkkaBinding {
 }
 private class RouteBuilder(impl: UserTodoService, override val jwtSecret: String)(implicit
     ec: ExecutionContext,
-) extends JwtHelper
-    with Lifters {
+) extends JwtHelper {
   private val interpreter = AkkaHttpServerInterpreter()
 
-  def buildRoute: Route = {
-
-    concat(
-      interpreter.toRoute(endpoints.createUser)(req => impl.createUser(req)),
-      interpreter.toRoute(endpoints.login)(req =>
-        for (authedAccount <- impl.loginUser(req))
-          yield AuthSuccess(
-            userId = authedAccount.userId,
-            profile = authedAccount.profile,
-            accessToken = signAccessToken(authedAccount.userId),
-            refreshToken = signRefreshToken(authedAccount.userId),
+  def buildRoute: Route =
+    interpreter.toRoute(
+      List(
+        endpoints.createTodo
+          .serverSecurityLogicPure(decodeAccessToken)
+          .serverLogic(accessToken =>
+            req =>
+              Future {
+                val (providedUid, payload) = req
+                for (
+                  uid     <- validateAccessToken(accessToken, providedUid);
+                  created <- impl.createTodo(uid, payload)
+                ) yield created
+              },
           ),
       ),
-      interpreter.toRoute(endpoints.refreshToken)(req => {
-        for (
-          userId        <- validateRefreshToken(req);
-          authedAccount <- impl.showUser(userId)
-        )
-          yield AuthSuccess(
-            userId = authedAccount.userId,
-            profile = authedAccount.profile,
-            accessToken = signAccessToken(authedAccount.userId),
-            refreshToken = signRefreshToken(authedAccount.userId),
-          )
-      }),
-      interpreter.toRoute(endpoints.updateUserProfile)(params => {
-        val (accessToken, userId, newProfile) = params
-
-        for (
-          user    <- validateAccessToken(accessToken, userId);
-          updated <- impl.updateProfile(user, newProfile)
-        ) yield updated
-      }),
-      interpreter.toRoute(endpoints.createTodo)(params => {
-        val (accessToken, userId, req) = params
-        for (
-          user    <- validateAccessToken(accessToken, userId);
-          created <- impl.createTodo(user, req)
-        ) yield created
-      }),
-      interpreter.toRoute(endpoints.updateTodo)(params => {
-        val (accessToken, userId, todoId, newTodo) = params
-        for (
-          user    <- validateAccessToken(accessToken, userId);
-          created <- impl.updateTodo(user, newTodo)
-        ) yield created
-      }),
-      interpreter.toRoute(endpoints.deleteTodo)(params => {
-        val (accessToken, userId, todoId) = params
-        for (
-          user    <- validateAccessToken(accessToken, userId);
-          created <- impl.deleteTodo(user, todoId)
-        ) yield ()
-      }),
-      interpreter.toRoute(endpoints.listTodo)(params => {
-        val (accessToken, userId) = params
-        for (user <- validateAccessToken(accessToken, userId); list <- impl.listTodo(user))
-          yield list
-      }),
     )
-  }
 
+  def buildPublicRoute: Route =
+    interpreter.toRoute(
+      List(
+        endpoints.createUser.serverLogic(req => Future(impl.createUser(req))),
+        endpoints.login.serverLogic(req =>
+          Future {
+            for (authedAccount <- impl.loginUser(req))
+              yield AuthSuccess(
+                userId = authedAccount.userId,
+                profile = authedAccount.profile,
+                accessToken = signAccessToken(authedAccount.userId),
+                refreshToken = signRefreshToken(authedAccount.userId),
+              )
+          },
+        ),
+      ),
+    )
+
+  def buildAuthedUserRoute: Route =
+    interpreter.toRoute(
+      List(
+        endpoints.updateUserProfile
+          .serverSecurityLogicPure(decodeAccessToken)
+          .serverLogic(accessToken =>
+            req =>
+              Future {
+                val (providedUid, payload) = req
+                for (
+                  uid     <- validateAccessToken(accessToken, providedUid);
+                  updated <- impl.updateProfile(uid, payload)
+                ) yield updated
+              },
+          ),
+        endpoints.refreshToken
+          .serverSecurityLogicPure(decodeBearerToken)
+          .serverLogic(token =>
+            req => {
+              Future {
+                for (
+                  authedAccount <- impl.showUser(UserId(token.userId)))
+                  yield AuthSuccess(
+                    userId = authedAccount.userId,
+                    profile = authedAccount.profile,
+                    accessToken = signAccessToken(authedAccount.userId),
+                    refreshToken = signRefreshToken(authedAccount.userId),
+                  )
+              }
+
+            },
+          ),
+      ),
+    )
+
+  def buildAuthedTodoRoute: Route =
+    interpreter.toRoute(
+      List(
+        endpoints.listTodo
+          .serverSecurityLogicPure(decodeAccessToken)
+          .serverLogic(accessToken =>
+            req =>
+              Future {
+                val (providedUid) = req
+                for (
+                  uid   <- validateAccessToken(accessToken, providedUid);
+                  todos <- impl.listTodo(uid)
+                ) yield todos
+              },
+          ),
+        endpoints.createTodo
+          .serverSecurityLogicPure(decodeAccessToken)
+          .serverLogic(accessToken =>
+            req =>
+              Future {
+                val (providedUid, payload) = req
+                for (
+                  uid     <- validateAccessToken(accessToken, providedUid);
+                  created <- impl.createTodo(uid, payload)
+                ) yield created
+              },
+          ),
+        endpoints.updateTodo
+          .serverSecurityLogicPure(decodeAccessToken)
+          .serverLogic(accessToken =>
+            req =>
+              Future {
+                val (providedUid, providedTodoId, payload) = req
+                for (
+                  uid     <- validateAccessToken(accessToken, providedUid);
+                  updated <- impl.updateTodo(uid, payload)
+                ) yield updated
+              },
+          ),
+        endpoints.deleteTodo
+          .serverSecurityLogicPure(decodeAccessToken)
+          .serverLogic(accessToken =>
+            req =>
+              Future {
+                val (providedUid, providedTodoId) = req
+                for (
+                  uid     <- validateAccessToken(accessToken, providedUid);
+                  deleted <- impl.deleteTodo(uid, providedTodoId)
+                ) yield ()
+              },
+          ),
+      ),
+    )
 }

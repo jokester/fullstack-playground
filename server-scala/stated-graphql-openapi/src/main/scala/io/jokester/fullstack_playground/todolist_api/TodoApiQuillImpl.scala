@@ -1,6 +1,7 @@
 package io.jokester.fullstack_playground.todolist_api
 
 import com.typesafe.scalalogging.LazyLogging
+import cats.syntax.either._
 import io.jokester.fullstack_playground.quill.generated.public.Todos
 import io.jokester.fullstack_playground.quill.{
   QuillContextFactory,
@@ -17,7 +18,6 @@ class TodoApiQuillImpl(
 ) extends TodoApiService
     with QuillWorkarounds
     with LazyLogging
-    with Lifters
     with QuillDatetimeEncoding[QuillContextFactory.PublicCtx] {
   import ctx._
 
@@ -27,23 +27,22 @@ class TodoApiQuillImpl(
         .insert(_.title -> lift(req.title), _.desc -> lift(req.desc))
         .returning(row => row)
     })
-    liftSuccess(mapFromDB(created))
+    (mapFromDB(created)).asRight
   }
 
-  override def list(): Failable[TodoList] =
-    liftSuccess {
-      val q = quote { query[Todos] }
-      val r = ctx.run(q).map(mapFromDB)
-      TodoList(r)
-    }
+  override def list(): Failable[TodoList] = {
+    val q = quote { query[Todos] }
+    val r = ctx.run(q).map(mapFromDB)
+    TodoList(r).asRight
+  }
 
   override def show(todoId: Int): Failable[TodoApi.Todo] = {
     val found = run(quote {
       query[Todos].filter(_.todoId == lift(todoId))
     })
     found.headOption.map(mapFromDB) match {
-      case Some(got) => liftSuccess(got)
-      case _         => liftError(NotFound(s"Todo(id=$todoId) not found"))
+      case Some(got) => got.asRight
+      case _         => NotFound(s"Todo(id=$todoId) not found").asLeft
     }
   }
 
@@ -76,8 +75,8 @@ class TodoApiQuillImpl(
               )
               .returning(row => row)
           }
-          liftSuccess(mapFromDB(updated))
-        case _ => liftError(NotFound(s"Todo(id=$todoId) not found"))
+          mapFromDB(updated).asRight
+        case _ => NotFound(s"Todo(id=$todoId) not found").asLeft
 
       }
     }
@@ -94,11 +93,11 @@ class TodoApiQuillImpl(
       val removed = run { findById(todoId).delete.returning(row => row) }
       logger.debug("remove returned {}", removed)
 
-      liftSuccess(mapFromDB(removed))
+      mapFromDB(removed).asRight
 
     } catch {
       case RowNotFoundViolation(_) =>
-        liftError(NotFound(s"Todo(id=$todoId) not found"))
+        NotFound(s"Todo(id=$todoId) not found").asLeft
     }
   }
 

@@ -1,6 +1,7 @@
 package io.jokester.fullstack_playground.user_todolist_api
 import scala.util.chaining._
 import io.circe.generic.auto._
+import cats.syntax.either._
 import io.circe.syntax._
 import io.jokester.fullstack_playground.quill.generated.userTodo.{
   UserTodos => UserTodoRow,
@@ -23,7 +24,6 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
     with QuillDatetimeEncoding[QuillContextFactory.UserTodoCtx]
     with QuillCirceJsonEncoding[QuillContextFactory.UserTodoCtx]
     with BCryptHelpers
-    with OpenAPIConvention.Lifters
     with QuillWorkarounds
     with LazyLogging {
   import ctx._
@@ -44,10 +44,10 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
           )
           .returning(row => row)
       })
-      liftSuccess(fromRow(created))
+      fromRow(created).asRight
     } catch {
       case UniqueKeyViolation(_) =>
-        liftError(BadRequest(s"Email address ${req.email} already occupied"))
+        BadRequest(s"Email address ${req.email} already occupied").asLeft
     }
 
   }
@@ -63,7 +63,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
         .update(_.profile -> lift(newProfile.asJson))
     })
     if (!(updated == 1)) {
-      liftError(BadRequest("user not found"))
+      BadRequest("user not found").asLeft
     } else {
       showUser(userId)
     }
@@ -76,7 +76,10 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
       UsersDao.query.filter(u => u.userId == lift(userId.value))
     }).headOption.map(fromRow)
 
-    found.map(liftSuccess).getOrElse(liftError(BadRequest("user not found")))
+    found match {
+      case Some(user) => user.asRight
+      case _          => BadRequest("user not found").asLeft
+    }
   }
 
   override def loginUser(
@@ -87,9 +90,10 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
     })
     loaded.headOption
       .filter(f => validatePassword(req.password, f.passwordHash))
-      .map(fromRow)
-      .map(liftSuccess)
-      .getOrElse(liftError(BadRequest("invalid cred")))
+      .map(fromRow) match {
+      case Some(user) => user.asRight
+      case _          => BadRequest("invalid cred").asLeft
+    }
   }
 
   override def createTodo(
@@ -109,7 +113,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
 
     created
       .pipe(fromRow)
-      .pipe(liftSuccess)
+      .asRight
   }
 
   override def listTodo(
@@ -119,8 +123,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
       UserTodosDao.query.filter(_.userId == lift(userId.value))
     })
 
-    TodoList(found.map(fromRow))
-      .pipe(liftSuccess)
+    TodoList(found.map(fromRow)).asRight
   }
 
   override def updateTodo(
@@ -149,8 +152,8 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
       .map(v => v.pipe(fromRow))
 
     updated match {
-      case None    => liftError(BadRequest("not found"))
-      case Some(v) => liftSuccess(v)
+      case Some(v) => v.asRight
+      case None    => BadRequest("not found").asLeft
     }
 
   }
@@ -163,9 +166,9 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
       val removed = run {
         findTodo(userId, todoId).delete.returning(row => row)
       }
-      removed.pipe(fromRow).pipe(liftSuccess)
+      removed.pipe(fromRow).asRight
     } catch {
-      case RowNotFoundViolation(_) => liftError(BadRequest("not found"))
+      case RowNotFoundViolation(_) => BadRequest("not found").asLeft
     }
   }
 

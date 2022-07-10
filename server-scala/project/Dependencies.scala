@@ -76,7 +76,7 @@ private object Versions {
   val circe     = "0.14.1"
   val circeYaml = "0.13.1"
 
-  val tapir = "0.18.3"
+  val tapir = "1.0.0-M8" // FIXME: use released version
 
   val akkaHttp  = "10.2.9"
   val akka      = "2.6.19"
@@ -84,16 +84,16 @@ private object Versions {
   val upickle   = "1.2.2"
 
   // rdbms
-  val postgresql  = "42.3.4"
-  val quill       = "3.16.3"
+  val postgresql  = "42.3.6"
+  val quill       = "3.18.0"
   val scalikeJDBC = "3.5.0"
   val flyway      = "8.0.2"
 
   // utils
-  val spring = "5.6.3"
+  val spring = "5.7.1"
 
   // testing
-  val scalaTest               = "3.2.11"
+  val scalaTest               = "3.2.12"
   val scalaTestPlusScalaCheck = "3.2.2.0"
 
 }

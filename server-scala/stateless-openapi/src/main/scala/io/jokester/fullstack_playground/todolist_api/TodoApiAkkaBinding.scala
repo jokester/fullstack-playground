@@ -2,42 +2,51 @@ package io.jokester.fullstack_playground.todolist_api
 
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives.{concat, pathPrefix}
+import io.jokester.fullstack_playground.todolist_api.TodoApi.TodoList
 import io.jokester.http_api.OpenAPIConvention
-import scala.language.implicitConversions
+import sttp.capabilities.WebSockets
+import sttp.capabilities.akka.AkkaStreams
+import sttp.tapir._
+import sttp.tapir.server.ServerEndpoint
+import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
-import scala.concurrent.ExecutionContext
+import scala.language.implicitConversions
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   *
   */
-object TodoApiAkkaBinding extends OpenAPIConvention.Lifters {
+object TodoApiAkkaBinding {
 
   def buildTodoApiRoute(impl: TodoApiService)(implicit ec: ExecutionContext): Route = {
     import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
-    val endpoints = TodoApi.endpoints
-
+    val endpoints   = TodoApi.endpoints
     val interpreter = AkkaHttpServerInterpreter()
-    val serverImplRoute = concat(
-      interpreter.toRoute(endpoints.listTodo) { req =>
-        impl.list()
-      },
-      interpreter.toRoute(endpoints.showTodo) { todoId =>
-        impl.show(todoId)
-      },
-      interpreter.toRoute(endpoints.createTodo) { req =>
-        impl.create(req)
-      },
-      interpreter.toRoute(endpoints.deleteTodo) { todoId =>
-        mapInner(
-          impl.remove(todoId),
-          (whatever: Any) => (),
-        )
-      },
-      interpreter.toRoute(endpoints.updateTodo) { req =>
-        impl.update(req._1, req._2)
-      },
-    )
 
+    val serverImplRoute =
+      interpreter.toRoute(
+        List(
+          endpoints.listTodo.serverLogic(req => Future(impl.list())),
+          // TODO: find out why serverLogicPure failes to match overload
+          // TODO: recover other routes
+        ),
+      )
     serverImplRoute
+
+  }
+
+  def exmaple(): Unit = {
+
+    // the endpoint: single fixed path input ("hello"), single query parameter
+    // corresponds to: GET /hello?name=...
+    val helloWorld: PublicEndpoint[String, Unit, String, Any] =
+      endpoint.get.in("hello").in(query[String]("name")).out(stringBody)
+
+    // converting an endpoint to a route (providing server-side logic); extension method comes from imported packages
+    val helloWorldRoute: Route =
+      AkkaHttpServerInterpreter().toRoute(
+        helloWorld.serverLogicSuccess(name => Future.successful(s"Hello, $name!")),
+      )
+
   }
 }
