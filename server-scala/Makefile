@@ -1,5 +1,6 @@
 openapi:
-	sbt "statelessOpenapi/run writeApiSpec ../api-spec/todo-api.yaml"
+	sbt "statelessOpenapi/run writeOpenApiSpec ../api-spec/todo-api.yaml"
+	sbt "statedGraphqlOpenapi/run writeOpenApiSpec ../api-spec/user-todo-api.yaml"
 
 migration:
 	sbt flywayMigrate

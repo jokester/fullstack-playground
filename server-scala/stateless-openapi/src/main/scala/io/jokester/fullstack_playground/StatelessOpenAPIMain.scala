@@ -15,7 +15,7 @@ import java.nio.file.{Files, Path}
 object StatelessOpenAPIMain extends App with LazyLogging {
 
   args match {
-    case Array("writeApiSpec", outputFilename: String) =>
+    case Array("writeOpenApiSpec", outputFilename: String) =>
       logger.info(s"Writing ApiSpec to ${outputFilename}")
       Files.writeString(Path.of(outputFilename), TodoApi.asOpenAPIYaml)
 

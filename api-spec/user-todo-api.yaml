@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: User Todos
-  version: '1.0'
+  title: user-todo
+  version: '0.1'
 paths:
   /user_todo_api/users:
     post:
@@ -18,25 +18,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateUserResponse'
-        '404':
-          description: ''
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
   /user_todo_api/auth/login:
     post:
       operationId: postUser_todo_apiAuthLogin
@@ -52,25 +70,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '404':
-          description: ''
+                $ref: '#/components/schemas/AuthSuccess'
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
   /user_todo_api/auth/refresh_token:
     post:
       operationId: postUser_todo_apiAuthRefresh_token
@@ -80,25 +116,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '404':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/AuthSuccess'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '400':
+          description: client's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
       security:
       - httpAuth: []
   /user_todo_api/users/{userId}/profile:
@@ -122,25 +176,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
-        '404':
-          description: ''
+                $ref: '#/components/schemas/UserAccount'
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
       security:
       - httpAuth: []
   /user_todo_api/users/{userId}/todos:
@@ -158,25 +230,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListTodoResponse'
-        '404':
-          description: ''
+                $ref: '#/components/schemas/TodoList'
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
       security:
       - httpAuth: []
     post:
@@ -200,24 +290,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TodoItem'
-        '404':
-          description: ''
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
       security:
       - httpAuth: []
   /user_todo_api/users/{userId}/todos/{todoId}:
@@ -237,24 +345,42 @@ paths:
       responses:
         '200':
           description: ''
-        '404':
-          description: ''
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
       security:
       - httpAuth: []
     patch:
@@ -283,28 +409,79 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TodoItem'
-        '404':
-          description: ''
+        '400':
+          description: client's bad in general
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFound'
+                $ref: '#/components/schemas/BadRequest'
         '401':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthenticated'
-        '403':
-          description: ''
+          description: login required
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '501':
+          description: not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotImplemented'
+        default:
+          description: server's bad in general
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
       security:
       - httpAuth: []
 components:
   schemas:
+    AuthSuccess:
+      required:
+      - userId
+      - profile
+      - accessToken
+      - refreshToken
+      type: object
+      properties:
+        userId:
+          type: integer
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    BadRequest:
+      required:
+      - message
+      type: object
+      properties:
+        message:
+          type: string
+    CreateTodoRequest:
+      required:
+      - title
+      - description
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
     CreateUserRequest:
       required:
       - email
@@ -318,44 +495,13 @@ components:
           type: string
         profile:
           $ref: '#/components/schemas/UserProfile'
-    UserProfile:
-      type: object
-      properties:
-        nickname:
-          type: string
-        avatarUrl:
-          type: string
-    NotFound:
+    Forbidden:
       required:
-      - error
+      - message
       type: object
       properties:
-        error:
+        message:
           type: string
-    Unauthenticated:
-      required:
-      - error
-      type: object
-      properties:
-        error:
-          type: string
-    Unauthorized:
-      required:
-      - error
-      type: object
-      properties:
-        error:
-          type: string
-    CreateUserResponse:
-      required:
-      - userId
-      - userProfile
-      type: object
-      properties:
-        userId:
-          type: integer
-        userProfile:
-          $ref: '#/components/schemas/UserProfile'
     LoginRequest:
       required:
       - email
@@ -366,45 +512,26 @@ components:
           type: string
         password:
           type: string
-    LoginResponse:
+    NotFound:
       required:
-      - userId
-      - userProfile
-      - refreshToken
-      - accessToken
+      - message
       type: object
       properties:
-        userId:
-          type: integer
-        userProfile:
-          $ref: '#/components/schemas/UserProfile'
-        refreshToken:
-          $ref: '#/components/schemas/RefreshToken'
-        accessToken:
-          $ref: '#/components/schemas/AccessToken'
-    RefreshToken:
-      required:
-      - value
-      type: object
-      properties:
-        value:
+        message:
           type: string
-    AccessToken:
+    NotImplemented:
       required:
-      - value
+      - message
       type: object
       properties:
-        value:
+        message:
           type: string
-    CreateTodoRequest:
+    ServerError:
       required:
-      - title
-      - description
+      - message
       type: object
       properties:
-        title:
-          type: string
-        description:
+        message:
           type: string
     TodoItem:
       required:
@@ -425,13 +552,37 @@ components:
         finishedAt:
           type: string
           format: date-time
-    ListTodoResponse:
+    TodoList:
       type: object
       properties:
-        todos:
+        items:
           type: array
           items:
             $ref: '#/components/schemas/TodoItem'
+    Unauthorized:
+      required:
+      - message
+      type: object
+      properties:
+        message:
+          type: string
+    UserAccount:
+      required:
+      - userId
+      - profile
+      type: object
+      properties:
+        userId:
+          type: integer
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+    UserProfile:
+      type: object
+      properties:
+        nickname:
+          type: string
+        avatarUrl:
+          type: string
   securitySchemes:
     httpAuth:
       type: http
