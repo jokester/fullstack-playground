@@ -114,9 +114,10 @@ export class BaseAPI {
   protected async request(context: RequestOpts, initOverrides?: RequestInit | InitOverrideFunction): Promise<Response> {
     const { url, init } = await this.createFetchParams(context, initOverrides);
     const response = await this.fetchApi(url, init);
-    if (response.status >= 200 && response.status < 300) {
+    if (response && response.status >= 200 && response.status < 300) {
       return response;
     }
+    // @ts-expect-error
     throw new ResponseError(response, 'Response returned an error code');
   }
 
@@ -198,6 +199,7 @@ export class BaseAPI {
             fetch: this.fetchApi,
             url: fetchParams.url,
             init: fetchParams.init,
+            // @ts-expect-error
             response: response.clone(),
           })) || response;
       }
@@ -232,6 +234,7 @@ export class ResponseError extends Error {
   }
 }
 
+// @ts-expect-error
 export class FetchError extends Error {
   name: 'FetchError' = 'FetchError';
   constructor(public cause: unknown, msg?: string) {
