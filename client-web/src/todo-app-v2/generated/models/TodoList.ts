@@ -13,8 +13,7 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { TodoItem } from './TodoItem';
-import { TodoItemFromJSON, TodoItemFromJSONTyped, TodoItemToJSON } from './TodoItem';
+import { TodoItem, TodoItemFromJSON, TodoItemFromJSONTyped, TodoItemToJSON } from './TodoItem';
 
 /**
  *
@@ -28,15 +27,6 @@ export interface TodoList {
    * @memberof TodoList
    */
   items?: Array<TodoItem>;
-}
-
-/**
- * Check if a given object implements the TodoList interface.
- */
-export function instanceOfTodoList(value: object): boolean {
-  let isInstance = true;
-
-  return isInstance;
 }
 
 export function TodoListFromJSON(json: any): TodoList {

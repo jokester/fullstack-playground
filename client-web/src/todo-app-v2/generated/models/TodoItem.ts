@@ -51,19 +51,6 @@ export interface TodoItem {
   finishedAt?: Date;
 }
 
-/**
- * Check if a given object implements the TodoItem interface.
- */
-export function instanceOfTodoItem(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'todoId' in value;
-  isInstance = isInstance && 'userId' in value;
-  isInstance = isInstance && 'title' in value;
-  isInstance = isInstance && 'description' in value;
-
-  return isInstance;
-}
-
 export function TodoItemFromJSON(json: any): TodoItem {
   return TodoItemFromJSONTyped(json, false);
 }

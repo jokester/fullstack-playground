@@ -51,20 +51,6 @@ export interface Todo {
   updatedAt: Date;
 }
 
-/**
- * Check if a given object implements the Todo interface.
- */
-export function instanceOfTodo(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'id' in value;
-  isInstance = isInstance && 'title' in value;
-  isInstance = isInstance && 'desc' in value;
-  isInstance = isInstance && 'finished' in value;
-  isInstance = isInstance && 'updatedAt' in value;
-
-  return isInstance;
-}
-
 export function TodoFromJSON(json: any): Todo {
   return TodoFromJSONTyped(json, false);
 }

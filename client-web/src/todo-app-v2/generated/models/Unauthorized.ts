@@ -27,16 +27,6 @@ export interface Unauthorized {
   message: string;
 }
 
-/**
- * Check if a given object implements the Unauthorized interface.
- */
-export function instanceOfUnauthorized(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'message' in value;
-
-  return isInstance;
-}
-
 export function UnauthorizedFromJSON(json: any): Unauthorized {
   return UnauthorizedFromJSONTyped(json, false);
 }

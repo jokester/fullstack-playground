@@ -27,16 +27,6 @@ export interface NotFound {
   message: string;
 }
 
-/**
- * Check if a given object implements the NotFound interface.
- */
-export function instanceOfNotFound(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'message' in value;
-
-  return isInstance;
-}
-
 export function NotFoundFromJSON(json: any): NotFound {
   return NotFoundFromJSONTyped(json, false);
 }

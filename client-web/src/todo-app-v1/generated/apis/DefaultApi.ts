@@ -13,34 +13,32 @@
  */
 
 import * as runtime from '../runtime';
-import type {
-  BadRequest,
-  CreateTodoIntent,
-  Forbidden,
-  NotFound,
-  NotImplemented,
-  ServerError,
-  Todo,
-  TodoList,
-  Unauthorized,
-} from '../models';
 import {
+  BadRequest,
   BadRequestFromJSON,
   BadRequestToJSON,
+  CreateTodoIntent,
   CreateTodoIntentFromJSON,
   CreateTodoIntentToJSON,
+  Forbidden,
   ForbiddenFromJSON,
   ForbiddenToJSON,
+  NotFound,
   NotFoundFromJSON,
   NotFoundToJSON,
+  NotImplemented,
   NotImplementedFromJSON,
   NotImplementedToJSON,
+  ServerError,
   ServerErrorFromJSON,
   ServerErrorToJSON,
+  Todo,
   TodoFromJSON,
   TodoToJSON,
+  TodoList,
   TodoListFromJSON,
   TodoListToJSON,
+  Unauthorized,
   UnauthorizedFromJSON,
   UnauthorizedToJSON,
 } from '../models';
@@ -71,7 +69,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async createTODORaw(
     requestParameters: CreateTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<Todo>> {
     if (requestParameters.createTodoIntent === null || requestParameters.createTodoIntent === undefined) {
       throw new runtime.RequiredError(
@@ -105,7 +103,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async createTODO(
     requestParameters: CreateTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<Todo> {
     const response = await this.createTODORaw(requestParameters, initOverrides);
     return await response.value();
@@ -116,7 +114,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async deleteTODORaw(
     requestParameters: DeleteTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters.todoId === null || requestParameters.todoId === undefined) {
       throw new runtime.RequiredError(
@@ -147,7 +145,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async deleteTODO(
     requestParameters: DeleteTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<void> {
     await this.deleteTODORaw(requestParameters, initOverrides);
   }
@@ -155,9 +153,7 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * get list of TODOs
    */
-  async listTODORaw(
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<TodoList>> {
+  async listTODORaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<TodoList>> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -178,7 +174,7 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * get list of TODOs
    */
-  async listTODO(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TodoList> {
+  async listTODO(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<TodoList> {
     const response = await this.listTODORaw(initOverrides);
     return await response.value();
   }
@@ -188,7 +184,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async showTODORaw(
     requestParameters: ShowTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<Todo>> {
     if (requestParameters.todoId === null || requestParameters.todoId === undefined) {
       throw new runtime.RequiredError(
@@ -219,7 +215,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async showTODO(
     requestParameters: ShowTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<Todo> {
     const response = await this.showTODORaw(requestParameters, initOverrides);
     return await response.value();
@@ -230,7 +226,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async updateTODORaw(
     requestParameters: UpdateTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<Todo>> {
     if (requestParameters.todoId === null || requestParameters.todoId === undefined) {
       throw new runtime.RequiredError(
@@ -271,7 +267,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async updateTODO(
     requestParameters: UpdateTODORequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<Todo> {
     const response = await this.updateTODORaw(requestParameters, initOverrides);
     return await response.value();

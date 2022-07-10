@@ -13,8 +13,7 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { UserProfile } from './UserProfile';
-import { UserProfileFromJSON, UserProfileFromJSONTyped, UserProfileToJSON } from './UserProfile';
+import { UserProfile, UserProfileFromJSON, UserProfileFromJSONTyped, UserProfileToJSON } from './UserProfile';
 
 /**
  *
@@ -34,17 +33,6 @@ export interface UserAccount {
    * @memberof UserAccount
    */
   profile: UserProfile;
-}
-
-/**
- * Check if a given object implements the UserAccount interface.
- */
-export function instanceOfUserAccount(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'userId' in value;
-  isInstance = isInstance && 'profile' in value;
-
-  return isInstance;
 }
 
 export function UserAccountFromJSON(json: any): UserAccount {

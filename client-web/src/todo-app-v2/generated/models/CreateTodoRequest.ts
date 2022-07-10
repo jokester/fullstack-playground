@@ -33,17 +33,6 @@ export interface CreateTodoRequest {
   description: string;
 }
 
-/**
- * Check if a given object implements the CreateTodoRequest interface.
- */
-export function instanceOfCreateTodoRequest(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'title' in value;
-  isInstance = isInstance && 'description' in value;
-
-  return isInstance;
-}
-
 export function CreateTodoRequestFromJSON(json: any): CreateTodoRequest {
   return CreateTodoRequestFromJSONTyped(json, false);
 }

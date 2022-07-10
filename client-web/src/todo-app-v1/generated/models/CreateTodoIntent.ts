@@ -33,17 +33,6 @@ export interface CreateTodoIntent {
   desc: string;
 }
 
-/**
- * Check if a given object implements the CreateTodoIntent interface.
- */
-export function instanceOfCreateTodoIntent(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'title' in value;
-  isInstance = isInstance && 'desc' in value;
-
-  return isInstance;
-}
-
 export function CreateTodoIntentFromJSON(json: any): CreateTodoIntent {
   return CreateTodoIntentFromJSONTyped(json, false);
 }

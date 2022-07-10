@@ -33,15 +33,6 @@ export interface UserProfile {
   avatarUrl?: string;
 }
 
-/**
- * Check if a given object implements the UserProfile interface.
- */
-export function instanceOfUserProfile(value: object): boolean {
-  let isInstance = true;
-
-  return isInstance;
-}
-
 export function UserProfileFromJSON(json: any): UserProfile {
   return UserProfileFromJSONTyped(json, false);
 }

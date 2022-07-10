@@ -13,49 +13,47 @@
  */
 
 import * as runtime from '../runtime';
-import type {
-  AuthSuccess,
-  BadRequest,
-  CreateTodoRequest,
-  CreateUserRequest,
-  Forbidden,
-  LoginRequest,
-  NotFound,
-  NotImplemented,
-  ServerError,
-  TodoItem,
-  TodoList,
-  Unauthorized,
-  UserAccount,
-  UserProfile,
-} from '../models';
 import {
+  AuthSuccess,
   AuthSuccessFromJSON,
   AuthSuccessToJSON,
+  BadRequest,
   BadRequestFromJSON,
   BadRequestToJSON,
+  CreateTodoRequest,
   CreateTodoRequestFromJSON,
   CreateTodoRequestToJSON,
+  CreateUserRequest,
   CreateUserRequestFromJSON,
   CreateUserRequestToJSON,
+  Forbidden,
   ForbiddenFromJSON,
   ForbiddenToJSON,
+  LoginRequest,
   LoginRequestFromJSON,
   LoginRequestToJSON,
+  NotFound,
   NotFoundFromJSON,
   NotFoundToJSON,
+  NotImplemented,
   NotImplementedFromJSON,
   NotImplementedToJSON,
+  ServerError,
   ServerErrorFromJSON,
   ServerErrorToJSON,
+  TodoItem,
   TodoItemFromJSON,
   TodoItemToJSON,
+  TodoList,
   TodoListFromJSON,
   TodoListToJSON,
+  Unauthorized,
   UnauthorizedFromJSON,
   UnauthorizedToJSON,
+  UserAccount,
   UserAccountFromJSON,
   UserAccountToJSON,
+  UserProfile,
   UserProfileFromJSON,
   UserProfileToJSON,
 } from '../models';
@@ -101,7 +99,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async deleteUserTodoApiUsersUseridTodosTodoidRaw(
     requestParameters: DeleteUserTodoApiUsersUseridTodosTodoidRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters.userId === null || requestParameters.userId === undefined) {
       throw new runtime.RequiredError(
@@ -148,7 +146,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async deleteUserTodoApiUsersUseridTodosTodoid(
     requestParameters: DeleteUserTodoApiUsersUseridTodosTodoidRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<void> {
     await this.deleteUserTodoApiUsersUseridTodosTodoidRaw(requestParameters, initOverrides);
   }
@@ -157,7 +155,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async getUserTodoApiUsersUseridTodosRaw(
     requestParameters: GetUserTodoApiUsersUseridTodosRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<TodoList>> {
     if (requestParameters.userId === null || requestParameters.userId === undefined) {
       throw new runtime.RequiredError(
@@ -198,7 +196,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async getUserTodoApiUsersUseridTodos(
     requestParameters: GetUserTodoApiUsersUseridTodosRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<TodoList> {
     const response = await this.getUserTodoApiUsersUseridTodosRaw(requestParameters, initOverrides);
     return await response.value();
@@ -208,7 +206,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async patchUserTodoApiUsersUseridTodosTodoidRaw(
     requestParameters: PatchUserTodoApiUsersUseridTodosTodoidRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<TodoItem>> {
     if (requestParameters.userId === null || requestParameters.userId === undefined) {
       throw new runtime.RequiredError(
@@ -265,7 +263,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async patchUserTodoApiUsersUseridTodosTodoid(
     requestParameters: PatchUserTodoApiUsersUseridTodosTodoidRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<TodoItem> {
     const response = await this.patchUserTodoApiUsersUseridTodosTodoidRaw(requestParameters, initOverrides);
     return await response.value();
@@ -275,7 +273,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async postUserTodoApiAuthLoginRaw(
     requestParameters: PostUserTodoApiAuthLoginRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<AuthSuccess>> {
     if (requestParameters.loginRequest === null || requestParameters.loginRequest === undefined) {
       throw new runtime.RequiredError(
@@ -308,7 +306,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async postUserTodoApiAuthLogin(
     requestParameters: PostUserTodoApiAuthLoginRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<AuthSuccess> {
     const response = await this.postUserTodoApiAuthLoginRaw(requestParameters, initOverrides);
     return await response.value();
@@ -317,7 +315,7 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    */
   async postUserTodoApiAuthRefreshTokenRaw(
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<AuthSuccess>> {
     const queryParameters: any = {};
 
@@ -347,7 +345,7 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    */
   async postUserTodoApiAuthRefreshToken(
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<AuthSuccess> {
     const response = await this.postUserTodoApiAuthRefreshTokenRaw(initOverrides);
     return await response.value();
@@ -357,7 +355,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async postUserTodoApiUsersRaw(
     requestParameters: PostUserTodoApiUsersRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<UserAccount>> {
     if (requestParameters.createUserRequest === null || requestParameters.createUserRequest === undefined) {
       throw new runtime.RequiredError(
@@ -390,7 +388,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async postUserTodoApiUsers(
     requestParameters: PostUserTodoApiUsersRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<UserAccount> {
     const response = await this.postUserTodoApiUsersRaw(requestParameters, initOverrides);
     return await response.value();
@@ -400,7 +398,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async postUserTodoApiUsersUseridTodosRaw(
     requestParameters: PostUserTodoApiUsersUseridTodosRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<TodoItem>> {
     if (requestParameters.userId === null || requestParameters.userId === undefined) {
       throw new runtime.RequiredError(
@@ -451,7 +449,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async postUserTodoApiUsersUseridTodos(
     requestParameters: PostUserTodoApiUsersUseridTodosRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<TodoItem> {
     const response = await this.postUserTodoApiUsersUseridTodosRaw(requestParameters, initOverrides);
     return await response.value();
@@ -461,7 +459,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async putUserTodoApiUsersUseridProfileRaw(
     requestParameters: PutUserTodoApiUsersUseridProfileRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<UserAccount>> {
     if (requestParameters.userId === null || requestParameters.userId === undefined) {
       throw new runtime.RequiredError(
@@ -512,7 +510,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async putUserTodoApiUsersUseridProfile(
     requestParameters: PutUserTodoApiUsersUseridProfileRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<UserAccount> {
     const response = await this.putUserTodoApiUsersUseridProfileRaw(requestParameters, initOverrides);
     return await response.value();

@@ -27,16 +27,6 @@ export interface ServerError {
   message: string;
 }
 
-/**
- * Check if a given object implements the ServerError interface.
- */
-export function instanceOfServerError(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'message' in value;
-
-  return isInstance;
-}
-
 export function ServerErrorFromJSON(json: any): ServerError {
   return ServerErrorFromJSONTyped(json, false);
 }

@@ -27,16 +27,6 @@ export interface NotImplemented {
   message: string;
 }
 
-/**
- * Check if a given object implements the NotImplemented interface.
- */
-export function instanceOfNotImplemented(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'message' in value;
-
-  return isInstance;
-}
-
 export function NotImplementedFromJSON(json: any): NotImplemented {
   return NotImplementedFromJSONTyped(json, false);
 }

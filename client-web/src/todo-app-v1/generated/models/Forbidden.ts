@@ -27,16 +27,6 @@ export interface Forbidden {
   message: string;
 }
 
-/**
- * Check if a given object implements the Forbidden interface.
- */
-export function instanceOfForbidden(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'message' in value;
-
-  return isInstance;
-}
-
 export function ForbiddenFromJSON(json: any): Forbidden {
   return ForbiddenFromJSONTyped(json, false);
 }

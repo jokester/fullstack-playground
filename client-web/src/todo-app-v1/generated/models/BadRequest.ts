@@ -27,16 +27,6 @@ export interface BadRequest {
   message: string;
 }
 
-/**
- * Check if a given object implements the BadRequest interface.
- */
-export function instanceOfBadRequest(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'message' in value;
-
-  return isInstance;
-}
-
 export function BadRequestFromJSON(json: any): BadRequest {
   return BadRequestFromJSONTyped(json, false);
 }

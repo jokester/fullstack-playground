@@ -13,8 +13,7 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { UserProfile } from './UserProfile';
-import { UserProfileFromJSON, UserProfileFromJSONTyped, UserProfileToJSON } from './UserProfile';
+import { UserProfile, UserProfileFromJSON, UserProfileFromJSONTyped, UserProfileToJSON } from './UserProfile';
 
 /**
  *
@@ -46,19 +45,6 @@ export interface AuthSuccess {
    * @memberof AuthSuccess
    */
   refreshToken: string;
-}
-
-/**
- * Check if a given object implements the AuthSuccess interface.
- */
-export function instanceOfAuthSuccess(value: object): boolean {
-  let isInstance = true;
-  isInstance = isInstance && 'userId' in value;
-  isInstance = isInstance && 'profile' in value;
-  isInstance = isInstance && 'accessToken' in value;
-  isInstance = isInstance && 'refreshToken' in value;
-
-  return isInstance;
 }
 
 export function AuthSuccessFromJSON(json: any): AuthSuccess {
