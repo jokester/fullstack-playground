@@ -14,30 +14,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TodoList'
-        '401':
-          description: login required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Unauthorized'
-        '404':
-          description: resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFound'
-        '403':
-          description: user identity known but action not permitted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Forbidden'
         '400':
           description: client's bad in general
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: login required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: user identity known but action not permitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '501':
           description: not implemented
           content:
@@ -78,18 +78,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-        '404':
-          description: resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFound'
         '403':
           description: user identity known but action not permitted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Forbidden'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '501':
           description: not implemented
           content:
@@ -112,6 +112,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int32
       responses:
         '200':
           description: ''
@@ -131,18 +132,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-        '404':
-          description: resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFound'
         '403':
           description: user identity known but action not permitted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Forbidden'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '501':
           description: not implemented
           content:
@@ -164,6 +165,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int32
       responses:
         '200':
           description: ''
@@ -179,18 +181,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-        '404':
-          description: resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFound'
         '403':
           description: user identity known but action not permitted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Forbidden'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '501':
           description: not implemented
           content:
@@ -212,6 +214,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int32
       requestBody:
         content:
           application/json:
@@ -237,18 +240,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Unauthorized'
-        '404':
-          description: resource not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFound'
         '403':
           description: user identity known but action not permitted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Forbidden'
+        '404':
+          description: resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '501':
           description: not implemented
           content:
@@ -319,6 +322,7 @@ components:
       properties:
         id:
           type: integer
+          format: int32
         title:
           type: string
         desc:
