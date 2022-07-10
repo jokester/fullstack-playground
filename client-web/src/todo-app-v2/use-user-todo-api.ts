@@ -11,7 +11,8 @@ export function useUserTodoApi(credApi: CredApi) {
   const reloadTodo = async () => {
     const v = await credApi.callApiWithCred((api, user) => api.getUserTodoApiUsersUseridTodos({ userId: user.userId }));
     console.debug('reloadTodo', v);
-    setTodos(v.todos || []);
+    console.debug('TODOs', v.items);
+    setTodos(v.items || []);
   };
 
   useEffect(() => {

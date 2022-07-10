@@ -27,7 +27,7 @@ const UserPanel: FC<{ cred: CredApi }> = (props) => {
       <div>
         {me ? (
           <p>
-            logged in as user: id={me.userId} / profile = {JSON.stringify(me.userProfile)}
+            logged in as user: id={me.userId} / profile = {JSON.stringify(me.profile)}
           </p>
         ) : (
           'not authed'
@@ -81,11 +81,11 @@ const TodoPanelItemOpenAPI: React.FC<{ todoApi: ReturnType<typeof useUserTodoApi
 }) => {
   const [titleInput, setTitleInput] = useState(todo.title);
   const [descInput, setDescInput] = useState(todo.description);
-  const [finishedAt, setFinishedAt] = useState<undefined | Date>(todo.finishedAt);
+  const [finishedAt, setFinishedAt] = useState<undefined | Date>(todo.finishedAt || undefined);
   useEffect(() => {
     setTitleInput(todo.title);
     setDescInput(todo.description);
-    setFinishedAt(todo.finishedAt);
+    setFinishedAt(todo.finishedAt || undefined);
   }, [todo]);
 
   const finishedAtView = finishedAt?.toUTCString() || 'EMPTY';
