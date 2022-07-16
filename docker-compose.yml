@@ -24,7 +24,13 @@ services:
       - -c
       - log_error_verbosity=default # terse / default / debug
     healthcheck:
-      test: ['CMD', 'pg_isready']
+      test:
+        - CMD
+        - pg_isready
+        - -U
+        - pguser
+        - -d
+        - playground
       interval: 1s
       timeout: 30s
       retries: 10
