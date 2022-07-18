@@ -29,21 +29,10 @@ private class RouteBuilder(impl: UserTodoService, override val jwtSecret: String
   private val interpreter = AkkaHttpServerInterpreter()
 
   def buildRoute: Route =
-    interpreter.toRoute(
-      List(
-        endpoints.createTodo
-          .serverSecurityLogicPure(decodeAccessToken)
-          .serverLogic(accessToken =>
-            req =>
-              Future {
-                val (providedUid, payload) = req
-                for (
-                  uid     <- validateAccessToken(accessToken, providedUid);
-                  created <- impl.createTodo(uid, payload)
-                ) yield created
-              },
-          ),
-      ),
+    concat(
+      buildPublicRoute,
+      buildAuthedUserRoute,
+      buildAuthedTodoRoute,
     )
 
   def buildPublicRoute: Route =
