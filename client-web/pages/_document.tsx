@@ -21,11 +21,6 @@ export default class CustomDocument extends Document {
             integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0="
             crossOrigin="anonymous"
           />
-          <meta
-            key="meta-viewport"
-            name="viewport"
-            content="width=device-width, initial-scale=1,maximum-scale=1.5,minimum-scale=1"
-          />
         </Head>
         <body>
           <Main />
