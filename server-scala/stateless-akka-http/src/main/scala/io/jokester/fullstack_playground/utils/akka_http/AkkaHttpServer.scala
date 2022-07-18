@@ -111,7 +111,7 @@ object AkkaHttpServer extends LazyLogging {
               HttpMethods.PUT,
               HttpMethods.PATCH,
             ),
-          ),
+          ).withMaxAge(Some(600L)),
       ),
     )
   }
