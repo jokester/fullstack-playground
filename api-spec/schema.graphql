@@ -83,10 +83,16 @@ input String_comparison_exp {
 
 scalar jsonb
 
+input jsonb_cast_exp {
+  String: String_comparison_exp
+}
+
 """
 Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'.
 """
 input jsonb_comparison_exp {
+  _cast: jsonb_cast_exp
+
   """is the column contained in the given json value"""
   _contained_in: jsonb
 
@@ -705,7 +711,9 @@ input todos_bool_exp {
 unique or primary key constraints on table "todos"
 """
 enum todos_constraint {
-  """unique or primary key constraint"""
+  """
+  unique or primary key constraint on columns "todo_id"
+  """
   todos_pkey
 }
 
@@ -979,7 +987,9 @@ input user_todo_user_todos_bool_exp {
 unique or primary key constraints on table "user_todo.user_todos"
 """
 enum user_todo_user_todos_constraint {
-  """unique or primary key constraint"""
+  """
+  unique or primary key constraint on columns "todo_id"
+  """
   user_todos_pkey
 }
 
@@ -1359,10 +1369,14 @@ input user_todo_users_bool_exp {
 unique or primary key constraints on table "user_todo.users"
 """
 enum user_todo_users_constraint {
-  """unique or primary key constraint"""
+  """
+  unique or primary key constraint on columns "email"
+  """
   users_email_key
 
-  """unique or primary key constraint"""
+  """
+  unique or primary key constraint on columns "user_id"
+  """
   users_pkey
 }
 

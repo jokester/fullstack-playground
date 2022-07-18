@@ -36,18 +36,19 @@ services:
       retries: 10
 
   hasura:
-    image: hasura/graphql-engine:v2.4.0.cli-migrations-v3
-    # image: spaster/alpine-sleep  # override to disable hasura
-    command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
+    # see https://hub.docker.com/r/hasura/graphql-engine
+    image: hasura/graphql-engine:v2.8.4.cli-migrations-v3
+    command: # see https://github.com/hasura/graphql-engine/blob/master/packaging/cli-migrations/v3/docker-entrypoint.sh
       - graphql-engine
       - serve
       - --connections=20
-      - --schema-sync-poll-interval=60000
-    environment:
+    environment: # see https://hasura.io/docs/latest/graphql/core/deployment/graphql-engine-flags/reference/
       HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
-      # start console with ./scripts/hasura-cli.sh
+      # start console with ./hasura/hasura-cli.sh
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
       HASURA_GRAPHQL_ADMIN_SECRET: 'super_secret_admin_secret'
+      HASURA_GRAPHQL_EVENTS_FETCH_INTERVAL: "600000" # not using events anyway
+      HASURA_GRAPHQL_SCHEMA_SYNC_POLL_INTERVAL: '0' # not storing metadata in kvs
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
     # volumes: [] # no volumes: persisted data should be created in console and source-managed
     links:

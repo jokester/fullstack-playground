@@ -1,11 +1,11 @@
 table:
-  name: users
   schema: user_todo
+  name: users
 array_relationships:
-- name: user_todos
-  using:
-    foreign_key_constraint_on:
-      column: user_id
-      table:
-        name: user_todos
-        schema: user_todo
+  - name: user_todos
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          schema: user_todo
+          name: user_todos

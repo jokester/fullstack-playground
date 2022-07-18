@@ -1,27 +1,27 @@
 - name: allowed-queries
   definition:
     queries:
-    - name: graphTodoApiListTodoQuery
-      query: |-
-        query graphTodoApiListTodoQuery {
-          todos {
-            todo_id
-            title
-            desc
-            finished_at
-            created_at
-            updated_at
+      - name: graphTodoApiListTodoQuery
+        query: |
+          query graphTodoApiListTodoQuery {
+          	todos {
+          		todo_id
+          		title
+          		desc
+          		finished_at
+          		created_at
+          		updated_at
+          	}
           }
-        }
-    - name: graphTodoApiListTodoSubscription
-      query: |-
-        subscription graphTodoApiListTodoSubscription {
-          todos {
-            todo_id
-            title
-            desc
-            finished_at
-            created_at
-            updated_at
+      - name: graphTodoApiListTodoSubscription
+        query: |
+          subscription graphTodoApiListTodoSubscription {
+          	todos {
+          		todo_id
+          		title
+          		desc
+          		finished_at
+          		created_at
+          		updated_at
+          	}
           }
-        }
