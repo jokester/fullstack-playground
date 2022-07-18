@@ -83,7 +83,7 @@ class TodoApiQuillImpl(
 
   }
 
-  override def remove(todoId: Int): Failable[TodoApi.Todo] = {
+  override def remove(todoId: Int): Failable[Unit] = {
 
     try {
 
@@ -93,7 +93,7 @@ class TodoApiQuillImpl(
       val removed = run { findById(todoId).delete.returning(row => row) }
       logger.debug("remove returned {}", removed)
 
-      mapFromDB(removed).asRight
+      ().asRight
 
     } catch {
       case RowNotFoundViolation(_) =>

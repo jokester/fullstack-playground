@@ -58,8 +58,8 @@ class TodoApiMemoryImpl extends TodoApiService with LazyLogging {
       ret
     }
 
-  def remove(todoId: Int): Failable[Todo] = {
-      var found: Either[ApiError, Todo] = Left(NotFound(s"Todo(id=$todoId) not found"))
+  def remove(todoId: Int): Failable[Unit] = {
+      var found: Either[ApiError, Unit] = Left(NotFound(s"Todo(id=$todoId) not found"))
 
       _todos.getAndUpdate(todos => {
         todos

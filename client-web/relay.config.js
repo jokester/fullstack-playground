@@ -6,6 +6,9 @@ const clientWebRoot = __dirname;
 const clientWebSrc = path.join(__dirname, './src');
 const schema = path.join(clientWebRoot, '../api-spec/schema.graphql');
 
+/**
+ * a patch to export graphql queries (imported to hasura later, as query allowlist)
+ */
 const extra = process.env.RELAY_EXPORT_QUERIES && {
   persistConfig: {
     file: path.join(clientWebRoot, '../api-spec/relay-queries.json'),
