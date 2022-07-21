@@ -1,23 +1,17 @@
 package io.jokester.fullstack_playground.user_todolist_api
-import scala.util.chaining._
-import io.circe.generic.auto._
 import cats.syntax.either._
-import io.circe.syntax._
-import io.jokester.fullstack_playground.quill.generated.userTodo.{
-  UserTodos => UserTodoRow,
-  Users => UserRow,
-}
-import io.jokester.fullstack_playground.quill.{
-  QuillCirceJsonEncoding,
-  QuillContextFactory,
-  QuillDatetimeEncoding,
-  QuillWorkarounds,
-}
-import io.jokester.http_api.{OpenAPIAuthConvention, OpenAPIConvention}
-import io.jokester.http_api.OpenAPIConvention.{BadRequest, Failable}
-import io.jokester.utils.security.BCryptHelpers
-import UserTodoApi._
 import com.typesafe.scalalogging.LazyLogging
+import io.circe.generic.auto._
+import io.circe.syntax._
+import io.jokester.fullstack_playground.quill.generated.userTodo.{UserTodos => UserTodoRow, Users => UserRow}
+import io.jokester.fullstack_playground.quill.{QuillCirceJsonEncoding, QuillContextFactory, QuillDatetimeEncoding, QuillWorkarounds}
+import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi._
+import io.jokester.http_api.JwtAuthConvention._
+import io.jokester.http_api.OpenAPIConvention
+import io.jokester.http_api.OpenAPIConvention.BadRequest
+import io.jokester.utils.security.BCryptHelpers
+
+import scala.util.chaining._
 
 class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.UserTodoCtx)
     extends UserTodoService
@@ -53,8 +47,8 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   }
 
   override def updateProfile(
-      userId: OpenAPIAuthConvention.UserId,
-      newProfile: UserTodoApi.UserProfile,
+                              userId: UserId,
+                              newProfile: UserTodoApi.UserProfile,
   ): OpenAPIConvention.Failable[UserTodoApi.UserAccount] = {
     val updated = run({
 
@@ -70,7 +64,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   }
 
   override def showUser(
-      userId: OpenAPIAuthConvention.UserId,
+      userId: UserId,
   ): OpenAPIConvention.Failable[UserTodoApi.UserAccount] = {
     val found: Option[UserAccount] = run({
       UsersDao.query.filter(u => u.userId == lift(userId.value))
@@ -97,7 +91,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   }
 
   override def createTodo(
-      userId: OpenAPIAuthConvention.UserId,
+      userId: UserId,
       req: UserTodoApi.CreateTodoRequest,
   ): OpenAPIConvention.Failable[UserTodoApi.CreateTodoResponse] = {
     val created: UserTodoRow = run(quote {
@@ -117,7 +111,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   }
 
   override def listTodo(
-      userId: OpenAPIAuthConvention.UserId,
+      userId: UserId,
   ): OpenAPIConvention.Failable[UserTodoApi.TodoList] = {
     val found = run(quote {
       UserTodosDao.query.filter(_.userId == lift(userId.value))
@@ -127,7 +121,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   }
 
   override def updateTodo(
-      userId: OpenAPIAuthConvention.UserId,
+      userId: UserId,
       req: UserTodoApi.TodoItem,
   ): OpenAPIConvention.Failable[UserTodoApi.TodoItem] = {
     val found = run(findTodo(userId, req.todoId)).headOption.map(fromRow)
@@ -159,7 +153,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
   }
 
   override def deleteTodo(
-      userId: OpenAPIAuthConvention.UserId,
+      userId: UserId,
       todoId: Int,
   ): OpenAPIConvention.Failable[UserTodoApi.TodoItem] = {
     try {
@@ -172,7 +166,7 @@ class UserTodoServiceQuillImpl(protected override val ctx: QuillContextFactory.U
     }
   }
 
-  private def findTodo(userId: OpenAPIAuthConvention.UserId, todoId: Int) =
+  private def findTodo(userId: UserId, todoId: Int) =
     quote {
       UserTodosDao.query.filter(row =>
         row.userId == lift(userId.value) && row.todoId == lift(todoId),

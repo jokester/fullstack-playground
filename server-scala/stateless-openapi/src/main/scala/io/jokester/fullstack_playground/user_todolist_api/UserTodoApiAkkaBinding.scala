@@ -3,8 +3,8 @@ package io.jokester.fullstack_playground.user_todolist_api
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi._
-import io.jokester.http_api.OpenAPIAuthConvention._
-import io.jokester.http_api.OpenAPIConvention._
+import io.jokester.http_api.JwtAuthConvention
+import io.jokester.http_api.JwtAuthConvention._
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
 
@@ -25,7 +25,7 @@ object UserTodoApiAkkaBinding {
 }
 private class RouteBuilder(impl: UserTodoService, override val jwtSecret: String)(implicit
     ec: ExecutionContext,
-) extends JwtHelper {
+) extends JwtAuthConvention {
   private val interpreter = AkkaHttpServerInterpreter()
 
   def buildRoute: Route =

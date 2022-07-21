@@ -1,7 +1,7 @@
 package io.jokester.fullstack_playground.user_todolist_api
 
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi.CreateTodoResponse
-import io.jokester.http_api.OpenAPIAuthConvention.UserId
+import io.jokester.http_api.JwtAuthConvention.UserId
 import UserTodoApi._
 import io.jokester.http_api.OpenAPIConvention
 
