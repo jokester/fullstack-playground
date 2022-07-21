@@ -11,6 +11,7 @@ import scala.util.{Success, Try}
 import OpenAPIConvention.{Failable, BadRequest, Unauthorized}
 
 object JwtAuthConvention {
+
   /**
     * token from request
     */
@@ -24,11 +25,15 @@ object JwtAuthConvention {
 
 trait JwtAuthConvention extends JwtHelper {
   import JwtAuthConvention._
+  private def now(): Long = Instant.now().getEpochSecond
 
   /**
     * payload to encode into JWT
     */
-  final case class BearerTokenPayload(userId: Int, tokenType: String) {
+  final case class BearerTokenPayload(
+      userId: Int,
+      tokenType: String,
+  ) {
     def assertTokenType(expected: String): Failable[BearerTokenPayload] = {
       if (tokenType == expected) this.asRight
       else OpenAPIConvention.BadRequest("invalid token type").asLeft
@@ -54,19 +59,27 @@ trait JwtAuthConvention extends JwtHelper {
       case _ => Unauthorized("Invalid jwt token").asLeft
     }
 
-  /**
-    * FIXME: implement JWT claims like https://hasura.io/docs/latest/graphql/core/auth/authentication/jwt/
-    *
-      * @param userId
-    * @return
-    */
-  def signAccessToken(userId: Int): String =
-    signToken(BearerTokenPayload(userId, tokenType = "accessToken"), expireIn = 3600)
+  def signAccessToken(userId: Int): String = {
+    signToken(
+      BearerTokenPayload(userId, tokenType = "accessToken"),
+      expiresIn = 3600,
+      issueAt = now(),
+    )
+  }
+
+  def signAccessToken(userId: Int, hasuraClaims: HasuraJwtAuthConvention.HasuraClaims): String = {
+    val fullPayload = JsonObject(
+      ("https://hasura.io/jwt/claims" -> hasuraClaims.asJsonObject.asJson),
+    ).deepMerge(BearerTokenPayload(userId = userId, tokenType = "accessToken").asJsonObject)
+
+    signToken(fullPayload, expiresIn = 3600, issueAt = now())
+  }
 
   def signRefreshToken(userId: Int): String =
     signToken(
       BearerTokenPayload(userId = userId, tokenType = "refreshToken"),
-      expireIn = 3600 * 24 * 7,
+      expiresIn = 3600 * 24 * 7,
+      issueAt = now(),
     )
 
   def validateAccessToken(
@@ -96,17 +109,23 @@ trait JwtAuthConvention extends JwtHelper {
 protected trait JwtHelper {
   def jwtSecret: String
 
-  private def now(): Long = Instant.now().getEpochSecond
-
   protected def signToken[T: Encoder](
       payload: T,
-      expireIn: Int,
-      issueAt: Long = now(),
+      expiresIn: Int,
+      issueAt: Long,
+  ): String = {
+    signToken(payload.asJson, expiresIn, issueAt)
+  }
+
+  protected def signToken(
+      payload: Json,
+      expiresIn: Int,
+      issueAt: Long,
   ): String = {
     val claim = JwtClaim(
       content = payload.asJson.noSpaces,
       issuedAt = Some(issueAt),
-      expiration = Some(issueAt + expireIn),
+      expiration = Some(issueAt + expiresIn),
       notBefore = Some(issueAt),
     )
 
