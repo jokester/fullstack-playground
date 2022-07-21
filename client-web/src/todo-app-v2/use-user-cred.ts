@@ -2,7 +2,6 @@ import { either, option } from 'fp-ts';
 import { useLocalStorage } from 'react-use';
 import { useMemo, useState } from 'react';
 import { pipe } from 'fp-ts/function';
-import { never } from 'fp-ts/Task';
 import { callFetchApiClient } from './use-fetch-api';
 import type { DefaultApi, AuthSuccess } from './generated';
 

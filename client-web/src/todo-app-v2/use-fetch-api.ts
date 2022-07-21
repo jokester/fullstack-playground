@@ -39,7 +39,9 @@ export function callFetchApiClient<T>(
               mode: 'cors',
               headers: {
                 ...init.headers,
-                Authorization: (options?.accessToken && `Bearer ${options.accessToken}`) || '',
+                ...(options?.accessToken && {
+                  Authorization: `Bearer ${options.accessToken}` || '',
+                }),
               },
             },
           };

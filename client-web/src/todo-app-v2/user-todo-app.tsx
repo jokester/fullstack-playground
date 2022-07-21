@@ -4,6 +4,7 @@ import { useUserAuthApi } from './use-user-auth-api';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { useUserTodoApi } from './use-user-todo-api';
 import { TodoItem } from './generated';
+import { useUserTodoGqlApi } from './user-todo-gql-api';
 
 export const UserTodoApp: FC = () => {
   const credApi = useCredStorage();
@@ -22,6 +23,7 @@ export const UserTodoApp: FC = () => {
 const UserPanel: FC<{ cred: CredApi }> = (props) => {
   const authApi = useUserAuthApi(props.cred);
   const me = props.cred.getCurrent();
+  const gqlApi = useUserTodoGqlApi(props.cred);
   return (
     <div>
       <div>
@@ -43,6 +45,8 @@ const UserPanel: FC<{ cred: CredApi }> = (props) => {
       <Button onClick={authApi.onLogout} isLoading={!!authApi.lockDepth} isDisabled={!me}>
         logout
       </Button>
+      <Button onClick={() => gqlApi.listQuery()}>fetch own todos</Button>
+      <Button onClick={() => gqlApi.listQuery(2)}>fetch todos(uid=1)</Button>
     </div>
   );
 };
