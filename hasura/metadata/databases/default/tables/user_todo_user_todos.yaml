@@ -1,19 +1,22 @@
 table:
-  schema: user_todo
   name: user_todos
+  schema: user_todo
 object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: user_id
 select_permissions:
-  - role: guest
+  - role: user
     permission:
       columns:
         - todo_id
         - user_id
-        - description
         - title
-        - created_at
+        - description
         - finished_at
+        - created_at
         - updated_at
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true

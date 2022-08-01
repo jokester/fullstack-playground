@@ -17,7 +17,7 @@ object HasuraJwtAuthConvention {
     def asJsonObject: JsonObject =
       JsonObject(
         "x-hasura-default-role"  -> defaultRole.asJson,
-        "x-hasura-user-id"       -> userId.asJson,
+        "x-hasura-user-id"       -> userId.toString.asJson,
         "x-hasura-allowed-roles" -> hasuraRoles.asJson,
       )
   }
