@@ -77,6 +77,7 @@ services:
       HASURA_GRAPHQL_SCHEMA_SYNC_POLL_INTERVAL: '0' # not storing metadata in kvs
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
       # see https://hasura.io/docs/latest/auth/authentication/jwt/
+      HASURA_GRAPHQL_ENABLE_ALLOWLIST: 'true'
       HASURA_GRAPHQL_JWT_SECRET: |
         {
           "type": "HS256",
