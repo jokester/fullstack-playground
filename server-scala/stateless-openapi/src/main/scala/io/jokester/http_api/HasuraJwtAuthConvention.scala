@@ -9,7 +9,11 @@ object HasuraJwtAuthConvention {
     * @see https://hasura.io/docs/latest/auth/authentication/jwt/#the-spec
     * @return
     */
-  final case class HasuraClaims(userId: Int, hasuraRoles: Seq[String], defaultRole: String) {
+  final case class HasuraClaims(
+      userId: Int,
+      defaultRole: String = "user",
+      hasuraRoles: Seq[String] = Seq("user"),
+  ) {
     def asJsonObject: JsonObject =
       JsonObject(
         "x-hasura-default-role"  -> defaultRole.asJson,

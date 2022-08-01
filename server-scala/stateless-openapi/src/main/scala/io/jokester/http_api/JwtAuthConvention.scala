@@ -69,7 +69,7 @@ trait JwtAuthConvention extends JwtHelper {
 
   def signAccessToken(userId: Int, hasuraClaims: HasuraJwtAuthConvention.HasuraClaims): String = {
     val fullPayload = JsonObject(
-      ("https://hasura.io/jwt/claims" -> hasuraClaims.asJsonObject.asJson),
+      "https://hasura.io/jwt/claims" -> hasuraClaims.asJsonObject.asJson,
     ).deepMerge(BearerTokenPayload(userId = userId, tokenType = "accessToken").asJsonObject)
 
     signToken(fullPayload, expiresIn = 3600, issueAt = now())

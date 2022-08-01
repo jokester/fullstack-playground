@@ -3,7 +3,7 @@ package io.jokester.fullstack_playground.user_todolist_api
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi._
-import io.jokester.http_api.JwtAuthConvention
+import io.jokester.http_api.{HasuraJwtAuthConvention, JwtAuthConvention}
 import io.jokester.http_api.JwtAuthConvention._
 import sttp.model.headers.CookieValueWithMeta
 import sttp.tapir.server.akkahttp.AkkaHttpServerInterpreter
@@ -19,7 +19,7 @@ object UserTodoApiAkkaBinding {
       .getOrElse(throw new Error(s"failed to encode cookie"))
 
   def buildRoute(impl: UserTodoService)(implicit ec: ExecutionContext): Route = {
-    new RouteBuilder(impl, "jwtSecret").buildRoute
+    new RouteBuilder(impl, "jwtSecretLongEnough-b0af-85775b1d8cca").buildRoute
   }
 
 }
@@ -45,7 +45,10 @@ private class RouteBuilder(impl: UserTodoService, override val jwtSecret: String
               yield AuthSuccess(
                 userId = authedAccount.userId,
                 profile = authedAccount.profile,
-                accessToken = signAccessToken(authedAccount.userId),
+                accessToken = signAccessToken(
+                  authedAccount.userId,
+                  HasuraJwtAuthConvention.HasuraClaims(userId = authedAccount.userId),
+                ),
                 refreshToken = signRefreshToken(authedAccount.userId),
               )
           },
@@ -73,12 +76,14 @@ private class RouteBuilder(impl: UserTodoService, override val jwtSecret: String
           .serverLogic(token =>
             req => {
               Future {
-                for (
-                  authedAccount <- impl.showUser(UserId(token.userId)))
+                for (authedAccount <- impl.showUser(UserId(token.userId)))
                   yield AuthSuccess(
                     userId = authedAccount.userId,
                     profile = authedAccount.profile,
-                    accessToken = signAccessToken(authedAccount.userId),
+                    accessToken = signAccessToken(
+                      authedAccount.userId,
+                      HasuraJwtAuthConvention.HasuraClaims(userId = token.userId),
+                    ),
                     refreshToken = signRefreshToken(authedAccount.userId),
                   )
               }
