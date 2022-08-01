@@ -35,9 +35,9 @@ services:
       timeout: 30s
       retries: 10
 
-  hasura:
+  hasura: &hasura-base
     # see https://hub.docker.com/r/hasura/graphql-engine
-    image: hasura/graphql-engine:v2.8.4.cli-migrations-v3
+    image: hasura/graphql-engine:v2.9.0.cli-migrations-v3
     command: # see https://github.com/hasura/graphql-engine/blob/master/packaging/cli-migrations/v3/docker-entrypoint.sh
       - graphql-engine
       - serve
@@ -50,6 +50,8 @@ services:
       HASURA_GRAPHQL_EVENTS_FETCH_INTERVAL: "600000" # not using events anyway
       HASURA_GRAPHQL_SCHEMA_SYNC_POLL_INTERVAL: '0' # not storing metadata in kvs
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_ADMIN_INTERNAL_ERRORS: 'true'
     # volumes: [] # no volumes: persisted data should be created in console and source-managed
     links:
       - pgsql
@@ -59,3 +61,24 @@ services:
     depends_on:
       pgsql:
         condition: service_healthy
+
+  hasura-hardened:
+    <<: *hasura-base
+    environment: # see https://hasura.io/docs/latest/graphql/core/deployment/graphql-engine-flags/reference/
+      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
+      HASURA_GRAPHQL_ADMIN_SECRET: 'super_secret_admin_secret'
+      HASURA_GRAPHQL_EVENTS_FETCH_INTERVAL: "600000" # not using events anyway
+      HASURA_GRAPHQL_SCHEMA_SYNC_POLL_INTERVAL: '0' # not storing metadata in kvs
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
+      # see https://hasura.io/docs/latest/auth/authentication/jwt/
+      HASURA_GRAPHQL_JWT_SECRET: |
+        {
+          "type": "HS256",
+          "key": "jwtSecretLongEnough-b0af-85775b1d8cca"
+        }
+    volumes: # see https://hasura.io/docs/latest/migrations-metadata-seeds/auto-apply-migrations/
+      - ./hasura/migrations:/hasura-migrations:ro
+      - ./hasura/metadata:/hasura-metadata:ro
+    ports:
+      - 62080:8080
