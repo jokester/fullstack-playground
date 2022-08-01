@@ -1,6 +1,7 @@
 package io.jokester.fullstack_playground.todolist_api
 
 import io.jokester.http_api.FailableValues
+import cats.syntax.either._
 import org.scalatest._
 import flatspec._
 import matchers._
@@ -58,7 +59,7 @@ trait TodoApiImplTest
     testee.list().right.value.todos should contain(updated4)
 
     // D
-    testee.remove(created.id).right.value should equal(updated)
+    testee.remove(created.id) should equal (().asRight)
     testee.remove(-1).left.value should equal(NotFound(s"Todo(id=-1) not found"))
     val list3 = testee.list().right.value.todos
     list3 should not.contain(created)

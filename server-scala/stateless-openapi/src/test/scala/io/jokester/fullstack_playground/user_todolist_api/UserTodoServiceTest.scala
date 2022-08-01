@@ -3,7 +3,7 @@ package io.jokester.fullstack_playground.user_todolist_api
 import com.github.javafaker.Faker
 import io.jokester.fullstack_playground.user_todolist_api.UserTodoApi._
 import io.jokester.http_api.FailableValues
-import io.jokester.http_api.OpenAPIAuthConvention.UserId
+import io.jokester.http_api.JwtAuthConvention.UserId
 import io.jokester.http_api.OpenAPIConvention.BadRequest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.flatspec.AnyFlatSpec
