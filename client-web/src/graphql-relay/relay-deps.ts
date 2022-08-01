@@ -2,11 +2,11 @@ import { Environment, Network, Observable, RecordSource, Store } from 'relay-run
 import { SubscriptionClient, Observable as WsObservable } from 'subscriptions-transport-ws';
 import { defaultApiEndpoints, inServer } from '../config/build-env';
 
-export function createRelayEnv(graphqlEndpoint: string, accessToken?: string): Environment {
+export function createRelayEnv(graphqlEndpoint: string, accessToken?: string, hasuraRole?: string): Environment {
   const store = new Store(new RecordSource());
   const subscriptionClient: SubscriptionClient = inServer
     ? (null as any)
-    : new SubscriptionClient(graphqlEndpoint.replace(/^http/i, 'ws'), { reconnect: true });
+    : new SubscriptionClient(graphqlEndpoint.replace(/^http/i, 'ws'), { lazy: true });
   const network = Network.create(
     // fetch
     (operation, variables) => {
@@ -18,6 +18,9 @@ export function createRelayEnv(graphqlEndpoint: string, accessToken?: string): E
           'Content-Type': 'application/json',
           ...(accessToken && {
             Authorization: `Bearer ${accessToken}`,
+            ...(hasuraRole && {
+              'x-hasura-role': hasuraRole,
+            }),
           }),
         },
         body: JSON.stringify({
@@ -30,6 +33,11 @@ export function createRelayEnv(graphqlEndpoint: string, accessToken?: string): E
       });
     },
     // subscribe
+    (req) => {
+      console.debug('why are you subscribing???', req);
+      const wtf = subscriptionClient.request(req);
+      return toRelayObservable(wtf);
+    },
   );
 
   return new Environment({
@@ -69,7 +77,7 @@ export async function fetchGraphQL(text: string, variables: Record<string, unkno
 
 export function createDemoRelayEnv() {
   const store = new Store(new RecordSource());
-  console.debug('createDebugRelayEnv')
+  console.debug('createDebugRelayEnv');
   return new Environment({
     network: Network.create((request, variables) => fetchGraphQL(request.text!, variables)),
     store,
