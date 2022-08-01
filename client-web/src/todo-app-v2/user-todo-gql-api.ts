@@ -24,7 +24,6 @@ export function useUserTodoGqlApi(credApi: CredApi, gqlEndpoint = defaultApiEndp
     const relayEnv = createRelayEnv(defaultApiEndpoints.graphql, cred.accessToken);
     console.debug('relayEnv', (envRef.current = relayEnv));
 
-
     return () => {
       // TODO: what
     };

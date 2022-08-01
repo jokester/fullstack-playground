@@ -17,7 +17,6 @@ function convertGraphqlRes(grahqlRes: graphTodoApiListTodoQuery['response']['tod
 }
 
 export function useRelayEnv(graphqlEndPoint?: string, accessToken?: string) {
-
   return useMemo(() => {
     if (graphqlEndPoint) {
       const relayEnv = createRelayEnv(graphqlEndPoint, accessToken);
@@ -30,7 +29,7 @@ export function useRelayEnv(graphqlEndPoint?: string, accessToken?: string) {
 }
 
 export function useTodoGqlApi(graphqlEndPoint?: string) {
-  const queryDeps = useRelayEnv(graphqlEndPoint)
+  const queryDeps = useRelayEnv(graphqlEndPoint);
 
   return useMemo(() => {
     const listQuery =
