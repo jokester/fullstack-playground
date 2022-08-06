@@ -15,13 +15,32 @@
 import * as runtime from '../runtime';
 import {
   BadRequest,
+  BadRequestFromJSON,
+  BadRequestToJSON,
   CreateTodoIntent,
+  CreateTodoIntentFromJSON,
+  CreateTodoIntentToJSON,
+  Forbidden,
+  ForbiddenFromJSON,
+  ForbiddenToJSON,
   NotFound,
+  NotFoundFromJSON,
+  NotFoundToJSON,
   NotImplemented,
+  NotImplementedFromJSON,
+  NotImplementedToJSON,
   ServerError,
+  ServerErrorFromJSON,
+  ServerErrorToJSON,
   Todo,
+  TodoFromJSON,
+  TodoToJSON,
   TodoList,
+  TodoListFromJSON,
+  TodoListToJSON,
   Unauthorized,
+  UnauthorizedFromJSON,
+  UnauthorizedToJSON,
 } from '../models';
 
 export interface CreateTODORequest {
@@ -50,7 +69,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async createTODORaw(
     requestParameters: CreateTODORequest,
-    initOverrides?: RequestInit,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<Todo>> {
     if (requestParameters.createTodoIntent === null || requestParameters.createTodoIntent === undefined) {
       throw new runtime.RequiredError(
@@ -71,18 +90,21 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: requestParameters.createTodoIntent,
+        body: CreateTodoIntentToJSON(requestParameters.createTodoIntent),
       },
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response);
+    return new runtime.JSONApiResponse(response, (jsonValue) => TodoFromJSON(jsonValue));
   }
 
   /**
    * create TODO item
    */
-  async createTODO(requestParameters: CreateTODORequest, initOverrides?: RequestInit): Promise<Todo> {
+  async createTODO(
+    requestParameters: CreateTODORequest,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
+  ): Promise<Todo> {
     const response = await this.createTODORaw(requestParameters, initOverrides);
     return await response.value();
   }
@@ -92,7 +114,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async deleteTODORaw(
     requestParameters: DeleteTODORequest,
-    initOverrides?: RequestInit,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<void>> {
     if (requestParameters.todoId === null || requestParameters.todoId === undefined) {
       throw new runtime.RequiredError(
@@ -121,14 +143,17 @@ export class DefaultApi extends runtime.BaseAPI {
   /**
    * delete todoItem
    */
-  async deleteTODO(requestParameters: DeleteTODORequest, initOverrides?: RequestInit): Promise<void> {
+  async deleteTODO(
+    requestParameters: DeleteTODORequest,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
+  ): Promise<void> {
     await this.deleteTODORaw(requestParameters, initOverrides);
   }
 
   /**
    * get list of TODOs
    */
-  async listTODORaw(initOverrides?: RequestInit): Promise<runtime.ApiResponse<TodoList>> {
+  async listTODORaw(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<runtime.ApiResponse<TodoList>> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -143,13 +168,13 @@ export class DefaultApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response);
+    return new runtime.JSONApiResponse(response, (jsonValue) => TodoListFromJSON(jsonValue));
   }
 
   /**
    * get list of TODOs
    */
-  async listTODO(initOverrides?: RequestInit): Promise<TodoList> {
+  async listTODO(initOverrides?: RequestInit | runtime.InitOverideFunction): Promise<TodoList> {
     const response = await this.listTODORaw(initOverrides);
     return await response.value();
   }
@@ -159,7 +184,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async showTODORaw(
     requestParameters: ShowTODORequest,
-    initOverrides?: RequestInit,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<Todo>> {
     if (requestParameters.todoId === null || requestParameters.todoId === undefined) {
       throw new runtime.RequiredError(
@@ -182,13 +207,16 @@ export class DefaultApi extends runtime.BaseAPI {
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response);
+    return new runtime.JSONApiResponse(response, (jsonValue) => TodoFromJSON(jsonValue));
   }
 
   /**
    * get TODO by id
    */
-  async showTODO(requestParameters: ShowTODORequest, initOverrides?: RequestInit): Promise<Todo> {
+  async showTODO(
+    requestParameters: ShowTODORequest,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
+  ): Promise<Todo> {
     const response = await this.showTODORaw(requestParameters, initOverrides);
     return await response.value();
   }
@@ -198,7 +226,7 @@ export class DefaultApi extends runtime.BaseAPI {
    */
   async updateTODORaw(
     requestParameters: UpdateTODORequest,
-    initOverrides?: RequestInit,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
   ): Promise<runtime.ApiResponse<Todo>> {
     if (requestParameters.todoId === null || requestParameters.todoId === undefined) {
       throw new runtime.RequiredError(
@@ -226,18 +254,21 @@ export class DefaultApi extends runtime.BaseAPI {
         method: 'PATCH',
         headers: headerParameters,
         query: queryParameters,
-        body: requestParameters.todo,
+        body: TodoToJSON(requestParameters.todo),
       },
       initOverrides,
     );
 
-    return new runtime.JSONApiResponse(response);
+    return new runtime.JSONApiResponse(response, (jsonValue) => TodoFromJSON(jsonValue));
   }
 
   /**
    * update todoItem
    */
-  async updateTODO(requestParameters: UpdateTODORequest, initOverrides?: RequestInit): Promise<Todo> {
+  async updateTODO(
+    requestParameters: UpdateTODORequest,
+    initOverrides?: RequestInit | runtime.InitOverideFunction,
+  ): Promise<Todo> {
     const response = await this.updateTODORaw(requestParameters, initOverrides);
     return await response.value();
   }

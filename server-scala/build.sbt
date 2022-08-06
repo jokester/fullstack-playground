@@ -22,7 +22,7 @@ lazy val statelessAkkaHttp = (project in file("stateless-akka-http"))
 lazy val statelessOpenapi = (project in file("stateless-openapi"))
   .settings(
     name := "stateless-openapi",
-    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ testDeps ++ utilDeps,
     Universal / target := file("target/universal"),
   )
   .enablePlugins(JavaAppPackaging)
@@ -31,23 +31,29 @@ lazy val statelessOpenapi = (project in file("stateless-openapi"))
 lazy val statedGraphqlOpenapi = (project in file("stated-graphql-openapi"))
   .settings(
     name := "stated-graphql-openapi",
-    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ quillDeps ++ scalikeJdbcDeps ++ testDeps ++ buildDeps,
+    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ quillDeps ++ testDeps ++ buildDeps,
     Universal / target := file("target/universal"),
   )
-  .enablePlugins(
-    JavaAppPackaging,
-    // see http://scalikejdbc.org/documentation/reverse-engineering.html
-    // (not generating prefect code)
-    ScalikejdbcPlugin,
-  )
+  .enablePlugins(JavaAppPackaging)
   .dependsOn(statelessAkkaHttp, statelessOpenapi % "compile->compile;test->test;")
 
 lazy val rdbCodegen = (project in file("rdb-codegen"))
   .settings(
     name := "rdb-codegen",
-    libraryDependencies ++= basicDeps ++ quillCodegenDeps,
-    // dependencyOverrides ++= basicDeps, // required to force use of old SFJ4j api supported by logback-classic
+    libraryDependencies ++= basicDeps ++ quillCodegenDeps ++ circeDeps,
   )
+
+lazy val legacyScalikeJdbc = (project in file("stated-scalikejdbc"))
+  .settings(
+    name := "stated-scalikejdbc",
+    libraryDependencies ++= basicDeps ++ akkaDeps ++ circeDeps ++ tapirDeps ++ scalikeJdbcDeps ++ testDeps ++ buildDeps,
+  )
+  .enablePlugins(
+    // see http://scalikejdbc.org/documentation/reverse-engineering.html
+    // (not generating prefect code)
+    ScalikejdbcPlugin,
+  )
+  .dependsOn(statelessAkkaHttp, statelessOpenapi % "compile->compile;test->test;")
 
 lazy val enableQuillLog = taskKey[Unit]("enable quill logs")
 enableQuillLog := {

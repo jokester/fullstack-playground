@@ -5,6 +5,9 @@ declare const process: {
 };
 
 export const inBrowser = typeof window !== 'undefined';
+/**
+ * @deprecated prefer {@name useInServer} to prevent SSR mismatches
+ */
 export const inServer = !inBrowser;
 
 export const isDevBuild = Boolean(process.env.NEXT_DEV);
@@ -17,7 +20,7 @@ export const defaultApiEndpoints = isDevBuild
   ? ({
       statelessOpenAPI: 'http://127.0.0.1:8080/stateless-openapi',
       statedOpenAPI: 'http://127.0.0.1:8080/stated-openapi',
-      graphql: 'http://127.0.0.1:61080/v1/graphql',
+      graphql: 'http://127.0.0.1:62080/v1/graphql', // change port to 62080 to consume the hardened hasura instance
       akkaMessageSink: 'TODO',
     } as const)
   : ({

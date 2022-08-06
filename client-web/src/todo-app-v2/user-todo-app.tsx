@@ -4,6 +4,7 @@ import { useUserAuthApi } from './use-user-auth-api';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { useUserTodoApi } from './use-user-todo-api';
 import { TodoItem } from './generated';
+import { useUserTodoGqlApi } from './user-todo-gql-api';
 
 export const UserTodoApp: FC = () => {
   const credApi = useCredStorage();
@@ -22,12 +23,13 @@ export const UserTodoApp: FC = () => {
 const UserPanel: FC<{ cred: CredApi }> = (props) => {
   const authApi = useUserAuthApi(props.cred);
   const me = props.cred.getCurrent();
+  const gqlApi = useUserTodoGqlApi(props.cred);
   return (
     <div>
       <div>
         {me ? (
           <p>
-            logged in as user: id={me.userId} / profile = {JSON.stringify(me.userProfile)}
+            logged in as user: id={me.userId} / profile = {JSON.stringify(me.profile)}
           </p>
         ) : (
           'not authed'
@@ -43,6 +45,8 @@ const UserPanel: FC<{ cred: CredApi }> = (props) => {
       <Button onClick={authApi.onLogout} isLoading={!!authApi.lockDepth} isDisabled={!me}>
         logout
       </Button>
+      <Button onClick={() => gqlApi.listQuery()}>fetch own todos</Button>
+      <Button onClick={() => gqlApi.listQuery(2)}>fetch todos(uid=1)</Button>
     </div>
   );
 };
@@ -81,11 +85,11 @@ const TodoPanelItemOpenAPI: React.FC<{ todoApi: ReturnType<typeof useUserTodoApi
 }) => {
   const [titleInput, setTitleInput] = useState(todo.title);
   const [descInput, setDescInput] = useState(todo.description);
-  const [finishedAt, setFinishedAt] = useState<undefined | Date>(todo.finishedAt);
+  const [finishedAt, setFinishedAt] = useState<undefined | Date>(todo.finishedAt || undefined);
   useEffect(() => {
     setTitleInput(todo.title);
     setDescInput(todo.description);
-    setFinishedAt(todo.finishedAt);
+    setFinishedAt(todo.finishedAt || undefined);
   }, [todo]);
 
   const finishedAtView = finishedAt?.toUTCString() || 'EMPTY';

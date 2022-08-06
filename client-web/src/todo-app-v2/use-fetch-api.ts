@@ -1,4 +1,4 @@
-import type { DefaultApi, LoginResponse } from './generated';
+import type { DefaultApi, AuthSuccess } from './generated';
 import { inServer } from '../config/build-env';
 import { Never } from '@jokester/ts-commonutil/lib/concurrency/timing';
 import { PromiseResult, usePromised } from '@jokester/ts-commonutil/lib/react/hook/use-promised';
@@ -6,9 +6,11 @@ import { useEffect, useState } from 'react';
 
 const apiP: Promise<DefaultApi> = inServer
   ? Never
-  : import('./generated').then((_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080` })));
+  : import('./generated').then(
+      (_) => new _.DefaultApi(new _.Configuration({ basePath: `http://localhost:8080/stated-openapi` })),
+    );
 
-function readAuth(): null | LoginResponse {
+function readAuth(): null | AuthSuccess {
   if (inServer) return null;
   try {
     return JSON.parse(localStorage.getItem('__auth') || '-');
@@ -17,7 +19,7 @@ function readAuth(): null | LoginResponse {
   }
 }
 
-export function DEBUG_saveAuth(loginRes: LoginResponse): void {
+export function DEBUG_saveAuth(loginRes: AuthSuccess): void {
   return localStorage.setItem('__auth', JSON.stringify(loginRes));
 }
 
@@ -29,6 +31,7 @@ export function callFetchApiClient<T>(
     .then(
       (api): DefaultApi =>
         api.withPreMiddleware(async ({ init, url }) => {
+          console.debug('with pre middleware', init, url, options, options?.accessToken);
           return {
             url: url,
             init: {
@@ -36,7 +39,9 @@ export function callFetchApiClient<T>(
               mode: 'cors',
               headers: {
                 ...init.headers,
-                Authorization: (options?.accessToken && `Bearer ${options.accessToken}`) || '',
+                ...(options?.accessToken && {
+                  Authorization: `Bearer ${options.accessToken}` || '',
+                }),
               },
             },
           };

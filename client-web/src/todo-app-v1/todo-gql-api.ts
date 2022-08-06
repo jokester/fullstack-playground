@@ -16,16 +16,20 @@ function convertGraphqlRes(grahqlRes: graphTodoApiListTodoQuery['response']['tod
   };
 }
 
-export function useTodoGqlApi(graphqlEndPoint?: string) {
-  const queryDeps = useMemo(() => {
+export function useRelayEnv(graphqlEndPoint?: string, accessToken?: string) {
+  return useMemo(() => {
     if (graphqlEndPoint) {
-      const relayEnv = createRelayEnv(graphqlEndPoint);
+      const relayEnv = createRelayEnv(graphqlEndPoint, accessToken);
       return {
         relayEnv,
       };
     }
     return null;
-  }, [graphqlEndPoint]);
+  }, [graphqlEndPoint, accessToken]);
+}
+
+export function useTodoGqlApi(graphqlEndPoint?: string) {
+  const queryDeps = useRelayEnv(graphqlEndPoint);
 
   return useMemo(() => {
     const listQuery =

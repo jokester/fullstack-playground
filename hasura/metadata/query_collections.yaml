@@ -1,9 +1,10 @@
+---
 - name: allowed-queries
   definition:
     queries:
-    - name: graphTodoApiListTodoQuery
-      query: |-
-        query graphTodoApiListTodoQuery {
+    - name: query3c602f81efce2852ad91d3f48afa9505
+      query: |
+        subscription graphTodoApiListTodoSubscription {
           todos {
             todo_id
             title
@@ -13,9 +14,28 @@
             updated_at
           }
         }
-    - name: graphTodoApiListTodoSubscription
-      query: |-
-        subscription graphTodoApiListTodoSubscription {
+    - name: query7050681da1c3775b6302144a72116e9b
+      query: |
+        query graphUserTodoApiListMyTodosQuery(
+          $userId: Int!
+        ) {
+          user: user_todo_users(where: {user_id: {_eq: $userId}}) {
+            updated_at
+            user_id
+          }
+          todos: user_todo_user_todos {
+            user_id
+            todo_id
+            title
+            finished_at
+            description
+            created_at
+            updated_at
+          }
+        }
+    - name: query8893981886a5ab571c62118acb65d467
+      query: |
+        query graphTodoApiListTodoQuery {
           todos {
             todo_id
             title

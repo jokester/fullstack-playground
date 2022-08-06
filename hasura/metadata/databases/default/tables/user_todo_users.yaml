@@ -1,0 +1,23 @@
+table:
+  name: users
+  schema: user_todo
+array_relationships:
+  - name: user_todos
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_todos
+          schema: user_todo
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - email
+        - profile
+        - updated_at
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id

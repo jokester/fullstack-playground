@@ -1,28 +1,28 @@
 import { either, option } from 'fp-ts';
 import { useLocalStorage } from 'react-use';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { pipe } from 'fp-ts/function';
-import { never } from 'fp-ts/Task';
 import { callFetchApiClient } from './use-fetch-api';
-import type { DefaultApi, LoginResponse } from './generated';
+import type { DefaultApi, AuthSuccess } from './generated';
 
 export interface CredApi {
-  getCurrent(): null | LoginResponse;
-  onRefreshed(res: LoginResponse): void;
-  callApi<T>(task: (api: DefaultApi, currentUser: null | LoginResponse) => Promise<T>): Promise<T>;
-  callApiWithCred<T>(task: (api: DefaultApi, currentUser: LoginResponse) => Promise<T>): Promise<T>;
+  getCurrent(): null | AuthSuccess;
+  onRefreshed(res: AuthSuccess): void;
+  callApi<T>(task: (api: DefaultApi, currentUser: null | AuthSuccess) => Promise<T>): Promise<T>;
+  callApiWithCred<T>(task: (api: DefaultApi, currentUser: AuthSuccess) => Promise<T>): Promise<T>;
   onClear(): void;
 }
 
 async function _callApiWithCred<T>(
   cred: CredApi,
   task: (api: DefaultApi) => Promise<T>,
-): Promise<{ refreshed: option.Option<LoginResponse>; res: either.Either<unknown, T> }> {
+): Promise<{ refreshed: option.Option<AuthSuccess>; res: either.Either<unknown, T> }> {
   try {
-    console.debug('using cred', cred.getCurrent());
-    const res: either.Either<unknown, T> = await callFetchApiClient<T>(task, {
-      accessToken: cred.getCurrent()?.accessToken.value || undefined,
-    }).then(either.right, either.left);
+    const apiOption = {
+      accessToken: cred.getCurrent()?.accessToken || undefined,
+    };
+    console.debug('using cred', cred.getCurrent(), apiOption);
+    const res: either.Either<unknown, T> = await callFetchApiClient<T>(task, apiOption).then(either.right, either.left);
 
     // TODO: handle token refresh and stuff
     return {
@@ -45,30 +45,32 @@ function getRightOrThrow<T>(e: either.Either<any, T>): T {
 }
 
 export function useCredStorage(): CredApi {
-  const [revivedCred, saveCred, clearCred] = useLocalStorage<null | LoginResponse>('___user_todo_api_cred');
+  const [revivedCred, saveCred, clearCred] = useLocalStorage<null | AuthSuccess>('___user_todo_api_auth_success');
   const [cred, setCred] = useState(revivedCred || null);
 
-  const credApi: CredApi = {
-    getCurrent: () => cred,
-    onRefreshed: (v) => {
-      setCred(v);
-      saveCred(v);
-    },
-    callApi<T>(task: (api: DefaultApi, currentUser: LoginResponse | null) => Promise<T>): Promise<T> {
-      return _callApiWithCred(credApi, (api) => task(api, cred)).then((e) => getRightOrThrow(e.res) as T);
-    },
-    callApiWithCred<T>(task: (api: DefaultApi, currentUser: LoginResponse) => Promise<T>): Promise<T> {
-      if (cred) {
+  const credApi: CredApi = useMemo(
+    (): CredApi => ({
+      getCurrent: () => cred,
+      onRefreshed: (v) => {
+        setCred(v);
+        saveCred(v);
+      },
+      callApi<T>(task: (api: DefaultApi, currentUser: AuthSuccess | null) => Promise<T>): Promise<T> {
         return _callApiWithCred(credApi, (api) => task(api, cred)).then((e) => getRightOrThrow(e.res) as T);
-      } else {
-        /* FIXME */
-        return never();
-      }
-    },
-    onClear: () => {
-      clearCred();
-      setCred(null);
-    },
-  };
+      },
+      callApiWithCred<T>(task: (api: DefaultApi, currentUser: AuthSuccess) => Promise<T>): Promise<T> {
+        if (cred) {
+          return _callApiWithCred(credApi, (api) => task(api, cred)).then((e) => getRightOrThrow(e.res) as T);
+        } else {
+          return Promise.reject(new Error('cred not available'));
+        }
+      },
+      onClear: () => {
+        clearCred();
+        setCred(null);
+      },
+    }),
+    [cred],
+  );
   return credApi;
 }

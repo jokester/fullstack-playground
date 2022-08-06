@@ -3,21 +3,9 @@ const { withPlugins, optional } = require('next-compose-plugins');
 
 const { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } = require('next/constants');
 
+/** @type {import('next').NextConfig} */
 const nextConf = {
   poweredByHeader: false,
-  analyzeServer: ['server', 'both'].includes(process.env.BUNDLE_ANALYZE),
-  analyzeBrowser: ['browser', 'both'].includes(process.env.BUNDLE_ANALYZE),
-  bundleAnalyzerConfig: {
-    server: {
-      analyzerMode: 'static',
-      // reportFilename: '../bundles/server.html'
-    },
-    browser: {
-      analyzerMode: 'static',
-      // reportFilename: '../bundles/client.html'
-    },
-  },
-
   env: {
     // becomes process.env.SOME_CONSTANT : boolean
   },

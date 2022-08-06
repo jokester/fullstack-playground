@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "graphqurl": "^1.0.1",
-    "hasura-cli": "^2.0.9"
+    "hasura-cli": "^2.9.0"
   }
 }

@@ -1,22 +1,28 @@
 package io.jokester.fullstack_playground.todolist_api
+
+import io.jokester.http_api.FailableValues
+import cats.syntax.either._
 import org.scalatest._
 import flatspec._
 import matchers._
+import org.scalatest.concurrent.ScalaFutures
+import io.jokester.fullstack_playground.todolist_api.TodoApi._
+import io.jokester.http_api.OpenAPIConvention._
 
-trait TodoApiImplTest extends should.Matchers with EitherValues {
+trait TodoApiImplTest
+    extends should.Matchers
+    with EitherValues
+    with ScalaFutures
+    with FailableValues {
   self: AnyFlatSpec =>
-  import io.jokester.fullstack_playground.todolist_api.TodoApi._
-  import io.jokester.fullstack_playground.todolist_api.ApiConvention._
 
-  def testee: TodoApiImpl
-
-  "testee" should "CRUD" in {
-    // C
-    val list1   = testee.list().right.value
-    val created = testee.create(CreateTodoIntent("title", "desc")).right.value
+  def testee: TodoApiService
+  "testee" should "CRUD" in { // C
+    val list1   = testee.list().right.value.todos
+    val created = testee.create(CreateTodoIntent("title", "desc")).value
     list1 should not.contain(created)
 
-    val list2 = testee.list().right.value
+    val list2 = testee.list().right.value.todos
     list2 should contain(created)
 
     // R
@@ -37,7 +43,7 @@ trait TodoApiImplTest extends should.Matchers with EitherValues {
         .value
     val updated3 =
       testee
-        .update(created.id, created.copy(title = "title3", desc = "desc3", finished = true))
+        .update(created.id, created.copy(title = "title3", desc = "desc3", finished = false))
         .right
         .value
     val updated4 =
@@ -46,15 +52,16 @@ trait TodoApiImplTest extends should.Matchers with EitherValues {
         .right
         .value
     val updated = updated4
-    testee.list().right.value should contain(updated)
-    testee.list().right.value should contain(updated)
-    testee.list().right.value should contain(updated)
-    testee.list().right.value should not.contain(created)
+    testee.list().right.value.todos should not.contain(created)
+    testee.list().right.value.todos should not.contain(updated1)
+    testee.list().right.value.todos should not.contain(updated2)
+    testee.list().right.value.todos should not.contain(updated3)
+    testee.list().right.value.todos should contain(updated4)
 
     // D
-    testee.remove(created.id).right.value should equal(updated)
+    testee.remove(created.id) should equal (().asRight)
     testee.remove(-1).left.value should equal(NotFound(s"Todo(id=-1) not found"))
-    val list3 = testee.list().right.value
+    val list3 = testee.list().right.value.todos
     list3 should not.contain(created)
     list3 should not.contain(updated)
 

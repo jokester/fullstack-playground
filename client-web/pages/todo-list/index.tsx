@@ -4,6 +4,11 @@ import { DefaultMeta } from '../../src/components/meta/default-meta';
 import { useRouter } from 'next/router';
 import { defaultApiEndpoints } from '../../src/config/build-env';
 
+function wtf() {
+  const e = new Error();
+  const v = e.cause;
+}
+
 const TodoListAppPage: React.FC = () => {
   const params = useRouter().query as { openapi?: string; gql?: string };
   const apiOrigin = (typeof params?.openapi === 'string' && params.openapi) || defaultApiEndpoints.statedOpenAPI;

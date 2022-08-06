@@ -1,39 +1,29 @@
+/**
+ * @generated SignedSource<<a4c98eb1d41cdbe588423769d31cb212>>
+ * @lightSyntaxTransform
+ * @nogrep
+ */
+
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest } from "relay-runtime";
-
-export type graphTodoApiListTodoSubscriptionVariables = {};
-export type graphTodoApiListTodoSubscriptionResponse = {
-    readonly todos: ReadonlyArray<{
-        readonly todo_id: number;
-        readonly title: string;
-        readonly desc: string;
-        readonly finished_at: Date | null;
-        readonly created_at: Date;
-        readonly updated_at: Date;
-    }>;
+import { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+export type graphTodoApiListTodoSubscription$variables = {};
+export type graphTodoApiListTodoSubscription$data = {
+  readonly todos: ReadonlyArray<{
+    readonly created_at: Date;
+    readonly desc: string;
+    readonly finished_at: Date | null;
+    readonly title: string;
+    readonly todo_id: number;
+    readonly updated_at: Date;
+  }>;
 };
 export type graphTodoApiListTodoSubscription = {
-    readonly response: graphTodoApiListTodoSubscriptionResponse;
-    readonly variables: graphTodoApiListTodoSubscriptionVariables;
+  response: graphTodoApiListTodoSubscription$data;
+  variables: graphTodoApiListTodoSubscription$variables;
 };
-
-
-
-/*
-subscription graphTodoApiListTodoSubscription {
-  todos {
-    todo_id
-    title
-    desc
-    finished_at
-    created_at
-    updated_at
-  }
-}
-*/
 
 const node: ConcreteRequest = (function(){
 var v0 = [
@@ -118,5 +108,7 @@ return {
   }
 };
 })();
-(node as any).hash = 'fe8cef8afb9e2702b2172a78c7bfeded';
+
+(node as any).hash = "fe8cef8afb9e2702b2172a78c7bfeded";
+
 export default node;
