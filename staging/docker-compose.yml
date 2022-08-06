@@ -1,64 +1,27 @@
-version: '3'
+version: '3.9'
 
 services:
-  pgsql:
-    # https://hub.docker.com/_/postgres
-    image: postgres:12.8
+  hasura-migration:
+    image: hasura/graphql-engine:v2.9.0.cli-migrations-v3
+    command:
+      - 'true' # exit after migration/metadata applied
     environment:
-      POSTGRES_USER: pguser
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: playground
-    volumes:
-      - ./data-pgsql:/var/lib/postgresql/data
-    ports:
-      - 61432:5432
-    restart: on-failure
-    healthcheck:
-      test: ['CMD', 'pg_isready']
-      interval: 1s
-      timeout: 30s
-      retries: 10
-    logging: &log_fluentd
-      driver: fluentd
-      options:
-        fluentd-address: "127.0.0.1:24224"
-        # REQUIRES docker 1.11
-        fluentd-async-connect: "true"
-        tag: container-{{.Name}}-{{.ID}}
-
-  hasura:
-    image: hasura/graphql-engine:v2.4.0.cli-migrations-v3
-    # image: spaster/alpine-sleep  # override to disable hasura
-    command: # see https://github.com/hasura/graphql-engine/blob/master/scripts/cli-migrations/v3
-      - graphql-engine
-      - serve
-      - --connections=20
-      - --schema-sync-poll-interval=60000
-    environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
-      # start console with ./scripts/hasura-cli.sh
+      HASURA_GRAPHQL_DATABASE_URL: postgres://demo_fullstack_playground:super_secret@192.168.2.120:21432/fullstack_playground
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
-      # https://hasura.io/docs/latest/graphql/core/migrations/advanced/auto-apply-migrations.html#auto-apply-migrations
-      HASURA_GRAPHQL_MIGRATIONS_DIR: /srv/hasura/migrations
-      HASURA_GRAPHQL_METADATA_DIR: /srv/hasura/metadata
-      HASURA_GRAPHQL_ADMIN_SECRET: 'TODO-extremely-secret-secret'
+      HASURA_GRAPHQL_ADMIN_SECRET: 'extremely-secret-secret'
       HASURA_GRAPHQL_ENABLE_ALLOWLIST: 'true'
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
     volumes:
-      - ../hasura/migrations/:/srv/hasura/migrations:ro
-      - ../hasura/metadata/:/srv/hasura/metadata:ro
-    links:
-      - pgsql
+      - ../hasura/migrations/:/hasura-migrations:ro
+      - ../hasura/metadata/:/hasura-metadata:ro
     ports:
       - 61080:8080
     restart: on-failure
-    logging: *log_fluentd
-    depends_on:
-      pgsql:
-        condition: service_healthy
 
   server-scala-stated:
     image: ghcr.io/jokester/fullstack-playground-server-scala:sha-015e0ea
+    profiles:
+      - NOAUTO
     environment:
       APP_DB_URL: jdbc:postgresql://pgsql:5432/playground
       APP_DB_USER: pguser
@@ -66,18 +29,6 @@ services:
     command:
       - /srv/stated-graphql-openapi-current/bin/stated-graphql-openapi
       - server
-    links:
-      - pgsql
     ports:
       - 61081:8080
     restart: on-failure
-    logging: *log_fluentd
-
-  server-scala-stateless-akka:
-    image: ghcr.io/jokester/fullstack-playground-server-scala:sha-015e0ea
-    command:
-      - /srv/stateless-akka-http-current/bin/stateless-akka-http
-    ports:
-      - 61082:8080
-    restart: on-failure
-    logging: *log_fluentd
