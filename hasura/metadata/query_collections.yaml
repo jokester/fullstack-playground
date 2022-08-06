@@ -2,8 +2,8 @@
 - name: allowed-queries
   definition:
     queries:
-    - :name: query3c602f81efce2852ad91d3f48afa9505
-      :query: |
+    - name: query3c602f81efce2852ad91d3f48afa9505
+      query: |
         subscription graphTodoApiListTodoSubscription {
           todos {
             todo_id
@@ -14,8 +14,8 @@
             updated_at
           }
         }
-    - :name: query7050681da1c3775b6302144a72116e9b
-      :query: |
+    - name: query7050681da1c3775b6302144a72116e9b
+      query: |
         query graphUserTodoApiListMyTodosQuery(
           $userId: Int!
         ) {
@@ -33,8 +33,8 @@
             updated_at
           }
         }
-    - :name: query8893981886a5ab571c62118acb65d467
-      :query: |
+    - name: query8893981886a5ab571c62118acb65d467
+      query: |
         query graphTodoApiListTodoQuery {
           todos {
             todo_id

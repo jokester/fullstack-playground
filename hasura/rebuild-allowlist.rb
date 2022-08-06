@@ -11,8 +11,8 @@ class HasuraMetadataEditor
     @hasura_config_root = hasura_config_root
     @api_spec_root = api_spec_root
 
-    @allow_list = YAML.load hasura_allowlist_file.read
-    @query_collections = YAML.load hasura_query_collection_file.read
+    @allow_list = YAML.safe_load hasura_allowlist_file.read
+    @query_collections = YAML.safe_load(hasura_query_collection_file.read, permitted_classes: [Symbol])
     @exported_queries = JSON.load graphql_query_file.read
   end
 
@@ -23,7 +23,9 @@ class HasuraMetadataEditor
       fail "collection 'allowed-queries' not found"
     end
 
-    allowed_queries['definition']['queries'] = @exported_queries.map{|hash, query| {name: "query#{hash}", query: query}}
+    allowed_queries['definition']['queries'] = @exported_queries.map{|hash, query| {'name'=>"query#{hash}", 'query'=>query}}
+
+    pp allowed_queries
 
     hasura_query_collection_file.write YAML.dump(@query_collections)
   end
