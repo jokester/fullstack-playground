@@ -1,6 +1,4 @@
 /data-pgsql
 /data-hasura
-/.idea
-*.iml
-/project
-/target
+.idea
+node_modules

@@ -4,7 +4,7 @@ module.exports = {
   extends: [
     './node_modules/gts/',
     'plugin:react/recommended',
-    'eslint:recommended', // not enabling: it reports many TS idioms as error
+    // "eslint:recommended", // not enabling: it reports many TS idioms as error
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     // "plugin:@typescript-eslint/recommended-requiring-type-checking", // cant find for unknonw reason
@@ -38,6 +38,15 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 0,
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
+    'no-inner-declarations': 'warn',
+    'node/no-extraneous-import': 0,
+    'no-useless-escape': 'warn',
+    'no-constant-condition': 'warn',
+    'no-irregular-whitespace': 'warn',
+    'no-empty': 0,
+    'node/no-extraneous-require': 0,
+    'node/no-unpublished-require': 0,
+    'no-control-regex': 'warn',
   },
   settings: {
     react: {

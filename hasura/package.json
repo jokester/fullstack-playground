@@ -3,12 +3,9 @@
   "version": "0.1.0",
   "description": "hasura / GraphQL data and scripts",
   "license": "MIT",
-  "private": true,
   "scripts": {
-    "console": "hasura console"
+    "hasura": "hasura"
   },
   "dependencies": {
-    "graphqurl": "^1.0.1",
-    "hasura-cli": "^2.9.0"
   }
 }
