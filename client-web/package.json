@@ -20,15 +20,18 @@
     "lint:fix": "eslint --fix '**/*.@(ts|js|tsx|jsx)'"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.2.3",
-    "@emotion/react": "^11.9.3",
-    "@emotion/styled": "^11.9.3",
+    "@chakra-ui/react": "^2.2.6",
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
     "@jokester/ts-commonutil": "^0.3.5",
-    "@next/bundle-analyzer": "^12.2.2",
+    "classnames": "^2.3.1",
+    "date-fns": "^2.28.0",
+    "debug": "^4.3.4",
     "fp-ts": "<3",
-    "framer-motion": "^6",
-    "next": "^12.2.2",
-    "next-compose-plugins": "^2.2.1",
+    "framer-motion": "^7.0.0",
+    "immer": "^9.0.15",
+    "lodash-es": "^4.17.21",
+    "next": "^12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-relay": "^14.0.0",
@@ -41,8 +44,11 @@
     "use-constant": "^1.1.0"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^12",
+    "@types/debug": "^4.1.7",
     "@types/jest": "^28",
-    "@types/node": "18",
+    "@types/lodash-es": "^4.17.6",
+    "@types/node": "^16",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@types/react-relay": "^13.0.2",
@@ -55,18 +61,21 @@
     "gts": "^3.1.0",
     "jest": "^28",
     "next-transpile-modules": "^9.0.0",
+    "postcss": "^8.4.14",
     "relay-compiler": "^14.0.0",
     "relay-compiler-language-typescript": "^15.0.1",
     "relay-config": "^12.0.1",
     "sass": "^1.53.0",
+    "tailwindcss": "^3.1.4",
     "ts-jest": "^28",
     "typescript": "^4.7"
   },
   "resolutions": {
-    "@types/node": "18",
+    "@types/node": "=16",
     "tslib": "^2"
   },
   "engines": {
-    "node": "^12 || ^14 || ^16 || ^18"
+    "node": ">=16",
+    "npm": ">=8"
   }
 }
