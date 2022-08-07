@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: fullstack-playground
+resources: []
+
+images:
+- name: fluent/fluent-bit
+  newTag: "1.9"
+
+configMapGenerator:
+- name: hasura-metadata
+  files:
+  - metadata=../hasura/metadata
