@@ -77,5 +77,16 @@
   "engines": {
     "node": ">=16",
     "npm": ">=8"
-  }
+  },
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jokester/fullstack-playground.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jokester/fullstack-playground/issues"
+  },
+  "homepage": "https://github.com/jokester/fullstack-playground#readme",
+  "description": ""
 }

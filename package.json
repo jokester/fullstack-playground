@@ -1,0 +1,29 @@
+{
+  "name": "fullstack-playground",
+  "version": "0.1.0",
+  "description": "---",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jokester/fullstack-playground.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jokester/fullstack-playground/issues"
+  },
+  "homepage": "https://github.com/jokester/fullstack-playground#readme",
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.1",
+    "graphqurl": "^1.0.1",
+    "hasura-cli": "^2.9.0"
+  },
+  "workspaces": [
+    "client-web",
+    "hasura",
+    "scripts"
+  ]
+}

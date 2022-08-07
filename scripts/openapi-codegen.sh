@@ -13,17 +13,17 @@ generate-web () {
   local GENERATED_ROOT="$2"
   rm -rf $GENERATED_ROOT && mkdir -pv $GENERATED_ROOT
 
-  yarn openapi-generator-cli generate \
+  npm run openapi-generator-cli generate \
       -g typescript-fetch             \
       -i "$OPENAPI_YAML"    \
       -c ./ts-fetch-options.json      \
       -o "$GENERATED_ROOT"
 
   pushd "$CLIENT_ROOT"
-  yarn prettier --write "$GENERATED_ROOT"
+  npm run prettier --write "$GENERATED_ROOT"
   popd
 }
 
-yarn
+npm i
 generate-web "$SPEC_DIR/todo-api.yaml" "$CLIENT_ROOT/src/todo-app-v1/generated"
 generate-web "$SPEC_DIR/user-todo-api.yaml" "$CLIENT_ROOT/src/todo-app-v2/generated"
