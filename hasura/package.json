@@ -7,5 +7,9 @@
     "hasura": "hasura"
   },
   "dependencies": {
+  },
+  "devDependencies": {
+    "graphqurl": "^1.0.1",
+    "hasura-cli": "^2.9.0"
   }
 }

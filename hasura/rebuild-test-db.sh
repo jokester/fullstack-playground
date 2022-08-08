@@ -16,5 +16,5 @@ END
 
   cat ./migrations/default/*/up.sql # in hopefully time-correct alphanum order
 
-} | ../scripts/pg-psql.sh postgres --echo-all
+} | ../dev/pg-psql.sh postgres --echo-all
 
