@@ -1,6 +1,5 @@
 import React from 'react';
 import Document, { Html, Main, NextScript, Head } from 'next/document';
-import { fontawesomeCss } from '@jokester/ts-commonutil/lib/react/component/font-awesome';
 
 export default class CustomDocument extends Document {
   render(): React.ReactElement {
@@ -14,7 +13,6 @@ export default class CustomDocument extends Document {
             integrity="sha256-KwBcfPYYUP4pXG0aiIA8nTSuAqRzRWdtoHQktxvMVf4="
             crossOrigin="anonymous"
           />
-          {fontawesomeCss}
         </Head>
         <body>
           <Main />
