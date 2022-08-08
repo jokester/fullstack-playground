@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabList, TabPanels, Tab, TabPanel, Heading } from '@chakra-ui/react';
 import { UserTodoApp } from '../../src/todo-app-v2/user-todo-app';
-import { useInServer } from '../../src/utils/hooks/use-in-server';
+import { useInServer } from '@jokester/ts-commonutil/lib/react/hook/use-in-server';
 
 const TodoListPage: React.FC = () => {
   const inServer = useInServer();

@@ -10,14 +10,15 @@
     "skipLibCheck": true,
     "typeRoots": [
       "typings",
-      "node_modules/@types"
+      "node_modules/@types",
+      "../node_modules/@types"
     ],
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "incremental": true,
+    "incremental": true
   },
   "exclude": [
     "node_modules",
