@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
+import { useInServer } from '@jokester/ts-commonutil/lib/react/hook/use-in-server';
 import { CredApi, useCredStorage } from './use-user-cred';
 import { useUserAuthApi } from './use-user-auth-api';
 import { Button, Checkbox } from '@chakra-ui/react';
@@ -9,6 +10,11 @@ import { useUserTodoGqlApi } from './user-todo-gql-api';
 export const UserTodoApp: FC = () => {
   const credApi = useCredStorage();
   const cred = credApi.getCurrent();
+  const inServer = useInServer();
+
+  if (inServer) {
+    return null;
+  }
 
   return (
     <div>

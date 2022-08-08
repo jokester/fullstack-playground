@@ -1,6 +1,5 @@
 import React from 'react';
-import { LinkA } from '@jokester/ts-commonutil/lib/react/next/link-a';
-import { FaIcon } from '@jokester/ts-commonutil/lib/react/component/font-awesome';
+import { FaIcon, LinkA } from '../src/components/dummy/reexported-esm';
 
 const IndexPage: React.FC = () => {
   return (
