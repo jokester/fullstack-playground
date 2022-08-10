@@ -14,7 +14,7 @@ set -uex
 
 END
 
-  cat ./migrations/default/*/up.sql # in hopefully time-correct alphanum order
+  cat ../hasura/migrations/default/*/up.sql # in hopefully time-correct alphanum order
 
-} | ../scripts/pg-psql.sh postgres --echo-all
+} | ./pg-psql.sh postgres --echo-all
 

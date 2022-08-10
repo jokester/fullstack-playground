@@ -50,11 +50,6 @@ services:
       HASURA_GRAPHQL_EVENTS_FETCH_INTERVAL: "600000" # not using events anyway
       HASURA_GRAPHQL_SCHEMA_SYNC_POLL_INTERVAL: '0' # not storing metadata in kvs
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
-      HASURA_GRAPHQL_JWT_SECRET: |
-        {
-          "type": "HS256",
-          "key": "jwtSecretLongEnough-b0af-85775b1d8cca"
-        }
       HASURA_GRAPHQL_DEV_MODE: 'true'
       HASURA_GRAPHQL_ADMIN_INTERNAL_ERRORS: 'true'
     # volumes: [] # no volumes: persisted data should be created in console and source-managed
@@ -66,25 +61,3 @@ services:
     depends_on:
       pgsql:
         condition: service_healthy
-
-  hasura-hardened:
-    <<: *hasura-base
-    environment: # see https://hasura.io/docs/latest/graphql/core/deployment/graphql-engine-flags/reference/
-      HASURA_GRAPHQL_DATABASE_URL: postgres://pguser:secret@pgsql:5432/playground
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
-      HASURA_GRAPHQL_ADMIN_SECRET: 'super_secret_admin_secret'
-      HASURA_GRAPHQL_EVENTS_FETCH_INTERVAL: "600000" # not using events anyway
-      HASURA_GRAPHQL_SCHEMA_SYNC_POLL_INTERVAL: '0' # not storing metadata in kvs
-      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: guest
-      # see https://hasura.io/docs/latest/auth/authentication/jwt/
-      HASURA_GRAPHQL_ENABLE_ALLOWLIST: 'true'
-      HASURA_GRAPHQL_JWT_SECRET: |
-        {
-          "type": "HS256",
-          "key": "jwtSecretLongEnough-b0af-85775b1d8cca"
-        }
-    volumes: # see https://hasura.io/docs/latest/migrations-metadata-seeds/auto-apply-migrations/
-      - ./hasura/migrations:/hasura-migrations:ro
-      - ./hasura/metadata:/hasura-metadata:ro
-    ports:
-      - 62080:8080

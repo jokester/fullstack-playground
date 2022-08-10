@@ -1,6 +1,5 @@
 import React from 'react';
-import { FaIcon } from '../src/components/fa-icon';
-import { LinkA } from '../src/components/link-a';
+import { FaIcon, LinkA } from '../src/components/dummy/reexported-esm';
 
 const IndexPage: React.FC = () => {
   return (

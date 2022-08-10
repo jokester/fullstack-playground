@@ -59,7 +59,10 @@ module.exports = (phase, { defaultConfig }) => {
     merged = require('@next/bundle-analyzer')({ enabled: true, openAnalyzer: false })(merged);
   }
 
-  merged = require('next-transpile-modules')(['lodash-es'])(merged);
+  merged = require('next-transpile-modules')(
+    ['lodash-es', /* required to transpile .jsx in node_modules*/ '@jokester/ts-commonutil'],
+    { debug: false },
+  )(merged);
 
   return merged;
 };

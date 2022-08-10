@@ -1,14 +1,15 @@
-package io.jokester.http_api
+package io.jokester.api
 
+import cats.syntax.either._
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import cats.syntax.either._
-import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim, Jwt}
+import io.jokester.api.OpenAPIConvention
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 
 import java.time.Instant
 import scala.util.{Success, Try}
-import OpenAPIConvention.{Failable, BadRequest, Unauthorized}
+import io.jokester.api.OpenAPIConvention._
 
 object JwtAuthConvention {
 

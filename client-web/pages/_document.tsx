@@ -13,14 +13,6 @@ export default class CustomDocument extends Document {
             integrity="sha256-KwBcfPYYUP4pXG0aiIA8nTSuAqRzRWdtoHQktxvMVf4="
             crossOrigin="anonymous"
           />
-
-          <link
-            key="css-fontawesome4"
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
-            integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0="
-            crossOrigin="anonymous"
-          />
         </Head>
         <body>
           <Main />

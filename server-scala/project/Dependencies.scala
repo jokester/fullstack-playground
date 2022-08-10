@@ -9,7 +9,7 @@ object Dependencies {
     "ch.qos.logback"              % "logback-classic" % "1.3.0-alpha10", // this provides SLF4J backend
      "commons-logging" % "commons-logging" % "1.2",
     // config
-    "com.typesafe" % "config" % "1.4.1",
+    "com.typesafe" % "config" % "1.4.2",
   )
   lazy val akkaDeps: Seq[ModuleID] = Seq(
     // akka
@@ -29,7 +29,7 @@ object Dependencies {
     "io.circe" %% "circe-parser",
   ).map(_ % Versions.circe)
 
-  lazy val utilDeps: Seq[ModuleID] = Seq(
+  lazy val authDeps: Seq[ModuleID] = Seq(
     "org.springframework.security" % "spring-security-crypto" % Versions.spring,
   )
 
@@ -69,6 +69,9 @@ object Dependencies {
     "com.github.javafaker" % "javafaker"        % "1.0.2",
   ).map(_ % Test)
 
+  /**
+    * @deprecated
+    */
   lazy val buildDeps: Seq[ModuleID] = Seq.empty
 }
 
@@ -85,12 +88,12 @@ private object Versions {
 
   // rdbms
   val postgresql  = "42.3.6"
-  val quill       = "3.18.0"
+  val quill       = "3.19.0"
   val scalikeJDBC = "3.5.0"
   val flyway      = "8.0.2"
 
   // utils
-  val spring = "5.7.1"
+  val spring = "5.7.2"
 
   // testing
   val scalaTest               = "3.2.12"

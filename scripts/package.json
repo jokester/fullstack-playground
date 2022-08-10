@@ -2,5 +2,8 @@
   "scripts": {
     "openapi-generator-cli":     "openapi-generator-cli"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.1"
+  }
 }
